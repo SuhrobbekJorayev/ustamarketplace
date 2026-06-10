@@ -26,7 +26,6 @@ from rest_framework_simplejwt.views import (
 )
 from jobs.views import RegisterAPIView
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('jobs.urls')),
