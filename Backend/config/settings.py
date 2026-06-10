@@ -149,7 +149,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-CORS_ALLOW_ALL_ORIGINS = [
+CORS_ALLOWED_ORIGIN = [
     'https://ustamarketplace.netlify.app',
 ]
 
