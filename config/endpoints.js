@@ -1,5 +1,5 @@
 // Frontend/config/endpoints.js
-const BASE_URL = "http://127.0.0.1:8000/api/v1";
+const BASE_URL = "https://ustamarketplace.onrender.com/api/v1";
 
 async function getAuthHeaders() {
     let token = localStorage.getItem("access");
