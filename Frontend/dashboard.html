@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shaxsiy Kabinet - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Shaxsiy yulduzchali reyting uslublari */
+        .rating-stars {
+            direction: rtl;
+            display: inline-block;
+        }
+        .rating-stars input { display: none; }
+        .rating-stars label {
+            font-size: 2.2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.15s ease-in-out;
+        }
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label,
+        .rating-stars input:checked ~ label {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark shadow mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
+            <div>
+                <span class="navbar-text text-white fw-bold me-3" id="user-welcome">@yuklanmoqda...</span>
+                <button class="btn btn-sm btn-outline-danger" onclick="logout()">Chiqish</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div id="client-panel" class="card shadow-sm border-0 border-start border-primary border-4 d-none mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <span class="fw-bold text-primary fs-5">👤 Mening Buyurtmalarim</span>
+                <select id="client-order-sort" class="form-select form-select-sm" style="max-width: 200px;" onchange="loadClientOrders()">
+                    <option value="-id">Yangi buyurtmalar birinchi</option>
+                    <option value="id">Eski buyurtmalar birinchi</option>
+                    <option value="status">Status bo'yicha</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead>
+                            <tr>
+                                <th>Buyurtma ID</th>
+                                <th>Xizmat</th>
+                                <th>Holati</th>
+                                <th>Amal / Sharh</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-orders-tbody">
+                            <tr><td colspan="4" class="text-center text-muted">Yuklanmoqda...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <nav><ul class="pagination justify-content-center pagination-sm" id="client-pagination"></ul></nav>
+            </div>
+        </div>
+
+        <div id="worker-panel" class="d-none">
+            
+            <div class="card shadow-sm border-0 border-start border-success border-4 mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <span class="fw-bold text-success fs-5">📂 Mening Xizmatlarim</span>
+                    <button class="btn btn-sm btn-success fw-bold" onclick="openServiceModal()">+ Yangi Xizmat Qo'shish</button>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="worker-my-services-container"></div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 border-start border-warning border-4 mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <span class="fw-bold text-warning fs-5">📥 Menga Kelgan Buyurtmalar</span>
+                    <select id="worker-order-sort" class="form-select form-select-sm" style="max-width: 200px;" onchange="loadWorkerOrders()">
+                        <option value="-id">Yangi kelganlar birinchi</option>
+                        <option value="id">Eski kelganlar birinchi</option>
+                        <option value="status">Status bo'yicha</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Buyurtma ID</th>
+                                    <th>Mijoz</th>
+                                    <th>Xizmat</th>
+                                    <th>Holati</th>
+                                    <th>Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="worker-orders-tbody">
+                                <tr><td colspan="5" class="text-center text-muted">Yuklanmoqda...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav><ul class="pagination justify-content-center pagination-sm" id="worker-pagination"></ul></nav>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="viewServiceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold" id="view-service-title">Xizmat nomi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold text-dark">Xizmat tavsifi:</span>
+                        <span id="view-service-price" class="badge bg-success fs-6">0 so'm</span>
+                    </div>
+                    <div class="p-3 bg-light rounded text-secondary mb-3" id="view-service-desc" style="white-space: pre-line;"></div>
+                    
+                    <label class="fw-bold text-dark mb-2">💬 Mijozlar fikrlari:</label>
+                    <div id="view-service-reviews" class="list-group list-group-flush border-top">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Yangi Xizmat Yaratish</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="service-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Xizmat nomi</label>
+                            <input type="text" id="service-name" class="form-control" required placeholder="Masalan: Professional Elektrik">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategoriya</label>
+                            <select id="service-category" class="form-select" required>
+                                <option value="">Kategoriyani tanlang...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Narxi (so'mda)</label>
+                            <input type="number" id="service-price" class="form-control" required placeholder="100000">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Batafsil tavsif</label>
+                            <textarea id="service-desc" class="form-control" rows="3" placeholder="Xizmat haqida ma'lumot..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                        <button type="submit" class="btn btn-success fw-bold">Xizmatni Saqlash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">🌟 Xizmat sifatini baholang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="review-form" onsubmit="submitReview(event)">
+                    <div class="modal-body text-center">
+                        <input type="hidden" id="review-order-id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label d-block fw-bold text-secondary">Ushbu xizmatga necha yulduz berasiz?</label>
+                            <div class="rating-stars">
+                                <input type="radio" id="star5" name="dashboard-rating" value="5" required/><label for="star5">★</label>
+                                <input type="radio" id="star4" name="dashboard-rating" value="4"/><label for="star4">★</label>
+                                <input type="radio" id="star3" name="dashboard-rating" value="3"/><label for="star3">★</label>
+                                <input type="radio" id="star2" name="dashboard-rating" value="2"/><label for="star2">★</label>
+                                <input type="radio" id="star1" name="dashboard-rating" value="1"/><label for="star1">★</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-secondary">Fikr-mulohaza yoki izohingiz:</label>
+                            <textarea id="review-text" class="form-control" rows="3" placeholder="Usta o'z ishini o'z vaqtida va sifatli bajardimi?..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                        <button type="submit" class="btn btn-warning fw-bold">Sharhni Yuborish</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config/endpoints.js"></script>
+    <script>
+        const currentUserId = localStorage.getItem("user_id");
+        const currentUsername = localStorage.getItem("username");
+        let currentUserRole = localStorage.getItem("user_role") || null;
+
+        async function getCustomHeaders() {
+            if (typeof getAuthHeaders === "function") {
+                return await getAuthHeaders();
+            }
+            return {
+                "Authorization": `Bearer ${localStorage.getItem("access")}`,
+                "Content-Type": "application/json"
+            };
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (!localStorage.getItem("access")) {
+                window.location.href = "login.html";
+                return;
+            }
+            if (currentUsername) {
+                document.getElementById("user-welcome").innerText = `@${currentUsername} (${currentUserRole === 'worker' ? 'Usta' : 'Mijoz'})`;
+            }
+            await loadDashboard();
+        });
+
+        async function loadDashboard() {
+            if (currentUserRole === "worker") {
+                document.getElementById("worker-panel").classList.remove("d-none");
+                await loadWorkerServices();
+                await loadWorkerOrders();
+                await loadCategoriesForService();
+            } else {
+                document.getElementById("client-panel").classList.remove("d-none");
+                await loadClientOrders();
+            }
+        }
+
+        // ================= 👤 MIJOZ FUNKSIYALARI =================
+        async function loadClientOrders(customUrl = null) {
+            try {
+                const headers = await getCustomHeaders();
+                const orderField = document.getElementById("client-order-sort").value;
+                const url = customUrl || `${API.orders}?ordering=${orderField}`;
+
+                const [ordersRes, reviewsRes] = await Promise.all([
+                    fetch(url, { headers }),
+                    fetch(API.reviews)
+                ]);
+
+                if (!ordersRes.ok) throw new Error("Buyurtmalarni yuklab bo'lmadi");
+
+                const ordersData = await ordersRes.json();
+                const reviewsData = reviewsRes.ok ? await reviewsRes.json() : [];
+
+                const orders = ordersData.results || ordersData || [];
+                const allReviews = reviewsData.results || reviewsData || []; 
+
+                const tbody = document.getElementById("client-orders-tbody");
+                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="4" class="text-center text-muted">Sizda hali buyurtmalar yo'q.</td></tr>`;
+
+                orders.forEach(order => {
+                    let actionCell = "";
+                    const statusLower = order.status.toLowerCase();
+                    const serviceName = order.service_name || "Noma'lum Xizmat";
+
+                    const isAlreadyReviewed = allReviews.some(r => parseInt(r.order) === parseInt(order.id));
+
+                    if (statusLower === "completed") {
+                        if (isAlreadyReviewed) {
+                            actionCell = `
+                                <button class="btn btn-sm btn-light text-success border-success" disabled style="cursor: not-allowed;">
+                                    ✓ Sharh yozgansiz
+                                </button>
+                            `;
+                        } else {
+                            actionCell = `<button class="btn btn-sm btn-warning fw-bold shadow-sm" onclick="openReviewModal(${order.id})">⭐ Sharh yozish</button>`;
+                        }
+                    } else if (statusLower === "pending" || statusLower === "accepted") {
+                        actionCell = `<button class="btn btn-sm btn-outline-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>`;
+                    } else {
+                        actionCell = `<span class="text-muted small text-capitalize">${order.status}</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">#${order.id}</td>
+                            <td class="fw-semibold text-dark">🛠 ${serviceName}</td>
+                            <td><span class="badge bg-info text-dark text-capitalize">${order.status}</span></td>
+                            <td>${actionCell}</td>
+                        </tr>
+                    `;
+                });
+
+                renderPaginationButtons("client-pagination", ordersData.previous, ordersData.next, loadClientOrders);
+            } catch (err) { console.error(err); }
+        }
+
+        // ================= 🛠 USTA FUNKSIYALARI =================
+        async function loadWorkerServices() {
+            try {
+                const container = document.getElementById("worker-my-services-container");
+                container.innerHTML = "<div class='text-center text-muted py-4'>Xizmatlaringiz yuklanmoqda...</div>";
+
+                const res = await fetch(API.services);
+                if (!res.ok) throw new Error("Backend javob bermadi");
+                
+                const data = await res.json();
+                const services = data.results || data || [];
+
+                const myServices = services.filter(s => String(s.worker) === String(currentUserId));
+
+                if (myServices.length === 0) {
+                    container.innerHTML = `<div class="col-12 text-center text-muted py-3">Siz hali xizmat yaratmagansiz.</div>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                myServices.forEach(s => {
+                    const avgRating = parseFloat(s.average_rating) || 0;
+                    const reviewsCount = parseInt(s.reviews_count) || 0;
+                    let ratingHTML = "";
+
+                    if (reviewsCount > 0) {
+                        let stars = "★".repeat(Math.round(avgRating)) + "☆".repeat(5 - Math.round(avgRating));
+                        ratingHTML = `
+                            <div class="mb-2 small d-flex align-items-center">
+                                <span class="text-warning me-1">${stars}</span>
+                                <span class="text-muted fw-bold">${avgRating.toFixed(1)} (${reviewsCount} ta fikr)</span>
+                            </div>`;
+                    } else {
+                        ratingHTML = `<div class="mb-2 small text-muted">☆☆☆☆☆ (Sharhlar yo'q)</div>`;
+                    }
+
+                    const fullDesc = s.description || 'Tavsif berilmagan';
+                    const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
+                    
+                    const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
+
+                    container.innerHTML += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold text-primary mb-1">${s.name}</h5>
+                                    
+                                    ${ratingHTML}
+                                    
+                                    <p class="text-secondary small mb-0">${shortDesc}</p>
+                                    <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-2 d-block text-start" 
+                                        onclick="openWorkerServiceDetailModal('${s.name}', \`${safeDesc}\`, ${s.price}, ${s.id})">
+                                        Batafsil ko'rish →
+                                    </button>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center pt-0 pb-3 px-3">
+                                    <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
+                                    <span class="text-muted small">Sizning xizmatingiz</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error("loadWorkerServices xatosi:", err);
+                document.getElementById("worker-my-services-container").innerHTML = `
+                    <div class="col-12 text-center text-danger py-3">Xizmatlarni yuklashda xatolik yuz berdi.</div>
+                `;
+            }
+        }
+
+        async function loadWorkerOrders(customUrl = null) {
+            try {
+                const headers = await getCustomHeaders();
+                const orderField = document.getElementById("worker-order-sort").value;
+                const url = customUrl || `${API.orders}?ordering=${orderField}`;
+
+                const res = await fetch(url, { headers });
+                const data = await res.json();
+                const orders = data.results || data || []; 
+
+                const tbody = document.getElementById("worker-orders-tbody");
+                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="5" class="text-center text-muted">Sizga kelgan buyurtmalar yo'q.</td></tr>`;
+
+                orders.forEach(order => {
+                    let actionButtons = "";
+                    const statusLower = order.status.toLowerCase();
+                    const clientName = order.client || "Noma'lum";
+                    const serviceName = order.service_name || "Noma'lum";
+
+                    if (statusLower === "pending") {
+                        actionButtons = `
+                            <button class="btn btn-sm btn-success me-1 fw-bold" onclick="updateOrderStatus(${order.id}, 'accepted')">Qabul qilish</button>
+                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Rad etish</button>
+                        `;
+                    } else if (statusLower === "accepted") {
+                        actionButtons = `
+                            <button class="btn btn-sm btn-primary fw-bold" onclick="updateOrderStatus(${order.id}, 'completed')">Tugatildi</button>
+                            <button class="btn btn-sm btn-danger ms-1 fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>
+                        `;
+                    } else {
+                        actionButtons = `<span class="text-muted small text-capitalize">${order.status}</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">#${order.id}</td>
+                            <td class="text-dark fw-semibold">👤 ${clientName}</td>
+                            <td class="text-secondary">🛠 ${serviceName}</td>
+                            <td><span class="badge bg-secondary text-capitalize">${order.status}</span></td>
+                            <td>${actionButtons}</td>
+                        </tr>
+                    `;
+                });
+
+                renderPaginationButtons("worker-pagination", data.previous, data.next, loadWorkerOrders);
+            } catch (err) { console.error(err); }
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const headers = await getCustomHeaders();
+                const res = await fetch(`${API.orders}${orderId}/`, {
+                    method: "PATCH",
+                    headers: headers,
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    alert(`Buyurtma holati o'zgartirildi: ${newStatus}`);
+                    if (currentUserRole === "worker") {
+                        await loadWorkerOrders();
+                    } else {
+                        await loadClientOrders();
+                    }
+                } else {
+                    const errData = await res.json();
+                    alert("Xatolik: " + JSON.stringify(errData));
+                }
+            } catch (err) { 
+                console.error(err);
+                alert("Server bilan bog'lanishda xatolik!"); 
+            }
+        }
+
+        function renderPaginationButtons(containerId, prevUrl, nextUrl, callbackName) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+
+            if (!prevUrl && !nextUrl) return; 
+
+            const prevLi = document.createElement("li");
+            prevLi.className = `page-item ${prevUrl ? "" : "disabled"}`;
+            prevLi.innerHTML = `<button class="page-link">« Orqaga</button>`;
+            if (prevUrl) prevLi.querySelector('button').onclick = () => callbackName(prevUrl);
+            container.appendChild(prevLi);
+
+            container.innerHTML += `<li class="page-item disabled"><span class="page-link text-dark">Sahifa</span></li>`;
+
+            const nextLi = document.createElement("li");
+            nextLi.className = `page-item ${nextUrl ? "" : "disabled"}`;
+            nextLi.innerHTML = `<button class="page-link">Oldinga »</button>`;
+            if (nextUrl) nextLi.querySelector('button').onclick = () => callbackName(nextUrl);
+            container.appendChild(nextLi);
+        }
+
+        function openServiceModal() {
+            document.getElementById("service-form").reset();
+            new bootstrap.Modal(document.getElementById('serviceModal')).show();
+        }
+
+        async function loadCategoriesForService() {
+            try {
+                const res = await fetch(API.categories);
+                const data = await res.json();
+                const select = document.getElementById("service-category");
+                select.innerHTML = '<option value="">Kategoriyani tanlang...</option>';
+                const list = data.results || data || [];
+                list.forEach(c => { select.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById("service-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try {
+                const headers = await getCustomHeaders();
+                const res = await fetch(API.services, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({
+                        name: document.getElementById("service-name").value,
+                        category: parseInt(document.getElementById("service-category").value),
+                        price: parseFloat(document.getElementById("service-price").value),
+                        description: document.getElementById("service-desc").value,
+                        worker: parseInt(currentUserId)
+                    })
+                });
+                if (res.ok) {
+                    alert("Yangi xizmat qo'shildi!");
+                    bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
+                    await loadWorkerServices(); 
+                } else { alert("Xatolik yuz berdi."); }
+            } catch (err) { alert("Xatolik!"); }
+        });
+
+        function openReviewModal(orderId) {
+            document.getElementById("review-form").reset();
+            document.getElementById("review-order-id").value = orderId;
+            new bootstrap.Modal(document.getElementById('reviewModal')).show();
+        }
+
+        async function submitReview(event) {
+            event.preventDefault();
+            try {
+                const headers = await getCustomHeaders();
+                const orderId = document.getElementById("review-order-id").value;
+                const textComment = document.getElementById("review-text").value;
+                
+                const activeRating = document.querySelector('input[name="dashboard-rating"]:checked');
+                if (!activeRating) {
+                    alert("Iltimos, yulduzchalardan birini tanlang!");
+                    return;
+                }
+                const ratingValue = activeRating.value;
+
+                const res = await fetch(API.reviews, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({
+                        order: parseInt(orderId),
+                        rating: parseInt(ratingValue),
+                        comment: textComment,
+                        text: textComment     
+                    })
+                });
+
+                if (res.ok) {
+                    alert("Sharhingiz muvaffaqiyatli qabul qilindi!");
+                    bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+                    await loadClientOrders(); 
+                } else { 
+                    const errData = await res.json();
+                    alert("Xatolik yuz berdi: " + JSON.stringify(errData)); 
+                }
+            } catch (err) { 
+                console.error(err);
+                alert("Xatolik yuz berdi! Tizim sozlamalarini tekshiring."); 
+            }
+        }
+
+        function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+        // ================= 🛠 TUZATILDI: USTA UCHUN SHARHLARNI YUKLOVCHI TO'LIQ MODAL FUNKSIYASI =================
+        // ================= BACKENDSIZ ISHLAYDIGAN TO'LIQ MODAL KODI =================
+async function openWorkerServiceDetailModal(name, desc, price, serviceId) {
+    document.getElementById("view-service-title").innerText = name;
+    document.getElementById("view-service-desc").innerText = desc;
+    document.getElementById("view-service-price").innerText = parseFloat(price).toLocaleString() + " so'm";
+
+    const reviewsContainer = document.getElementById("view-service-reviews");
+    reviewsContainer.innerHTML = `<p class="text-muted small text-center py-3">Sharhlar yuklanmoqda...</p>`;
+
+    // Modalni ochish
+    const modalInstance = new bootstrap.Modal(document.getElementById('viewServiceModal'));
+    modalInstance.show();
+
+    try {
+        const headers = await getCustomHeaders();
+        const res = await fetch(API.reviews, { headers });
+        
+        if (res.ok) {
+            const data = await res.json();
+            
+            // Backenddan kelgan 'results' massivini olamiz
+            const serviceReviews = data.results || []; 
+
+            reviewsContainer.innerHTML = "";
+
+            if (serviceReviews.length === 0) {
+                reviewsContainer.innerHTML = `<p class="text-muted small text-center py-3">Hali fikr bildirilmagan.</p>`;
+            } else {
+                // Filtrlamasdan, bor sharhlarni ekranga chiqaramiz
+                serviceReviews.forEach(r => {
+                    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+                    
+                    // Backend'dan kelayotgan aniq kalitlar: client_name va comment
+                    const clientName = r.client_name || "Mijoz";
+                    const commentText = r.comment || "Izoh qoldirilmagan";
+
+                    reviewsContainer.innerHTML += `
+                        <div class="list-group-item px-0 py-2 bg-transparent border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold small text-dark">👤 ${clientName}</span>
+                                <span class="text-warning small">${stars}</span>
+                            </div>
+                            <p class="text-secondary small mb-0" style="font-style: italic;">"${commentText}"</p>
+                        </div>
+                    `;
+                });
+            }
+        } else {
+            reviewsContainer.innerHTML = `<p class="text-danger small text-center py-3">Sharhlarni yuklab bo'lmadi.</p>`;
+        }
+    } catch (err) {
+        console.error("Xatolik:", err);
+        reviewsContainer.innerHTML = `<p class="text-danger small text-center py-3">Tizim xatoligi yuz berdi.</p>`;
+    }
+}
+    </script>
+</body>
+</html>
