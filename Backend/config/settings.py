@@ -152,7 +152,8 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'https://ustamarketplace.netlify.app',
+    "https://ustamarketplace-frontend.onrender.com",
+    # 'https://ustamarketplace.netlify.app'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
