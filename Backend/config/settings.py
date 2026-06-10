@@ -150,7 +150,7 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = [
-    'https://ustamarketplace.netlify.app/',
+    'https://ustamarketplace.netlify.app',
 ]
 
 REST_FRAMEWORK = {
