@@ -153,10 +153,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "https://ustamarketplace-frontend.onrender.com",
-    # 'https://ustamarketplace.netlify.app'
 ]
-
-CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
