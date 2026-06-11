@@ -501,17 +501,6 @@
             }
         });
 
-        // 🌟 FUNKSIYA 3: PROFILNI YANGILASH (PATCH) FORM SUBMIT
-        document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem("access");
-            const currentUserId = localStorage.getItem("user_id");
-            if (!token || !currentUserId) return;
-
-            const updatedData = {
-                phone_number: document.getElementById("edit-phone").value,
-            };
-
             // Agar usta rejimida inputlar ko'rinib turgan bo'lsa, ularni ham obyekt qilib qo'shamiz
             const extraFields = document.getElementById("worker-extra-fields");
             if (!extraFields.classList.contains('d-none')) {
