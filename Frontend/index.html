@@ -68,7 +68,8 @@
                 <div class="modal-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="text-success fw-bold mb-0" id="detail-price">0 so'm</h5>
-                        <div id="detail-avg-rating"></div> </div>
+                        <div id="detail-avg-rating"></div> 
+                    </div>
                     
                     <label class="fw-bold text-dark mb-1">Xizmat haqida to'liq tavsif:</label>
                     <div class="p-3 bg-light rounded text-secondary mb-4" id="detail-desc" style="white-space: pre-line;"></div>
@@ -78,6 +79,59 @@
                 </div>
                 <div class="modal-footer" id="detail-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="workerProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Usta Profili</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center" id="worker-profile-content">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Profil sozlamalari</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profile-edit-form">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Username</label>
+                            <input type="text" id="edit-username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Telefon raqam</label>
+                            <input type="text" id="edit-phone" class="form-control" required>
+                        </div>
+                        
+                        <div id="worker-extra-fields" class="d-none">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Tajriba (Yil)</label>
+                                <input type="number" id="edit-experience" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Manzil</label>
+                                <input type="text" id="edit-location" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Men haqimda (Bio)</label>
+                                <textarea id="edit-bio" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mt-2">O'zgarishlarni saqlash</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -107,11 +161,13 @@
             await fetchServices(currentUrl); 
         });
 
+        // Navbarga "Profilim" tugmasi dinamik qo'shildi
         function renderNavbar() {
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
             if (token) {
                 nav.innerHTML = `
+                    <li class="nav-item"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 Profilim</button></li>
                     <li class="nav-item"><a class="nav-link btn btn-sm btn-outline-light me-2 text-white" href="dashboard.html">Kabinet (Dashboard)</a></li>
                     <li class="nav-item"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Chiqish</button></li>
                 `;
@@ -133,6 +189,7 @@
                 const profile = await res.json();
                 userRole = profile.role;
                 localStorage.setItem("user_role", userRole);
+                renderNavbar(); // Rol aniqlangach navbarni qayta chizamiz
             }
         }
 
@@ -174,6 +231,7 @@
             }
         }
 
+        // Service Card ichiga Usta username'i (link) va telefon raqami qo'shildi
         function displayServices(services) {
             const container = document.getElementById("services-container");
             container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>Siz qidirgan filtr bo'yicha hech qanday xizmat topilmadi.</p>";
@@ -187,13 +245,11 @@
                     actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Buyurtma berish</button>`;
                 }
 
-                // 🌟 BACKENDDAN KELGAN ANNOTATE MA'LUMOTLARINI TO'G'RIDAN-TO'G'RI O'QIYMIZ
                 const avgRating = parseFloat(s.average_rating) || 0;
                 const reviewsCount = parseInt(s.reviews_count) || 0;
                 let ratingHTML = "";
 
                 if (reviewsCount > 0) {
-                    // Reytingni yaxlitlab yulduzchalarni chiqaramiz
                     let stars = "★".repeat(Math.round(avgRating)) + "☆".repeat(5 - Math.round(avgRating));
                     ratingHTML = `
                         <div class="mb-2 small d-flex align-items-center">
@@ -208,16 +264,33 @@
                 const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                 const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
 
+                // Backend mantiqiy kalitlari (Siz o'z serializer'ingizga qo'shadigan maydonlar):
+                const workerUsername = s.worker_username || "usta";
+                const workerPhone = s.worker_phone || "Raqam yo'q";
+                const workerProfileId = s.worker_profile_id || 0;
+
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                             <div class="card-body">
-                                <h5 class="card-title fw-bold text-primary mb-1">${s.name}</h5>
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h5 class="card-title fw-bold text-primary mb-0">${s.name}</h5>
+                                    <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerProfileId})" class="text-primary fw-bold text-decoration-none small">
+                                        👤 @${workerUsername}
+                                    </a>
+                                </div>
                                 
                                 ${ratingHTML}
                                 
-                                <p class="text-secondary small mb-0">${shortDesc}</p>
-                                <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-2 d-block text-start" 
+                                <p class="text-secondary small mb-2">${shortDesc}</p>
+
+                                <div class="mb-2">
+                                    <a href="tel:${workerPhone}" class="btn btn-sm btn-outline-success w-100 rounded-pill text-start small">
+                                        📞 Aloqa: ${workerPhone}
+                                    </a>
+                                </div>
+
+                                <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-1 d-block text-start" 
                                     onclick="openDetailModal('${s.name}', \`${safeDesc}\`, ${s.price}, ${s.id}, '[]')">
                                     Batafsil ko'rish →
                                 </button>
@@ -232,11 +305,6 @@
             });
         }
 
-        // 🌟 REYTING VA SHARHLAR RO'YXATI BILAN KENGAYTIRILGAN MODAL FUNKSIYASI
-
-        // 🌟 REYTING VA SHARHLAR RO'YXATI BILAN KENGAYTIRILGAN MODAL FUNKSIYASI
-        
-        // 🌟 SHARHLARNI XAVFSIZ VA SINDIRMADSIDAN CHIQARUVCHI YAKUNIY MODAL FUNKSIYASI
         async function openDetailModal(name, desc, price, id, reviewsJson) {
             document.getElementById("detail-title").innerText = name;
             document.getElementById("detail-desc").innerText = desc;
@@ -249,14 +317,10 @@
             avgRatingContainer.innerHTML = "";
 
             let reviews = [];
-
             try {
-                // Backenddagi yangi get_queryset filtri bo'yicha so'rov yuboramiz
                 const res = await fetch(`${API.reviews}?service=${id}`); 
-                
                 if (res.ok) {
                     const data = await res.json();
-                    // Agar backend pagination ishlatsa data.results, ishlatmasa data'ni o'zini oladi
                     reviews = data.results || data || [];
                 }
             } catch (err) {
@@ -266,21 +330,15 @@
             reviewsListContainer.innerHTML = "";
 
             if (reviews && reviews.length > 0) {
-                // Umumiy reytingni hisoblash
                 const total = reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0);
                 const avg = (total / reviews.length).toFixed(1);
                 let modalStars = "★".repeat(Math.round(avg)) + "☆".repeat(5 - Math.round(avg));
                 
-                avgRatingContainer.innerHTML = `
-                    <span class="badge bg-warning text-dark fw-bold fs-6">${modalStars} ${avg}</span>
-                `;
+                avgRatingContainer.innerHTML = `<span class="badge bg-warning text-dark fw-bold fs-6">${modalStars} ${avg}</span>`;
 
-                // Sharhlarni chiroyli qilib chiqarish
                 reviews.forEach(r => {
                     const ratingValue = parseInt(r.rating) || 0;
                     let rStars = "★".repeat(ratingValue) + "☆".repeat(5 - ratingValue);
-                    
-                    // Agar bazada qaysidir sharhda ism topilmasa, zaxira sifatida "Mijoz" yozib ketiladi
                     const clientName = r.client_name || "Mijoz"; 
                     const commentText = r.comment || 'Fikr qoldirilmagan.';
 
@@ -297,12 +355,10 @@
                     `;
                 });
             } else {
-                // Agar o'sha xizmatga tegishli sharh topilmasa
                 avgRatingContainer.innerHTML = `<span class="badge bg-light text-muted">☆☆☆☆☆ 0.0</span>`;
                 reviewsListContainer.innerHTML = `<p class="text-muted small ps-2 w-100 text-center py-2">Ushbu xizmatga hali hech kim fikr bildirmagan.</p>`;
             }
 
-            // Footer qismi (O'zgarishsiz)
             const footer = document.getElementById("detail-footer");
             footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>`;
 
@@ -312,9 +368,183 @@
                 footer.innerHTML += `<button class="btn btn-success fw-bold" onclick="bookOrder(${id})">Hozir Buyurtma berish</button>`;
             }
 
-            // Modalni ochish
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
+
+        // 🌟 FUNKSIYA 1: CO'K USERNAME BOSILGANDA USTA PROFILINI YUKLOVCHI MANTIQ
+        async function viewWorkerProfile(profileId) {
+            if(!profileId || profileId === 0) {
+                alert("Ushbu ustanig profili tizimda to'liq sozlanmagan.");
+                return;
+            }
+            const content = document.getElementById("worker-profile-content");
+            content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
+            
+            new bootstrap.Modal(document.getElementById('workerProfileModal')).show();
+
+            try {
+                const res = await fetch(`${API.users}worker-profile/${profileId}/`); // O'zingizning API yo'lagingizga qarab moslang
+                if (res.ok) {
+                    const profile = await res.json();
+                    const username = profile.user_username || "usta";
+                    const experience = profile.experience_years || 0;
+                    const location = profile.location || "Kiritilmagan";
+                    const bio = profile.bio || "Biografiya yozilmagan.";
+                    const phone = profile.user_phone || "Mavjud emas";
+
+                    content.innerHTML = `
+                        <div class="bg-light p-3 rounded-circle d-inline-block mb-2 text-primary fs-3 fw-bold" style="width:60px; height:60px;">
+                            ${username[0].toUpperCase()}
+                        </div>
+                        <h4 class="fw-bold mb-1">@${username}</h4>
+                        <p class="badge bg-success mb-3">Professional Usta</p>
+                        
+                        <div class="text-start bg-light p-3 rounded mb-3 small">
+                            <p class="mb-2"><strong>💼 Tajriba:</strong> ${experience} yil</p>
+                            <p class="mb-2"><strong>📍 Manzil:</strong> ${location}</p>
+                            <p class="mb-0"><strong>📝 Bio:</strong> ${bio}</p>
+                        </div>
+                        <a href="tel:${phone}" class="btn btn-success w-100">
+                            📞 Usta bilan bog'lanish (${phone})
+                        </a>
+                    `;
+                } else {
+                    content.innerHTML = `<p class="text-danger py-3">Usta ma'lumotlarini yuklab bo'lmadi.</p>`;
+                }
+            } catch (err) {
+                content.innerHTML = `<p class="text-danger py-3">Tizimda xatolik yuz berdi.</p>`;
+            }
+        }
+
+        // 🌟 FUNKSIYA 2: NAVBARDAGI "PROFILIM" BOSILGANDA O'Z PROFILINI OChISh
+        
+        // 🌟 PROFILNI OChIShDA USERNAME VA BOSHQA MA'LUMOTLARNI INPUTLARGA JOYLAShTIRISH
+        async function openMyProfileModal() {
+            const token = localStorage.getItem("access");
+            const currentUserId = localStorage.getItem("user_id");
+            if (!token || !currentUserId) return;
+
+            new bootstrap.Modal(document.getElementById('myProfileModal')).show();
+
+            try {
+                const headers = { "Authorization": `Bearer ${token}` };
+                const res = await fetch(`${API.users}${currentUserId}/`, { headers });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    // Username va Telefonni inputlarga yozamiz (Hamma uchun)
+                    document.getElementById("edit-username").value = data.username || "";
+                    document.getElementById("edit-phone").value = data.phone_number || "";
+
+                    const extraFields = document.getElementById("worker-extra-fields");
+                    if (data.role === 'worker') {
+                        extraFields.classList.remove('d-none'); // Usta bo'lsa qolgan maydonlarni ochish
+                        
+                        document.getElementById("edit-experience").value = data.worker_profile?.experience_years || 0;
+                        document.getElementById("edit-location").value = data.worker_profile?.location || '';
+                        document.getElementById("edit-bio").value = data.worker_profile?.bio || '';
+                    } else {
+                        extraFields.classList.add('d-none'); // Mijoz bo'lsa yashirish
+                    }
+                }
+            } catch (err) {
+                console.error("Mening profilim yuklanmadi:", err);
+            }
+        }
+
+        // 🌟 FORMANI SUBMIT QILGANDA HAMMA MA'LUMOTLARNI BACKEND'GA PATCH QILISH
+        document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("access");
+            const currentUserId = localStorage.getItem("user_id");
+            if (!token || !currentUserId) return;
+
+            // Umumiy ma'lumotlar ob'ekti
+            const updatedData = {
+                username: document.getElementById("edit-username").value,
+                phone_number: document.getElementById("edit-phone").value,
+            };
+
+            // Agar usta bo'lsa, worker_profile ma'lumotlarini ham qo'shamiz
+            const extraFields = document.getElementById("worker-extra-fields");
+            if (!extraFields.classList.contains('d-none')) {
+                updatedData.worker_profile = {
+                    experience_years: parseInt(document.getElementById("edit-experience").value) || 0,
+                    location: document.getElementById("edit-location").value,
+                    bio: document.getElementById("edit-bio").value
+                };
+            }
+
+            try {
+                const headers = { 
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                };
+
+                const res = await fetch(`${API.users}${currentUserId}/`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (res.ok) {
+                    alert("Profil muvaffaqiyatli yangilandi! 🎉");
+                    window.location.reload(); // Sahifani yangilab ma'lumotlarni yangilaymiz
+                } else {
+                    const errorData = await res.json();
+                    alert("Xatolik: " + (errorData.detail || "Ma'lumotlarni saqlab bo'lmadi. Username band bo'lishi mumkin."));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Tizim xatoligi yuz berdi.");
+            }
+        });
+
+        // 🌟 FUNKSIYA 3: PROFILNI YANGILASH (PATCH) FORM SUBMIT
+        document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("access");
+            const currentUserId = localStorage.getItem("user_id");
+            if (!token || !currentUserId) return;
+
+            const updatedData = {
+                phone_number: document.getElementById("edit-phone").value,
+            };
+
+            // Agar usta rejimida inputlar ko'rinib turgan bo'lsa, ularni ham obyekt qilib qo'shamiz
+            const extraFields = document.getElementById("worker-extra-fields");
+            if (!extraFields.classList.contains('d-none')) {
+                updatedData.worker_profile = {
+                    experience_years: parseInt(document.getElementById("edit-experience").value) || 0,
+                    location: document.getElementById("edit-location").value,
+                    bio: document.getElementById("edit-bio").value
+                };
+            }
+
+            try {
+                const headers = { 
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                };
+
+                const res = await fetch(`${API.users}${currentUserId}/`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (res.ok) {
+                    alert("Profil muvaffaqiyatli yangilandi! 🎉");
+                    window.location.reload(); 
+                } else {
+                    alert("Xatolik: Ma'lumotlarni saqlab bo'lmadi.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Tizim xatoligi yuz berdi.");
+            }
+        });
 
         function applyFilters() {
             const searchQuery = document.getElementById("search-input").value;
