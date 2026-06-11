@@ -45,7 +45,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -91,8 +90,7 @@
                     <h5 class="modal-title fw-bold">Usta Profili</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center" id="worker-profile-content">
-                    </div>
+                <div class="modal-body text-center" id="worker-profile-content"></div>
             </div>
         </div>
     </div>
@@ -161,7 +159,6 @@
             await fetchServices(currentUrl); 
         });
 
-        // Navbarga "Profilim" tugmasi dinamik qo'shildi
         function renderNavbar() {
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
@@ -189,7 +186,7 @@
                 const profile = await res.json();
                 userRole = profile.role;
                 localStorage.setItem("user_role", userRole);
-                renderNavbar(); // Rol aniqlangach navbarni qayta chizamiz
+                renderNavbar();
             }
         }
 
@@ -231,14 +228,12 @@
             }
         }
 
-        // Service Card ichiga Usta username'i (link) va telefon raqami qo'shildi
         function displayServices(services) {
             const container = document.getElementById("services-container");
             container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>Siz qidirgan filtr bo'yicha hech qanday xizmat topilmadi.</p>";
             
             services.forEach(s => {
                 let actionButton = "";
-                
                 if (userRole === "worker") {
                     actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
                 } else {
@@ -264,9 +259,9 @@
                 const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                 const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
 
-                // Backend mantiqiy kalitlari (Siz o'z serializer'ingizga qo'shadigan maydonlar):
+                // DIQQAT: Agar raqam chiqmayotgan bo'lsa, 'worker_phone' kaliti backendda boshqacha bo'lishi mumkin!
                 const workerUsername = s.worker_username || "usta";
-                const workerPhone = s.worker_phone || "Raqam yo'q";
+                const workerPhone = s.worker_phone || s.phone_number || "Raqam yo'q"; 
                 const workerProfileId = s.worker_profile_id || 0;
 
                 container.innerHTML += `
@@ -371,7 +366,6 @@
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
-        // 🌟 FUNKSIYA 1: CO'K USERNAME BOSILGANDA USTA PROFILINI YUKLOVCHI MANTIQ
         async function viewWorkerProfile(profileId) {
             if(!profileId || profileId === 0) {
                 alert("Ushbu ustanig profili tizimda to'liq sozlanmagan.");
@@ -383,7 +377,7 @@
             new bootstrap.Modal(document.getElementById('workerProfileModal')).show();
 
             try {
-                const res = await fetch(`${API.users}worker-profile/${profileId}/`); // O'zingizning API yo'lagingizga qarab moslang
+                const res = await fetch(`${API.users}worker-profile/${profileId}/`); 
                 if (res.ok) {
                     const profile = await res.json();
                     const username = profile.user_username || "usta";
@@ -416,9 +410,6 @@
             }
         }
 
-        // 🌟 FUNKSIYA 2: NAVBARDAGI "PROFILIM" BOSILGANDA O'Z PROFILINI OChISh
-        
-        // 🌟 PROFILNI OChIShDA USERNAME VA BOSHQA MA'LUMOTLARNI INPUTLARGA JOYLAShTIRISH
         async function openMyProfileModal() {
             const token = localStorage.getItem("access");
             const currentUserId = localStorage.getItem("user_id");
@@ -433,19 +424,17 @@
                 if (res.ok) {
                     const data = await res.json();
                     
-                    // Username va Telefonni inputlarga yozamiz (Hamma uchun)
                     document.getElementById("edit-username").value = data.username || "";
                     document.getElementById("edit-phone").value = data.phone_number || "";
 
                     const extraFields = document.getElementById("worker-extra-fields");
                     if (data.role === 'worker') {
-                        extraFields.classList.remove('d-none'); // Usta bo'lsa qolgan maydonlarni ochish
-                        
+                        extraFields.classList.remove('d-none');
                         document.getElementById("edit-experience").value = data.worker_profile?.experience_years || 0;
                         document.getElementById("edit-location").value = data.worker_profile?.location || '';
                         document.getElementById("edit-bio").value = data.worker_profile?.bio || '';
                     } else {
-                        extraFields.classList.add('d-none'); // Mijoz bo'lsa yashirish
+                        extraFields.classList.add('d-none');
                     }
                 }
             } catch (err) {
@@ -453,55 +442,17 @@
             }
         }
 
-        // 🌟 FORMANI SUBMIT QILGANDA HAMMA MA'LUMOTLARNI BACKEND'GA PATCH QILISH
         document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const token = localStorage.getItem("access");
             const currentUserId = localStorage.getItem("user_id");
             if (!token || !currentUserId) return;
 
-            // Umumiy ma'lumotlar ob'ekti
             const updatedData = {
                 username: document.getElementById("edit-username").value,
                 phone_number: document.getElementById("edit-phone").value,
             };
 
-            // Agar usta bo'lsa, worker_profile ma'lumotlarini ham qo'shamiz
-            const extraFields = document.getElementById("worker-extra-fields");
-            if (!extraFields.classList.contains('d-none')) {
-                updatedData.worker_profile = {
-                    experience_years: parseInt(document.getElementById("edit-experience").value) || 0,
-                    location: document.getElementById("edit-location").value,
-                    bio: document.getElementById("edit-bio").value
-                };
-            }
-
-            try {
-                const headers = { 
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                };
-
-                const res = await fetch(`${API.users}${currentUserId}/`, {
-                    method: 'PATCH',
-                    headers: headers,
-                    body: JSON.stringify(updatedData)
-                });
-
-                if (res.ok) {
-                    alert("Profil muvaffaqiyatli yangilandi! 🎉");
-                    window.location.reload(); // Sahifani yangilab ma'lumotlarni yangilaymiz
-                } else {
-                    const errorData = await res.json();
-                    alert("Xatolik: " + (errorData.detail || "Ma'lumotlarni saqlab bo'lmadi. Username band bo'lishi mumkin."));
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Tizim xatoligi yuz berdi.");
-            }
-        });
-
-            // Agar usta rejimida inputlar ko'rinib turgan bo'lsa, ularni ham obyekt qilib qo'shamiz
             const extraFields = document.getElementById("worker-extra-fields");
             if (!extraFields.classList.contains('d-none')) {
                 updatedData.worker_profile = {
@@ -527,7 +478,8 @@
                     alert("Profil muvaffaqiyatli yangilandi! 🎉");
                     window.location.reload(); 
                 } else {
-                    alert("Xatolik: Ma'lumotlarni saqlab bo'lmadi.");
+                    const errorData = await res.json();
+                    alert("Xatolik: " + (errorData.detail || "Ma'lumotlarni saqlab bo'lmadi."));
                 }
             } catch (err) {
                 console.error(err);
@@ -542,7 +494,6 @@
             const maxPrice = document.getElementById("max-price").value;
 
             const params = new URLSearchParams();
-            
             if (searchQuery) params.append("search", searchQuery);
             if (categoryId) params.append("category", categoryId);
             if (minPrice) params.append("min_price", minPrice);
