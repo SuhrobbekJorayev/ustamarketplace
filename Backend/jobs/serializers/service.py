@@ -3,26 +3,20 @@ from jobs.models import Service
 
 
 class ServiceSerializer(serializers.ModelSerializer):
-    average_rating = serializers.FloatField()
-    reviews_count = serializers.IntegerField()
+    average_rating = serializers.FloatField(read_only=True, default=0)
+    reviews_count = serializers.IntegerField(read_only=True, default=0)
     worker = serializers.ReadOnlyField(source='worker.id')
 
     class Meta:
         model = Service
-        fields = [
-            "id",
-            "title",
-            "description",
-            "price",
-            "category",
-            "worker",
-            "average_rating",
-            "reviews_count",
-        ]
+        fields = "__all__"
 
     def create(self, validated_data):
-        request = self.context.get('request')
+        request = self.context.get("request")
 
         if request and request.user.is_authenticated:
-            validated_data['worker'] = request.user
+            validated_data["worker"] = request.user
+        else:
+            raise serializers.ValidationError("User not authenticated")
+
         return super().create(validated_data)
