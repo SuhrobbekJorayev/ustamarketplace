@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,6 +11,8 @@ from jobs.filters import ServiceFilter
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+
     queryset = Service.objects.all().annotate(
         average_rating=Avg('orders__review__rating'),
         reviews_count=Count('orders__review')
@@ -18,14 +20,11 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
 
     pagination_class = PageNumberPagination
-
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ServiceFilter
 
     search_fields = ['name', 'description', 'category__name']
-
     ordering_fields = ['price', 'created_at', 'name']
-
     ordering = ['-created_at']
 
     def get_permissions(self):

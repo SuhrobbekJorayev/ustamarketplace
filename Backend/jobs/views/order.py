@@ -20,7 +20,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'create':
-            return [IsAuthenticated(), IsClient()]
+            return [IsClient()]
 
         if self.action in (
             'retrieve',
@@ -28,7 +28,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             'partial_update',
             'destroy'
         ):
-            return [IsAuthenticated(), IsOrderParticipant()]
+            return [IsOrderParticipant()]
 
         return [IsAuthenticated()]
 

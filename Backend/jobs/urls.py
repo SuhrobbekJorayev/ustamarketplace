@@ -4,8 +4,8 @@ from jobs.views import (
     ServiceViewSet,
     OrderViewSet,
     ReviewViewSet,
-    WorkerProfileViewSet,
-    UserViewSet
+    # WorkerProfileViewSet,
+    # UserViewSet
 )
 
 router = DefaultRouter()
@@ -14,7 +14,7 @@ router.register(r'categories', CategoryViewSet)
 router.register(r'services', ServiceViewSet)
 router.register(r'orders', OrderViewSet)
 router.register(r'reviews', ReviewViewSet)
-router.register(r'worker-profiles', WorkerProfileViewSet)
-router.register(r'users', UserViewSet)
+# router.register(r'worker-profiles', WorkerProfileViewSet)
+# router.register(r'users', UserViewSet)
 
 urlpatterns = router.urls

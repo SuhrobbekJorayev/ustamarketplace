@@ -29,12 +29,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return [AllowAny()]
 
     def perform_create(self, serializer):
-        print(serializer.errors)
         order = serializer.validated_data['order']
+        user = self.request.user
 
-        if hasattr(order, 'review'):
-            raise ValidationError(
-                'This order already has a review'
-            )
+        # 1. faqat o'z orderi
+        if order.client != user:
+            raise ValidationError("You can review only your own orders.")
+
+        # 2. faqat completed
+        if order.status != "completed":
+            raise ValidationError("You can review only completed orders.")
+
+        # 3. 1 order = 1 review
+        if Review.objects.filter(order=order).exists():
+            raise ValidationError("This order already has a review.")
 
         serializer.save()

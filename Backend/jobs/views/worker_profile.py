@@ -1,11 +1,12 @@
-from rest_framework import viewsets
-from jobs.models import WorkerProfile
+from rest_framework.viewsets import generics
+from rest_framework.permissions import IsAuthenticated
 from jobs.serializers import WorkerProfileSerializer
 
 
-class WorkerProfileViewSet(viewsets.ModelViewSet):
-    queryset = WorkerProfile.objects.all()
+class WorkerProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = WorkerProfileSerializer
 
-    def get_queryset(self):
-        return WorkerProfile.objects.filter(id=self.request.user)
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.worker_profile

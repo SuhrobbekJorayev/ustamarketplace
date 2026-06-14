@@ -5,3 +5,4 @@ from .service import ServiceSerializer
 from .user import UserSerializer
 from .worker_profile import WorkerProfileSerializer
 from .register import RegisterSerializer
+from .worker_public import WorkerPublicSerializer

@@ -129,8 +129,7 @@
                     <div class="p-3 bg-light rounded text-secondary mb-3" id="view-service-desc" style="white-space: pre-line;"></div>
                     
                     <label class="fw-bold text-dark mb-2">💬 Mijozlar fikrlari:</label>
-                    <div id="view-service-reviews" class="list-group list-group-flush border-top">
-                        </div>
+                    <div id="view-service-reviews" class="list-group list-group-flush border-top"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
@@ -170,6 +169,44 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
                         <button type="submit" class="btn btn-success fw-bold">Xizmatni Saqlash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editServiceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">✏️ Xizmatni Tahrirlash</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="service-edit-form">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit-service-id">
+                        <div class="mb-3">
+                            <label class="form-label">Xizmat nomi</label>
+                            <input type="text" id="edit-service-name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategoriya</label>
+                            <select id="edit-service-category" class="form-select" required>
+                                <option value="">Kategoriyani tanlang...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Narxi (so'mda)</label>
+                            <input type="number" id="edit-service-price" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Batafsil tavsif</label>
+                            <textarea id="edit-service-desc" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                        <button type="submit" class="btn btn-warning fw-bold">O'zgarishlarni Saqlash</button>
                     </div>
                 </form>
             </div>
@@ -353,9 +390,11 @@
                     const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                     
                     const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
+                    const safeName = s.name.replace(/"/g, '&quot;');
 
+                    // Tahrirlash va O'chirish tugmalari karta ostiga integratsiya qilindi
                     container.innerHTML += `
-                        <div class="col-md-4 mb-4">
+                        <div class="col-md-4 mb-4" id="service-card-${s.id}">
                             <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold text-primary mb-1">${s.name}</h5>
@@ -364,13 +403,19 @@
                                     
                                     <p class="text-secondary small mb-0">${shortDesc}</p>
                                     <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-2 d-block text-start" 
-                                        onclick="openWorkerServiceDetailModal('${s.name}', \`${safeDesc}\`, ${s.price}, ${s.id})">
+                                        onclick="openWorkerServiceDetailModal('${safeName}', \`${safeDesc}\`, ${s.price}, ${s.id})">
                                         Batafsil ko'rish →
                                     </button>
                                 </div>
-                                <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center pt-0 pb-3 px-3">
-                                    <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
-                                    <span class="text-muted small">Sizning xizmatingiz</span>
+                                <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
+                                        <span class="text-muted small">Sizning xizmatingiz</span>
+                                    </div>
+                                    <div class="d-flex gap-2 mt-2 border-top pt-2">
+                                        <button class="btn btn-sm btn-outline-warning w-50 fw-bold" onclick="openEditServiceModal(${s.id}, '${safeName}', ${s.price}, \`${safeDesc}\`, ${s.category || 'null'})">✏️ Tahrirlash</button>
+                                        <button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="deleteService(${s.id})">🗑️ O'chirish</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -383,6 +428,80 @@
                 `;
             }
         }
+
+        // ================= ✏️ YANGI QO'SHILDI: TAHRIRLASH VA O'CHIRISH JS FUNKSIYALARI =================
+        function openEditServiceModal(id, name, price, desc, categoryId) {
+            document.getElementById("edit-service-id").value = id;
+            document.getElementById("edit-service-name").value = name;
+            document.getElementById("edit-service-price").value = price;
+            document.getElementById("edit-service-desc").value = desc;
+
+            // Kategoriyalarni tahrirlash selectiga yuklash
+            const mainSelect = document.getElementById("service-category");
+            const editSelect = document.getElementById("edit-service-category");
+            editSelect.innerHTML = mainSelect.innerHTML; // Kategoriyalar ro'yxatini ko'chirib o'tkazish
+            
+            if(categoryId) {
+                editSelect.value = categoryId;
+            }
+
+            new bootstrap.Modal(document.getElementById('editServiceModal')).show();
+        }
+
+        document.getElementById("service-edit-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try {
+                const headers = await getCustomHeaders();
+                const serviceId = document.getElementById("edit-service-id").value;
+                
+                const res = await fetch(`${API.services}${serviceId}/`, {
+                    method: "PATCH",
+                    headers: headers,
+                    body: JSON.stringify({
+                        name: document.getElementById("edit-service-name").value,
+                        category: parseInt(document.getElementById("edit-service-category").value),
+                        price: parseFloat(document.getElementById("edit-service-price").value),
+                        description: document.getElementById("edit-service-desc").value
+                    })
+                });
+
+                if (res.ok) {
+                    alert("Xizmat muvaffaqiyatli tahrirlandi! 🎉");
+                    bootstrap.Modal.getInstance(document.getElementById('editServiceModal')).hide();
+                    await loadWorkerServices(); 
+                } else { 
+                    alert("Tahrirlashda xatolik yuz berdi."); 
+                }
+            } catch (err) { 
+                console.error(err);
+                alert("Xatolik!"); 
+            }
+        });
+
+        async function deleteService(serviceId) {
+            if (!confirm("Haqiqatdan ham ushbu xizmatni butunlay o'chirmoqchimisiz? 🗑️")) return;
+
+            try {
+                const headers = await getCustomHeaders();
+                const res = await fetch(`${API.services}${serviceId}/`, {
+                    method: "DELETE",
+                    headers: headers
+                });
+
+                if (res.ok) {
+                    alert("Xizmat o'chirildi.");
+                    // Sahifani to'liq yuklamasdan faqat kartani o'chirib tashlaymiz
+                    const card = document.getElementById(`service-card-${serviceId}`);
+                    if(card) card.remove();
+                } else {
+                    alert("O'chirish imkoni bo'lmadi. Permission (Ruxsat)larni tekshiring.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Tizimda xatolik yuz berdi.");
+            }
+        }
+        // ====================================================================================
 
         async function loadWorkerOrders(customUrl = null) {
             try {
@@ -565,62 +684,54 @@
 
         function logout() { localStorage.clear(); window.location.href = "index.html"; }
 
-        // ================= 🛠 TUZATILDI: USTA UCHUN SHARHLARNI YUKLOVCHI TO'LIQ MODAL FUNKSIYASI =================
-        // ================= BACKENDSIZ ISHLAYDIGAN TO'LIQ MODAL KODI =================
-async function openWorkerServiceDetailModal(name, desc, price, serviceId) {
-    document.getElementById("view-service-title").innerText = name;
-    document.getElementById("view-service-desc").innerText = desc;
-    document.getElementById("view-service-price").innerText = parseFloat(price).toLocaleString() + " so'm";
+        async function openWorkerServiceDetailModal(name, desc, price, serviceId) {
+            document.getElementById("view-service-title").innerText = name;
+            document.getElementById("view-service-desc").innerText = desc;
+            document.getElementById("view-service-price").innerText = parseFloat(price).toLocaleString() + " so'm";
 
-    const reviewsContainer = document.getElementById("view-service-reviews");
-    reviewsContainer.innerHTML = `<p class="text-muted small text-center py-3">Sharhlar yuklanmoqda...</p>`;
+            const reviewsContainer = document.getElementById("view-service-reviews");
+            reviewsContainer.innerHTML = `<p class="text-muted small text-center py-3">Sharhlar yuklanmoqda...</p>`;
 
-    // Modalni ochish
-    const modalInstance = new bootstrap.Modal(document.getElementById('viewServiceModal'));
-    modalInstance.show();
+            const modalInstance = new bootstrap.Modal(document.getElementById('viewServiceModal'));
+            modalInstance.show();
 
-    try {
-        const headers = await getCustomHeaders();
-        const res = await fetch(API.reviews, { headers });
-        
-        if (res.ok) {
-            const data = await res.json();
-            
-            // Backenddan kelgan 'results' massivini olamiz
-            const serviceReviews = data.results || []; 
+            try {
+                const headers = await getCustomHeaders();
+                const res = await fetch(API.reviews, { headers });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    const serviceReviews = data.results || []; 
 
-            reviewsContainer.innerHTML = "";
+                    reviewsContainer.innerHTML = "";
 
-            if (serviceReviews.length === 0) {
-                reviewsContainer.innerHTML = `<p class="text-muted small text-center py-3">Hali fikr bildirilmagan.</p>`;
-            } else {
-                // Filtrlamasdan, bor sharhlarni ekranga chiqaramiz
-                serviceReviews.forEach(r => {
-                    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
-                    
-                    // Backend'dan kelayotgan aniq kalitlar: client_name va comment
-                    const clientName = r.client_name || "Mijoz";
-                    const commentText = r.comment || "Izoh qoldirilmagan";
+                    if (serviceReviews.length === 0) {
+                        reviewsContainer.innerHTML = `<p class="text-muted small text-center py-3">Hali fikr bildirilmagan.</p>`;
+                    } else {
+                        serviceReviews.forEach(r => {
+                            const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+                            const clientName = r.client_name || "Mijoz";
+                            const commentText = r.comment || "Izoh qoldirilmagan";
 
-                    reviewsContainer.innerHTML += `
-                        <div class="list-group-item px-0 py-2 bg-transparent border-bottom">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold small text-dark">👤 ${clientName}</span>
-                                <span class="text-warning small">${stars}</span>
-                            </div>
-                            <p class="text-secondary small mb-0" style="font-style: italic;">"${commentText}"</p>
-                        </div>
-                    `;
-                });
+                            reviewsContainer.innerHTML += `
+                                <div class="list-group-item px-0 py-2 bg-transparent border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold small text-dark">👤 ${clientName}</span>
+                                        <span class="text-warning small">${stars}</span>
+                                    </div>
+                                    <p class="text-secondary small mb-0" style="font-style: italic;">"${commentText}"</p>
+                                </div>
+                            `;
+                        });
+                    }
+                } else {
+                    reviewsContainer.innerHTML = `<p class="text-danger small text-center py-3">Sharhlarni yuklab bo'lmadi.</p>`;
+                }
+            } catch (err) {
+                console.error("Xatolik:", err);
+                reviewsContainer.innerHTML = `<p class="text-danger small text-center py-3">Tizim xatoligi yuz berdi.</p>`;
             }
-        } else {
-            reviewsContainer.innerHTML = `<p class="text-danger small text-center py-3">Sharhlarni yuklab bo'lmadi.</p>`;
         }
-    } catch (err) {
-        console.error("Xatolik:", err);
-        reviewsContainer.innerHTML = `<p class="text-danger small text-center py-3">Tizim xatoligi yuz berdi.</p>`;
-    }
-}
     </script>
 </body>
 </html>

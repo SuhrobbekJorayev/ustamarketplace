@@ -1,11 +1,22 @@
-from rest_framework import viewsets
-from jobs.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from jobs.serializers import UserSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    def put(self, request):
+        serializer = UserSerializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
