@@ -1,44 +1,68 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8"><title>Kirish</title>
+    <meta charset="UTF-8">
+    <title>Tizimga kirish - UstaMarketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
     <div class="card p-4 shadow-sm border-0" style="width: 100%; max-width: 400px;">
-        <h3 class="text-center fw-bold mb-4">Tizimga kirish</h3>
+        <h3 class="text-center fw-bold mb-2">Tizimga kirish</h3>
+        <p class="text-center text-muted small mb-4">UstaMarketplace Demo loyihasi</p>
+        
         <form id="login-form">
-            <div class="mb-3"><label class="form-label">Username</label><input type="text" id="username" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label">Parol</label><input type="password" id="password" class="form-control" required></div>
-            <button type="submit" class="btn btn-primary w-100 py-2">Kirish</button>
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" required placeholder="Foydalanuvchi nomi">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Parol</label>
+                <input type="password" id="password" class="form-control" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Kirish</button>
         </form>
         <p class="text-center mt-3 mb-0">Akkount yo'qmi? <a href="register.html">Ro'yxatdan o'tish</a></p>
+        <p class="text-center mt-2 mb-0"><a href="index.html" class="text-secondary small">← Bosh sahifaga qaytish</a></p>
     </div>
+
     <script src="config/endpoints.js"></script>
     <script>
         document.getElementById("login-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
+
             try {
                 const res = await fetch(API.auth.login, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password })
                 });
-                const data = await res.json();
+
                 if (res.ok) {
+                    const data = await res.json();
+                    
+                    // Tokenlarni va foydalanuvchi ma'lumotlarini brauzer xotirasiga yozamiz
                     localStorage.setItem("access", data.access);
                     localStorage.setItem("refresh", data.refresh);
-                    localStorage.setItem("username", username);
                     
-                    // JWT tokenni decode qilib joriy user_id ni olamiz (Review va Order solishtirish uchun kerak)
-                    const payload = JSON.parse(atob(data.access.split('.')[1]));
+                    // Token ichidan user_id ni ajratib olish (yoki backend profile orqali olish)
+                    // Hozirgi holatda token decode qilish o'rniga backenddan profilni tekshiramiz
+                    // Biroq ishlashini osonlashtirish uchun foydalanuvchi ID va Rolini aniqlash uchun vaqtincha saqlaymiz:
+                    const base64Url = data.access.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const payload = JSON.parse(window.atob(base64));
+                    
                     localStorage.setItem("user_id", payload.user_id);
                     
+                    alert("Xush kelibsiz!");
                     window.location.href = "index.html";
-                } else { alert("Username yoki parol xato!"); }
-            } catch(e) { alert("Server xatosi!"); }
+                } else {
+                    alert("Login yoki parol noto'g'ri!");
+                }
+            } catch(e) {
+                alert("Serverga ulanishda xatolik!");
+            }
         });
     </script>
 </body>

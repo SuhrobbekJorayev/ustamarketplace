@@ -11,7 +11,7 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
             <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto" id="nav-auth-links"></ul>
+                <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
             </div>
         </div>
     </nav>
@@ -141,10 +141,38 @@
         let userRole = localStorage.getItem("user_role") || null;
         let currentUrl = API.services; 
 
+        // JWT token ichidan user_id ni xavfsiz o'qib olish funksiyasi (agar u localStorage da bo'lmasa)
+        function getUserIdFromToken() {
+            let id = localStorage.getItem("user_id");
+            if (id) return id;
+            
+            const token = localStorage.getItem("access");
+            if (!token) return null;
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(window.atob(base64));
+                if (payload.user_id) {
+                    localStorage.setItem("user_id", payload.user_id);
+                    return payload.user_id;
+                }
+                if (payload.id) {
+                    localStorage.setItem("user_id", payload.id);
+                    return payload.id;
+                }
+            } catch (e) {
+                console.error("Tokenni decode qilishda xatolik:", e);
+            }
+            return null;
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
             renderNavbar();
             
-            if (localStorage.getItem("access") && localStorage.getItem("user_id")) {
+            const token = localStorage.getItem("access");
+            const currentUserId = getUserIdFromToken();
+            
+            if (token && currentUserId) {
                 try {
                     await checkUserRole();
                 } catch (e) {
@@ -164,24 +192,24 @@
             const token = localStorage.getItem("access");
             if (token) {
                 nav.innerHTML = `
-                    <li class="nav-item"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 Profilim</button></li>
-                    <li class="nav-item"><a class="nav-link btn btn-sm btn-outline-light me-2 text-white" href="dashboard.html">Kabinet (Dashboard)</a></li>
-                    <li class="nav-item"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Chiqish</button></li>
+                    <div class="nav-item d-inline-block"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 Profilim</button></div>
+                    <div class="nav-item d-inline-block"><a class="nav-link btn btn-sm btn-outline-light me-2 text-white d-inline-block" href="dashboard.html">Kabinet (Dashboard)</a></div>
+                    <div class="nav-item d-inline-block"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Chiqish</button></div>
                 `;
             } else {
                 nav.innerHTML = `
-                    <li class="nav-item"><a class="nav-link text-white" href="login.html">Kirish</a></li>
-                    <li class="nav-item"><a class="btn btn-warning btn-sm ms-2 fw-bold text-dark" href="register.html">Ro'yxatdan o'tish</a></li>
+                    <div class="nav-item d-inline-block"><a class="nav-link text-white d-inline-block" href="login.html">Kirish</a></div>
+                    <div class="nav-item d-inline-block"><a class="btn btn-warning btn-sm ms-2 fw-bold text-dark" href="register.html">Ro'yxatdan o'tish</a></div>
                 `;
             }
         }
 
         async function checkUserRole() {
-            const currentUserId = localStorage.getItem("user_id");
+            const currentUserId = getUserIdFromToken();
             if (!currentUserId) return;
             
-            const headers = { "Authorization": `Bearer ${localStorage.getItem("access")}` };
-            const res = await fetch(`${API.users}${currentUserId}/`, { headers });
+            // Profil ma'lumotlarini olishda fetchWithAuth ishlatamiz
+            const res = await fetchWithAuth(`${API.users}${currentUserId}/`);
             if (res.ok) {
                 const profile = await res.json();
                 userRole = profile.role;
@@ -259,10 +287,10 @@
                 const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                 const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
 
-                // DIQQAT: Agar raqam chiqmayotgan bo'lsa, 'worker_phone' kaliti backendda boshqacha bo'lishi mumkin!
-                const workerUsername = s.worker_username || "usta";
-                const workerPhone = s.worker_phone || s.phone_number || "Raqam yo'q"; 
-                const workerProfileId = s.worker_profile_id || 0;
+                // Sxema bo'yicha 'worker_name' va 'worker_phone' maydonlari ulandi
+                const workerName = s.worker_name || "Usta";
+                const workerPhone = s.worker_phone || "Raqam yo'q"; 
+                const workerProfileId = s.worker_profile || 0;
 
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
@@ -271,7 +299,7 @@
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <h5 class="card-title fw-bold text-primary mb-0">${s.name}</h5>
                                     <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerProfileId})" class="text-primary fw-bold text-decoration-none small">
-                                        👤 @${workerUsername}
+                                        👤 ${workerName}
                                     </a>
                                 </div>
                                 
@@ -377,6 +405,7 @@
             new bootstrap.Modal(document.getElementById('workerProfileModal')).show();
 
             try {
+                // Sxema bo'yicha profil olish endpointi
                 const res = await fetch(`${API.users}worker-profile/${profileId}/`); 
                 if (res.ok) {
                     const profile = await res.json();
@@ -387,7 +416,7 @@
                     const phone = profile.user_phone || "Mavjud emas";
 
                     content.innerHTML = `
-                        <div class="bg-light p-3 rounded-circle d-inline-block mb-2 text-primary fs-3 fw-bold" style="width:60px; height:60px;">
+                        <div class="bg-light p-3 rounded-circle d-inline-block mb-2 text-primary fs-3 fw-bold" style="width:60px; height:60px; line-height:30px;">
                             ${username[0].toUpperCase()}
                         </div>
                         <h4 class="fw-bold mb-1">@${username}</h4>
@@ -411,16 +440,13 @@
         }
 
         async function openMyProfileModal() {
-            const token = localStorage.getItem("access");
-            const currentUserId = localStorage.getItem("user_id");
-            if (!token || !currentUserId) return;
+            const currentUserId = getUserIdFromToken();
+            if (!currentUserId) return;
 
             new bootstrap.Modal(document.getElementById('myProfileModal')).show();
 
             try {
-                const headers = { "Authorization": `Bearer ${token}` };
-                const res = await fetch(`${API.users}${currentUserId}/`, { headers });
-                
+                const res = await fetchWithAuth(`${API.users}${currentUserId}/`);
                 if (res.ok) {
                     const data = await res.json();
                     
@@ -444,9 +470,8 @@
 
         document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const token = localStorage.getItem("access");
-            const currentUserId = localStorage.getItem("user_id");
-            if (!token || !currentUserId) return;
+            const currentUserId = getUserIdFromToken();
+            if (!currentUserId) return;
 
             const updatedData = {
                 username: document.getElementById("edit-username").value,
@@ -463,19 +488,14 @@
             }
 
             try {
-                const headers = { 
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                };
-
-                const res = await fetch(`${API.users}${currentUserId}/`, {
+                // Yangilash so'rovini fetchWithAuth orqali PATCH qilamiz
+                const res = await fetchWithAuth(`${API.users}${currentUserId}/`, {
                     method: 'PATCH',
-                    headers: headers,
                     body: JSON.stringify(updatedData)
                 });
 
                 if (res.ok) {
-                    alert("Profil muvaffaqiyatli yangilandi! 🎉");
+                    alert("Profil muvaffayatli yangilandi! 🎉");
                     window.location.reload(); 
                 } else {
                     const errorData = await res.json();

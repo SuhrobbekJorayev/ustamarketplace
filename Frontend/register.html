@@ -40,7 +40,18 @@
                 if (res.ok) {
                     alert("Muvaffaqiyatli ro'yxatdan o'tdingiz! Endi tizimga kiring.");
                     window.location.href = "login.html";
-                } else { const d = await res.json(); alert("Xatolik: " + JSON.stringify(d)); }
+                } else { 
+                    // ESKI KOD: const d = await res.json(); alert("Xatolik: " + JSON.stringify(d));
+                    
+                    // YANGI KOD (Shu yerga joylashtirasiz):
+                    const d = await res.json(); 
+                    if (d.detail) {
+                        alert(d.detail);
+                    } else {
+                        let errorMessages = Object.entries(d).map(([key, val]) => `${key}: ${val.join(', ')}`).join('\n');
+                        alert("Ro'yxatdan o'tishda xatolik:\n" + errorMessages);
+                    }
+                }
             } catch(e) { alert("Server xatosi!"); }
         });
     </script>
