@@ -274,7 +274,6 @@
             
             services.forEach(s => {
                 let actionButton = "";
-                // Adminlar va ustalar buyurtma bera olmaydi, faqat mijozlar bera oladi
                 if (userRole === "worker") {
                     actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
                 } else if (userRole === "admin" || userRole === "superuser") {
@@ -303,8 +302,9 @@
                 const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
 
                 const workerName = s.worker_name || "Usta";
-                const workerPhone = s.worker_phone || "Raqam yo'q"; 
-                const workerProfileId = s.worker_profile || 0;
+                // Backenddan kelayotgan telefon raqamni tekshiramiz
+                const workerPhone = s.worker_phone || "Raqam ko'rsatilmagan"; 
+                const workerProfileId = s.worker || 0;
 
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
@@ -319,12 +319,10 @@
                                 
                                 ${ratingHTML}
                                 
-                                <p class="text-secondary small mb-2">${shortDesc}</p>
+                                <p class="text-secondary small mb-3">${shortDesc}</p>
 
-                                <div class="mb-2">
-                                    <a href="tel:${workerPhone}" class="btn btn-sm btn-outline-success w-100 rounded-pill text-start small">
-                                        📞 Aloqa: ${workerPhone}
-                                    </a>
+                                <div class="mb-2 p-2 bg-light border rounded text-secondary small fw-bold">
+                                    📞 Aloqa raqami: <span class="text-dark">${workerPhone}</span>
                                 </div>
 
                                 <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-1 d-block text-start" 
