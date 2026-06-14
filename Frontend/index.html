@@ -141,7 +141,6 @@
         let userRole = localStorage.getItem("user_role") || null;
         let currentUrl = API.services; 
 
-        // JWT token ichidan user_id ni xavfsiz o'qib olish funksiyasi (agar u localStorage da bo'lmasa)
         function getUserIdFromToken() {
             let id = localStorage.getItem("user_id");
             if (id) return id;
@@ -191,9 +190,20 @@
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
             if (token) {
+                // Rolga qarab dashboard yoki admin panel manzilini aniqlaymiz
+                let dashboardLink = "dashboard.html";
+                let btnText = "Kabinet (Dashboard)";
+                let btnClass = "btn-outline-light";
+
+                if (userRole === "admin" || userRole === "superuser") {
+                    dashboardLink = "admin.html"; // Admin sahifangiz nomi (agar u boshqacha bo'lsa o'zgartiring)
+                    btnText = "⚙️ Admin Panel";
+                    btnClass = "btn-warning text-dark";
+                }
+
                 nav.innerHTML = `
                     <div class="nav-item d-inline-block"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 Profilim</button></div>
-                    <div class="nav-item d-inline-block"><a class="nav-link btn btn-sm btn-outline-light me-2 text-white d-inline-block" href="dashboard.html">Kabinet (Dashboard)</a></div>
+                    <div class="nav-item d-inline-block"><a class="nav-link btn btn-sm ${btnClass} me-2 d-inline-block" href="${dashboardLink}">${btnText}</a></div>
                     <div class="nav-item d-inline-block"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Chiqish</button></div>
                 `;
             } else {
@@ -208,12 +218,14 @@
             const currentUserId = getUserIdFromToken();
             if (!currentUserId) return;
             
-            // Profil ma'lumotlarini olishda fetchWithAuth ishlatamiz
             const res = await fetchWithAuth(`${API.users}${currentUserId}/`);
             if (res.ok) {
                 const profile = await res.json();
-                userRole = profile.role;
+                userRole = profile.role || (profile.is_superuser ? "admin" : "client");
                 localStorage.setItem("user_role", userRole);
+                
+                // Agar kirgan odam admin bo'lsa va uni adashib usta/mijoz sahifalariga burib yuborayotgan bo'lsak,
+                // index.html uning navigatsiyasini darhol qayta chizadi.
                 renderNavbar();
             }
         }
@@ -262,8 +274,11 @@
             
             services.forEach(s => {
                 let actionButton = "";
+                // Adminlar va ustalar buyurtma bera olmaydi, faqat mijozlar bera oladi
                 if (userRole === "worker") {
                     actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
+                } else if (userRole === "admin" || userRole === "superuser") {
+                    actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Rejimi</button>`;
                 } else {
                     actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Buyurtma berish</button>`;
                 }
@@ -287,7 +302,6 @@
                 const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                 const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
 
-                // Sxema bo'yicha 'worker_name' va 'worker_phone' maydonlari ulandi
                 const workerName = s.worker_name || "Usta";
                 const workerPhone = s.worker_phone || "Raqam yo'q"; 
                 const workerProfileId = s.worker_profile || 0;
@@ -387,6 +401,8 @@
 
             if (userRole === "worker") {
                 footer.innerHTML += `<button class="btn btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
+            } else if (userRole === "admin" || userRole === "superuser") {
+                footer.innerHTML += `<button class="btn btn-dark" disabled>Admin Rejimi</button>`;
             } else {
                 footer.innerHTML += `<button class="btn btn-success fw-bold" onclick="bookOrder(${id})">Hozir Buyurtma berish</button>`;
             }
@@ -405,7 +421,6 @@
             new bootstrap.Modal(document.getElementById('workerProfileModal')).show();
 
             try {
-                // Sxema bo'yicha profil olish endpointi
                 const res = await fetch(`${API.users}worker-profile/${profileId}/`); 
                 if (res.ok) {
                     const profile = await res.json();
@@ -488,14 +503,13 @@
             }
 
             try {
-                // Yangilash so'rovini fetchWithAuth orqali PATCH qilamiz
                 const res = await fetchWithAuth(`${API.users}${currentUserId}/`, {
                     method: 'PATCH',
                     body: JSON.stringify(updatedData)
                 });
 
                 if (res.ok) {
-                    alert("Profil muvaffayatli yangilandi! 🎉");
+                    alert("Profil muvaffaqiyatli yangilandi! 🎉");
                     window.location.reload(); 
                 } else {
                     const errorData = await res.json();
