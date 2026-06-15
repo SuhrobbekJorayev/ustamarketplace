@@ -62,12 +62,10 @@
                 });
 
                 const data = await res.json();
-                
-                // DIAGNOSTIKA: Backenddan nima kelayotganini konsolda ko'rish uchun
-                console.log("Backenddan kelgan to'liq ma'lumot:", data);
+                console.log("Backenddan kelgan ma'lumot:", data);
 
                 if (res.ok) {
-                    // 1. Tokenlarni saqlash
+                    // 1. Token va foydalanuvchi nomini saqlash
                     localStorage.setItem("access", data.access || data.token); 
                     localStorage.setItem("username", data.username || username);
                     
@@ -77,10 +75,9 @@
                         localStorage.setItem("user_id", userId);
                     }
 
-                    // 3. Mukammallashtirilgan Rol aniqlash mantiqi
-                    let userRole = "client"; // Standart holat
+                    // 3. Rolni tekshirish (Kengaytirilgan variant)
+                    let userRole = "client"; 
 
-                    // Backend ma'lumotlarini qat'iy tekshiramiz
                     if (data.user) {
                         if (data.user.is_superuser === true || data.user.is_staff === true || data.user.role === "admin") {
                             userRole = "admin";
@@ -97,11 +94,10 @@
                         userRole = data.role;
                     }
 
-                    // Tozalab saqlaymiz (masalan: "Admin" -> "admin")
                     const finalRole = String(userRole).toLowerCase().trim();
                     localStorage.setItem("user_role", finalRole);
 
-                    // 4. Sahifaga yo'naltirish
+                    // 4. Yo'naltirish
                     redirectByRole(finalRole);
 
                 } else {
@@ -110,8 +106,8 @@
                     errorAlert.classList.remove("d-none");
                 }
             } catch(e) {
-                console.error("Xatolik yuz berdi:", e);
-                errorAlert.innerText = "Server bilan aloqa uzildi. Tarmoqni tekshiring!";
+                console.error("Xatolik:", e);
+                errorAlert.innerText = "Server bilan aloqa uzildi!";
                 errorAlert.classList.remove("d-none");
             } finally {
                 submitBtn.disabled = false;
@@ -119,15 +115,12 @@
             }
         });
 
-        // Yo'naltirish funksiyasi
         function redirectByRole(role) {
-            console.log("Yo'naltirilayotgan rol:", role);
             if (role === "admin" || role === "superuser" || role === "staff") {
                 window.location.href = "dashboard-admin.html"; 
             } else if (role === "worker" || role === "usta") {
                 window.location.href = "dashboard-worker.html"; 
             } else {
-                // Standart mijoz bo'lsa, "Mening buyurtmalarim" yoki asosiy dashboardga yuborish
                 window.location.href = "dashboard.html"; 
             }
         }

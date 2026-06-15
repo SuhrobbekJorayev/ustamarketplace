@@ -68,7 +68,6 @@
         </div>
 
         <div id="worker-panel" class="d-none">
-            
             <div class="card shadow-sm border-0 border-start border-success border-4 mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                     <span class="fw-bold text-success fs-5">📂 Mening Xizmatlarim</span>
@@ -108,7 +107,6 @@
                     <nav><ul class="pagination justify-content-center pagination-sm" id="worker-pagination"></ul></nav>
                 </div>
             </div>
-
         </div>
 
     </div>
@@ -249,7 +247,7 @@
         const currentUserId = localStorage.getItem("user_id");
         const currentUsername = localStorage.getItem("username");
         
-        // 🎯 Xatolikni oldini olish uchun rolni har doim kichik harflarga o'tkazib tekshiramiz
+        // Rolni har doim tozalab olamiz
         let currentUserRole = localStorage.getItem("user_role") ? localStorage.getItem("user_role").toLowerCase().trim() : null;
 
         async function getCustomHeaders() {
@@ -265,8 +263,8 @@
                 return;
             }
 
-            // 🎯 Admin bo'lsa avtomat yo'naltirish (Sizda ishlamay qolgan qism)
-            if (currentUserRole === "admin" || currentUserRole === "superuser") {
+            // 🎯 QAT'IY TEKSHIRUV: Admin bo'lsa srazu admin panelga haydaymiz, sahifa yuklanib o'tirmaydi!
+            if (currentUserRole === "admin" || currentUserRole === "superuser" || currentUserRole === "staff") {
                 window.location.href = "dashboard-admin.html";
                 return;
             }
@@ -279,14 +277,16 @@
         });
 
         async function loadDashboard() {
-            // 🎯 "worker" yoki "usta" bo'lsa usta panelini ochadi
+            // 🎯 PANELLARNI TO'G'RI AJRATISH
             if (currentUserRole === "worker" || currentUserRole === "usta") {
                 document.getElementById("worker-panel").classList.remove("d-none");
+                document.getElementById("client-panel").classList.add("d-none"); // Har ehtimolga qarshi yopamiz
                 await loadWorkerServices();
                 await loadWorkerOrders();
                 await loadCategoriesForService();
             } else {
                 document.getElementById("client-panel").classList.remove("d-none");
+                document.getElementById("worker-panel").classList.add("d-none"); // Har ehtimolga qarshi yopamiz
                 await loadClientOrders();
             }
         }
@@ -326,7 +326,7 @@
 
                     if (statusLower === "completed") {
                         if (isAlreadyReviewed) {
-                            actionCell = `<button class="btn btn-sm btn-light text-success border-success" disabled>✓ Sharh yozilgand</button>`;
+                            actionCell = `<button class="btn btn-sm btn-light text-success border-success" disabled>✓ Sharh yozilgan</button>`;
                         } else {
                             actionCell = `<button class="btn btn-sm btn-warning fw-bold" onclick="openReviewModal(${order.id})">⭐ Sharh</button>`;
                         }
@@ -574,6 +574,7 @@
                 const select = document.getElementById("service-category");
                 
                 const list = categories.results || categories || [];
+                select.innerHTML = '<option value="">Kategoriyani tanlang...</option>';
                 list.forEach(c => {
                     select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
                 });
