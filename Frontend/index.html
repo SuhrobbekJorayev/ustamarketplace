@@ -11,7 +11,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
-            <div class="collapse navbar-collapse show"> <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
+            <div class="collapse navbar-collapse show">
+                <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
             </div>
         </div>
     </nav>
@@ -69,16 +70,12 @@
                         <h5 class="text-success fw-bold mb-0" id="detail-price">0 so'm</h5>
                         <div id="detail-avg-rating"></div> 
                     </div>
-                    
                     <label class="fw-bold text-dark mb-1">Xizmat haqida to'liq tavsif:</label>
                     <div class="p-3 bg-light rounded text-secondary mb-4" id="detail-desc" style="white-space: pre-line;"></div>
-                    
                     <label class="fw-bold text-dark mb-2">💬 Mijozlar tomonidan qoldirilgan barcha sharhlar:</label>
                     <div id="detail-reviews-list" class="row g-2"></div>
                 </div>
-                <div class="modal-footer" id="detail-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                </div>
+                <div class="modal-footer" id="detail-footer"></div>
             </div>
         </div>
     </div>
@@ -88,7 +85,7 @@
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title fw-bold">Usta Profili</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center" id="worker-profile-content"></div>
             </div>
@@ -107,14 +104,11 @@
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Username</label>
                             <input type="text" id="edit-username" class="form-control" readonly disabled>
-                            <div class="form-text text-muted">Username o'zgartirilmaydi (Read Only)</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Telefon raqam</label>
                             <input type="text" id="edit-phone" class="form-control" readonly disabled>
-                            <div class="form-text text-muted">Telefon raqam o'zgartirilmaydi (Read Only)</div>
                         </div>
-                        
                         <div id="worker-extra-fields" class="d-none border-top pt-3 mt-3">
                             <h6 class="fw-bold mb-3 text-primary">💼 Ustaga tegishli ma'lumotlar</h6>
                             <div class="mb-3">
@@ -130,9 +124,8 @@
                                 <textarea id="edit-bio" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
-                        
                         <button type="submit" class="btn btn-primary w-100 mt-2">O'zgarishlarni saqlash</button>
-                    </</form>
+                    </form>
                 </div>
             </div>
         </div>
@@ -141,99 +134,69 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config/endpoints.js"></script>
     <script>
-        // Global Obyektlar - Modallarni bir marta yaratib olish (Memory leak oldini olish)
         let detailModal, workerProfileModal, myProfileModal;
+        let isStaff = localStorage.getItem("is_staff") || "false";
+        let userRole = localStorage.getItem("user_role") || "client";
+        let currentUrl = API.services; 
+        let servicesDataStore = {}; 
 
-        // Xavfsiz matn chiqarish funksiyasi (XSS dan himoya)
         function escapeHTML(str) {
             if (!str) return '';
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
+            return str.toString().replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Modallarni initsializatsiya qilish
             detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
             workerProfileModal = new bootstrap.Modal(document.getElementById('workerProfileModal'));
             myProfileModal = new bootstrap.Modal(document.getElementById('myProfileModal'));
-
-            const token = localStorage.getItem("access");
-            const role = localStorage.getItem("user_role");
-
-            if (token && (role === "admin" || role === "superuser")) {
-                window.location.href = "dashboard-admin.html";
-                return;
-            }
             initApp();
         });
 
-        let userRole = localStorage.getItem("user_role") || null;
-        let currentUrl = API.services; 
-        let servicesDataStore = {}; // Xizmatlar ma'lumotlarini JS xotirasida saqlash (XSS va sintaksis xatolikka qarshi)
-
         async function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem("access");
-            const headers = {
-                "Content-Type": "application/json",
-                ...options.headers,
-            };
-            if (token) {
-                headers["Authorization"] = `Bearer ${token}`;
-            }
+            const headers = { "Content-Type": "application/json", ...options.headers };
+            if (token) { headers["Authorization"] = `Bearer ${token}`; }
             return fetch(url, { ...options, headers });
         }
 
-        function getUserIdFromToken() {
-            let id = localStorage.getItem("user_id");
-            if (id) return id;
-            
-            const token = localStorage.getItem("access");
-            if (!token) return null;
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const payload = JSON.parse(window.atob(base64));
-                const userId = payload.user_id || payload.id;
-                if (userId) {
-                    localStorage.setItem("user_id", userId);
-                    return userId;
-                }
-            } catch (e) {
-                console.error("Tokenni decode qilishda xatolik:", e);
-            }
-            return null;
-        }
-
         async function initApp() {
-            renderNavbar();
             const token = localStorage.getItem("access");
-            const currentUserId = getUserIdFromToken();
-            
-            if (token && currentUserId) {
-                try {
-                    await checkUserRole();
-                } catch (e) {
-                    console.log("Rol tekshirishda xato, mehmon rejimida davom etiladi.");
-                }
-            } else {
-                userRole = null;
-                localStorage.removeItem("user_role");
+            if (token) {
+                await checkUserStatus();
             }
-            
+            renderNavbar();
             await loadCategories();
             await fetchServices(currentUrl); 
+        }
+
+        async function checkUserStatus() {
+            let userId = localStorage.getItem("user_id");
+            if (!userId) return;
+            
+            try {
+                const res = await fetchWithAuth(`${API.users}${userId}/`);
+                if (res.ok) {
+                    const data = await res.json();
+                    isStaff = (data.is_staff === true || data.is_staff === "true").toString();
+                    userRole = data.role || "client";
+                    
+                    localStorage.setItem("is_staff", isStaff);
+                    localStorage.setItem("user_role", userRole);
+                }
+            } catch(e) { console.error("Foydalanuvchi statusini tekshirishda xato:", e); }
         }
 
         function renderNavbar() {
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
+            
             if (token) {
-                let dashboardLink = "dashboard.html";
+                let dashboardLink = userRole === "worker" ? "dashboard-worker.html" : "dashboard-client.html";
                 let btnText = "Kabinet (Dashboard)";
                 let btnClass = "btn-outline-light";
 
-                if (userRole === "admin" || userRole === "superuser") {
+                // Admin tekshiruvi faqat is_staff orqali bajariladi
+                if (isStaff === "true") {
                     dashboardLink = "dashboard-admin.html"; 
                     btnText = "⚙️ Admin Panel";
                     btnClass = "btn-warning text-dark";
@@ -252,24 +215,6 @@
             }
         }
 
-        async function checkUserRole() {
-            const currentUserId = getUserIdFromToken();
-            if (!currentUserId) return;
-            
-            const res = await fetchWithAuth(`${API.users}${currentUserId}/`);
-            if (res.ok) {
-                const profile = await res.json();
-                userRole = profile.role || (profile.is_superuser ? "admin" : "client");
-                localStorage.setItem("user_role", userRole);
-                
-                if (userRole === "admin" || userRole === "superuser") {
-                    window.location.href = "dashboard-admin.html";
-                    return;
-                }
-                renderNavbar();
-            }
-        }
-
         async function loadCategories() {
             try {
                 const res = await fetch(API.categories);
@@ -277,12 +222,8 @@
                 const select = document.getElementById("category-filter");
                 const list = data.results || data || [];
                 select.innerHTML = '<option value="">Barcha kategoriyalar</option>';
-                list.forEach(c => { 
-                    select.innerHTML += `<option value="${c.id}">${escapeHTML(c.name)}</option>`; 
-                });
-            } catch (err) { 
-                console.error("Kategoriyalar yuklanmadi:", err); 
-            }
+                list.forEach(c => { select.innerHTML += `<option value="${c.id}">${escapeHTML(c.name)}</option>`; });
+            } catch (err) { console.error("Kategoriyalar yuklanmadi:", err); }
         }
 
         async function fetchServices(url) {
@@ -291,97 +232,60 @@
                 container.innerHTML = "<div class='text-center text-muted py-5'>Xizmatlar yuklanmoqda...</div>";
 
                 const res = await fetch(url);
-                if (!res.ok) throw new Error("Backend javob bermadi");
-                
                 const data = await res.json();
                 const services = data.results || data || []; 
                 
-                // Keshga saqlaymiz (ID orqali tez topish uchun)
                 servicesDataStore = {};
                 services.forEach(s => { servicesDataStore[s.id] = s; });
 
                 displayServices(services);
                 renderPagination(data.previous, data.next, url);
-
             } catch (err) {
-                console.error("FetchServices xatosi:", err);
-                document.getElementById("services-container").innerHTML = `
-                    <div class="col-12 text-center text-danger py-5">
-                        <h5>Xizmatlarni yuklab bo'lmadi.</h5>
-                        <p class="small text-muted">Server ishlayotganini va tarmoqni tekshiring.</p>
-                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="fetchServices(currentUrl)">Qayta urinish</button>
-                    </div>`;
+                document.getElementById("services-container").innerHTML = `<div class="col-12 text-center text-danger py-5"><h5>Xizmatlarni yuklab bo'lmadi.</h5></div>`;
             }
         }
 
         function displayServices(services) {
             const container = document.getElementById("services-container");
-            container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>Siz qidirgan filtr bo'yicha hech qanday xizmat topilmadi.</p>";
+            container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>Xizmat topilmadi.</p>";
             
             services.forEach(s => {
                 let actionButton = "";
-                if (userRole === "worker") {
-                    actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
-                } else if (userRole === "admin" || userRole === "superuser") {
+                
+                if (isStaff === "true") {
                     actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Rejimi</button>`;
+                } else if (userRole === "worker") {
+                    actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
                 } else {
                     actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Buyurtma berish</button>`;
                 }
 
                 const avgRating = parseFloat(s.average_rating) || 0;
                 const reviewsCount = parseInt(s.reviews_count) || 0;
-                let ratingHTML = "";
+                let ratingHTML = reviewsCount > 0 
+                    ? `<div class="mb-2 small d-flex align-items-center"><span class="text-warning me-1">${"★".repeat(Math.round(avgRating))}</span><span class="text-muted fw-bold">${avgRating.toFixed(1)}</span></div>`
+                    : `<div class="mb-2 small text-muted">☆☆☆☆☆ (Sharhlar yo'q)</div>`;
 
-                if (reviewsCount > 0) {
-                    let stars = "★".repeat(Math.round(avgRating)) + "☆".repeat(5 - Math.round(avgRating));
-                    ratingHTML = `
-                        <div class="mb-2 small d-flex align-items-center">
-                            <span class="text-warning me-1">${stars}</span>
-                            <span class="text-muted fw-bold">${avgRating.toFixed(1)} (${reviewsCount} ta fikr)</span>
-                        </div>`;
-                } else {
-                    ratingHTML = `<div class="mb-2 small text-muted">☆☆☆☆☆ (Sharhlar yo'q)</div>`;
-                }
-
-                const fullDesc = s.description || 'Tavsif berilmagan';
-                const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
-
-                const workerName = s.worker_name || "Usta";
-                const workerPhone = s.worker_phone || "Raqam ko'rsatilmagan"; 
-                const workerProfileId = s.worker || 0;
-
-                // Xavfsiz render (Sintaksis xatosi butkul yo'qotildi, ID uzatilyapti xolos)
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <h5 class="card-title fw-bold text-primary mb-0">${escapeHTML(s.name)}</h5>
-                                    <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerProfileId})" class="text-primary fw-bold text-decoration-none small">
-                                        👤 ${escapeHTML(workerName)}
+                                    <a href="javascript:void(0)" onclick="viewWorkerProfile(${s.worker || 0})" class="text-primary fw-bold text-decoration-none small">
+                                        👤 ${escapeHTML(s.worker_name || "Usta")}
                                     </a>
                                 </div>
-                                
                                 ${ratingHTML}
-                                
-                                <p class="text-secondary small mb-3">${escapeHTML(shortDesc)}</p>
-
-                                <div class="mb-2 p-2 bg-light border rounded text-secondary small fw-bold">
-                                    📞 Aloqa raqami: <span class="text-dark">${escapeHTML(workerPhone)}</span>
-                                </div>
-
-                                <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-1 d-block text-start" 
-                                    onclick="openDetailModal(${s.id})">
-                                    Batafsil ko'rish →
-                                </button>
+                                <p class="text-secondary small mb-3">${escapeHTML(s.description || '')}</p>
+                                <button class="btn btn-link p-0 text-decoration-none small fw-bold" onclick="openDetailModal(${s.id})">Batafsil ko'rish →</button>
                             </div>
                             <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center pt-0 pb-3 px-3">
                                 <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
                                 ${actionButton}
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -393,212 +297,77 @@
             document.getElementById("detail-desc").innerText = service.description || 'Tavsif berilmagan';
             document.getElementById("detail-price").innerText = parseFloat(service.price).toLocaleString() + " so'm";
 
-            const reviewsListContainer = document.getElementById("detail-reviews-list");
-            const avgRatingContainer = document.getElementById("detail-avg-rating");
-            
-            reviewsListContainer.innerHTML = "<div class='text-center text-muted small w-100 py-2'>Sharhlar yuklanmoqda...</div>";
-            avgRatingContainer.innerHTML = "";
-
-            let reviews = [];
-            try {
-                const res = await fetch(`${API.reviews}?service=${serviceId}`); 
-                if (res.ok) {
-                    const data = await res.json();
-                    reviews = data.results || data || [];
-                }
-            } catch (err) {
-                console.error("Sharhlarni API'dan olishda xatolik:", err);
-            }
-
-            reviewsListContainer.innerHTML = "";
-
-            if (reviews && reviews.length > 0) {
-                const total = reviews.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0);
-                const avg = (total / reviews.length).toFixed(1);
-                let modalStars = "★".repeat(Math.round(avg)) + "☆".repeat(5 - Math.round(avg));
-                
-                avgRatingContainer.innerHTML = `<span class="badge bg-warning text-dark fw-bold fs-6">${modalStars} ${avg}</span>`;
-
-                reviews.forEach(r => {
-                    const ratingValue = parseInt(r.rating) || 0;
-                    let rStars = "★".repeat(ratingValue) + "☆".repeat(5 - ratingValue);
-                    const clientName = r.client_name || "Mijoz"; 
-                    const commentText = r.comment || 'Fikr qoldirilmagan.';
-
-                    reviewsListContainer.innerHTML += `
-                        <div class="col-md-6">
-                            <div class="p-3 bg-white rounded border shadow-sm h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-dark small">👤 ${escapeHTML(clientName)}</span>
-                                    <span class="text-warning small">${rStars}</span>
-                                </div>
-                                <p class="text-muted small mb-0" style="font-style: italic;">"${escapeHTML(commentText)}"</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                avgRatingContainer.innerHTML = `<span class="badge bg-light text-muted">☆☆☆☆☆ 0.0</span>`;
-                reviewsListContainer.innerHTML = `<p class="text-muted small ps-2 w-100 text-center py-2">Ushbu xizmatga hali hech kim fikr bildirmagan.</p>`;
-            }
-
             const footer = document.getElementById("detail-footer");
-            footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>`;
-
-            if (userRole === "worker") {
-                footer.innerHTML += `<button class="btn btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
-            } else if (userRole === "admin" || userRole === "superuser") {
-                footer.innerHTML += `<button class="btn btn-dark" disabled>Admin Rejimi</button>`;
+            
+            if (isStaff === "true") {
+                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-dark" disabled>Admin Rejimi</button>`;
+            } else if (userRole === "worker") {
+                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
             } else {
-                footer.innerHTML += `<button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Hozir Buyurtma berish</button>`;
+                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Hozir Buyurtma berish</button>`;
             }
 
             detailModal.show();
         }
 
         async function viewWorkerProfile(workerUserId) {
-            if(!workerUserId || workerUserId === 0) {
-                alert("Ushbu ustaning profili tizimda to'liq sozlanmagan.");
-                return;
-            }
+            if(!workerUserId || workerUserId === 0) return;
             const content = document.getElementById("worker-profile-content");
             content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
-            
             workerProfileModal.show();
 
             try {
-                const res = await fetch(`${API.users}worker-public/${workerUserId}/`); 
+                const res = await fetch(`${API.worker_public}${workerUserId}/`); 
                 if (res.ok) {
                     const profile = await res.json();
-                    
-                    const username = profile.username || "usta";
-                    const experience = profile.experience_years || 0;
-                    const location = profile.location || "Kiritilmagan";
-                    const bio = profile.bio || "Biografiya yozilmagan.";
-                    const phone = profile.phone_number || "Mavjud emas";
-
                     content.innerHTML = `
-                        <div class="bg-light p-3 rounded-circle d-inline-block mb-2 text-primary fs-3 fw-bold" style="width:60px; height:60px; line-height:30px;">
-                            ${escapeHTML(username[0].toUpperCase())}
-                        </div>
-                        <h4 class="fw-bold mb-1">@${escapeHTML(username)}</h4>
-                        <p class="badge bg-success mb-3">Professional Usta</p>
-                        
+                        <h4 class="fw-bold mb-1">@${escapeHTML(profile.username)}</h4>
                         <div class="text-start bg-light p-3 rounded mb-3 small">
-                            <p class="mb-2"><strong>💼 Tajriba:</strong> ${experience} yil</p>
-                            <p class="mb-2"><strong>📍 Manzil:</strong> ${escapeHTML(location)}</p>
-                            <p class="mb-0"><strong>📝 Men haqimda (Bio):</strong> ${escapeHTML(bio)}</p>
-                        </div>
-                        <div class="p-2 bg-white border rounded text-secondary small fw-bold mb-2">
-                            📞 Aloqa raqami: <span class="text-dark">${escapeHTML(phone)}</span>
-                        </div>
-                    `;
-                } else {
-                    content.innerHTML = `<p class="text-danger py-3">Usta ma'lumotlarini yuklab bo'lmadi.</p>`;
+                            <p class="mb-2"><strong>💼 Tajriba:</strong> ${profile.experience_years || 0} yil</p>
+                            <p class="mb-2"><strong>📍 Manzil:</strong> ${escapeHTML(profile.location || "Kiritilmagan")}</p>
+                            <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "Yo'q")}</p>
+                        </div>`;
                 }
-            } catch (err) {
-                console.error(err);
-                content.innerHTML = `<p class="text-danger py-3">Tizimda xatolik yuz berdi.</p>`;
-            }
+            } catch (err) { content.innerHTML = `<p class="text-danger py-3">Yuklashda xatolik.</p>`; }
         }
 
         async function openMyProfileModal() {
             myProfileModal.show();
-
             try {
-                const res = await fetchWithAuth(`${API.users}worker-profile/`); 
+                const res = await fetchWithAuth(API.profile); 
                 if (res.ok) {
                     const data = await res.json();
-                    
                     document.getElementById("edit-username").value = data.user?.username || "";
                     document.getElementById("edit-phone").value = data.user?.phone_number || "";
 
                     const extraFields = document.getElementById("worker-extra-fields");
                     if (userRole === 'worker') {
                         extraFields.classList.remove('d-none');
-                        
                         document.getElementById("edit-experience").value = data.experience_years || 0;
                         document.getElementById("edit-location").value = data.location || '';
                         document.getElementById("edit-bio").value = data.bio || '';
-                    } else {
-                        extraFields.classList.add('d-none');
-                    }
+                    } else { extraFields.classList.add('d-none'); }
                 }
-            } catch (err) {
-                console.error("Mening profilim yuklanmadi:", err);
-            }
+            } catch (err) { console.error("Profil yuklanmadi:", err); }
         }
-
-        document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const updatedData = {
-                experience_years: parseInt(document.getElementById("edit-experience").value) || 0,
-                location: document.getElementById("edit-location").value,
-                bio: document.getElementById("edit-bio").value
-            };
-
-            try {
-                const res = await fetchWithAuth(`${API.users}worker-profile/`, {
-                    method: 'PATCH', 
-                    body: JSON.stringify(updatedData)
-                });
-
-                if (res.ok) {
-                    alert("Profil muvaffaqiyatli yangilandi! 🎉");
-                    window.location.reload(); 
-                } else {
-                    const errorData = await res.json();
-                    alert("Xatolik yuz berdi: " + JSON.stringify(errorData));
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Tizim xatoligi yuz berdi.");
-            }
-        });
 
         function applyFilters() {
             const searchQuery = document.getElementById("search-input").value;
             const categoryId = document.getElementById("category-filter").value;
-            const minPrice = document.getElementById("min-price").value;
-            const maxPrice = document.getElementById("max-price").value;
-
-            const params = new URLSearchParams();
-            if (searchQuery) params.append("search", searchQuery);
-            if (categoryId) params.append("category", categoryId);
-            if (minPrice) params.append("min_price", minPrice);
-            if (maxPrice) params.append("max_price", maxPrice);
-
-            currentUrl = `${API.services}?${params.toString()}`;
+            currentUrl = `${API.services}?search=${searchQuery}&category=${categoryId}`;
             fetchServices(currentUrl);
         }
 
         function renderPagination(prevUrl, nextUrl, current) {
             const paginationContainer = document.getElementById("pagination-container");
             paginationContainer.innerHTML = "";
-
             if (!prevUrl && !nextUrl) return;
-
-            const prevDisabled = prevUrl ? "" : "disabled";
-            paginationContainer.innerHTML += `
-                <li class="page-item ${prevDisabled}">
-                    <button class="page-link" onclick="fetchServices('${prevUrl}')">« Orqaga</button>
-                </li>
-            `;
-
-            paginationContainer.innerHTML += `<li class="page-item disabled"><span class="page-link text-dark fw-bold">Sahifa</span></li>`;
-
-            const nextDisabled = nextUrl ? "" : "disabled";
-            paginationContainer.innerHTML += `
-                <li class="page-item ${nextDisabled}">
-                    <button class="page-link" onclick="fetchServices('${nextUrl}')">Oldinga »</button>
-                </li>
-            `;
+            paginationContainer.innerHTML += `<li class="page-item ${prevUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${prevUrl}')">« Orqaga</button></li>`;
+            paginationContainer.innerHTML += `<li class="page-item ${nextUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${nextUrl}')">Oldinga »</button></li>`;
         }
 
         function bookOrder(serviceId) {
             if (!localStorage.getItem("access")) {
-                alert("Buyurtma berish uchun avval tizimga kirishingiz kerak!");
                 window.location.href = "login.html";
                 return;
             }
