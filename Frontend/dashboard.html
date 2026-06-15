@@ -247,8 +247,9 @@
         const currentUserId = localStorage.getItem("user_id");
         const currentUsername = localStorage.getItem("username");
         
-        // Rolni har doim tozalab olamiz
-        let currentUserRole = localStorage.getItem("user_role") ? localStorage.getItem("user_role").toLowerCase().trim() : null;
+        // Is_staff va Role toza qiymatlarini olish
+        const isStaff = localStorage.getItem("is_staff");
+        let currentUserRole = localStorage.getItem("user_role") ? localStorage.getItem("user_role").toLowerCase().trim() : "client";
 
         async function getCustomHeaders() {
             return {
@@ -263,30 +264,30 @@
                 return;
             }
 
-            // 🎯 QAT'IY TEKSHIRUV: Admin bo'lsa srazu admin panelga haydaymiz, sahifa yuklanib o'tirmaydi!
-            if (currentUserRole === "admin" || currentUserRole === "superuser" || currentUserRole === "staff") {
+            // 🎯 QAT'IY AUDIT: Agar is_staff true bo'lsa, roliga qaramay Admin panelga haydaymiz!
+            if (isStaff === "true" || isStaff === true) {
                 window.location.href = "dashboard-admin.html";
                 return;
             }
 
             if (currentUsername) {
-                const roleText = (currentUserRole === 'worker' || currentUserRole === 'usta') ? 'Usta' : 'Mijoz';
+                const roleText = (currentUserRole === 'worker') ? 'Usta' : 'Mijoz';
                 document.getElementById("user-welcome").innerText = `@${currentUsername} (${roleText})`;
             }
             await loadDashboard();
         });
 
         async function loadDashboard() {
-            // 🎯 PANELLARNI TO'G'RI AJRATISH
-            if (currentUserRole === "worker" || currentUserRole === "usta") {
+            // Faqat ikki xil ko'rinish mantiqi: worker yoki client
+            if (currentUserRole === "worker") {
                 document.getElementById("worker-panel").classList.remove("d-none");
-                document.getElementById("client-panel").classList.add("d-none"); // Har ehtimolga qarshi yopamiz
+                document.getElementById("client-panel").classList.add("d-none");
                 await loadWorkerServices();
                 await loadWorkerOrders();
                 await loadCategoriesForService();
             } else {
                 document.getElementById("client-panel").classList.remove("d-none");
-                document.getElementById("worker-panel").classList.add("d-none"); // Har ehtimolga qarshi yopamiz
+                document.getElementById("worker-panel").classList.add("d-none");
                 await loadClientOrders();
             }
         }
@@ -560,7 +561,7 @@
                 });
                 if (res.ok) {
                     alert("Holat yangilandi!");
-                    if (currentUserRole === "worker" || currentUserRole === "usta") { await loadWorkerOrders(); } 
+                    if (currentUserRole === "worker") { await loadWorkerOrders(); } 
                     else { await loadClientOrders(); }
                 }
             } catch (err) { console.error(err); }
@@ -594,4 +595,4 @@
         }
     </script>
 </body>
-</html> 
+</html>

@@ -114,11 +114,11 @@
         // Backend qoidalari asosida toza routing
         function redirectByUserStatus(isStaff, role) {
             if (isStaff === true || isStaff === "true") {
+                // Admin to'g'ridan-to'g'ri admin dashboardga boradi
                 window.location.href = "dashboard-admin.html";
-            } else if (role === "worker") {
-                window.location.href = "dashboard-worker.html";
-            } else if (role === "client") {
-                window.location.href = "dashboard-client.html";
+            } else {
+                // Oddiy client yoki worker esa umumiy dashboard.html ga boradi (u o'zini auto moslashtiradi)
+                window.location.href = "dashboard.html";
             }
         }
     </script>
