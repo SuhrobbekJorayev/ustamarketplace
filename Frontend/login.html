@@ -6,31 +6,53 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+
     <div class="card p-4 shadow-sm border-0" style="width: 100%; max-width: 400px;">
         <h3 class="text-center fw-bold mb-2">Tizimga kirish</h3>
         <p class="text-center text-muted small mb-4">UstaMarketplace Demo loyihasi</p>
         
+        <div id="error-alert" class="alert alert-danger d-none small py-2 text-center" role="alert"></div>
+
         <form id="login-form">
             <div class="mb-3">
-                <label class="form-label">Username</label>
+                <label class="form-label small fw-bold">Username</label>
                 <input type="text" id="username" class="form-control" required placeholder="Foydalanuvchi nomi">
             </div>
             <div class="mb-3">
-                <label class="form-label">Parol</label>
+                <label class="form-label small fw-bold">Parol</label>
                 <input type="password" id="password" class="form-control" required placeholder="••••••••">
             </div>
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Kirish</button>
+            <button type="submit" id="submit-btn" class="btn btn-primary w-100 py-2 fw-bold">Kirish</button>
         </form>
-        <p class="text-center mt-3 mb-0">Akkount yo'qmi? <a href="register.html">Ro'yxatdan o'tish</a></p>
+        
+        <p class="text-center mt-3 mb-0 small">Akkount yo'qmi? <a href="register.html" class="fw-bold">Ro'yxatdan o'tish</a></p>
         <p class="text-center mt-2 mb-0"><a href="index.html" class="text-secondary small">← Bosh sahifaga qaytish</a></p>
     </div>
 
     <script src="config/endpoints.js"></script>
     <script>
+        // Agar foydalanuvchi allaqachon tizimga kirgan bo'lsa, uni tekshirib tegishli sahifaga yo'naltiramiz
+        document.addEventListener("DOMContentLoaded", () => {
+            const token = localStorage.getItem("access");
+            const role = localStorage.getItem("user_role");
+
+            if (token && role) {
+                redirectByRole(role);
+            }
+        });
+
         document.getElementById("login-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const username = document.getElementById("username").value;
+            
+            const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value;
+            const errorAlert = document.getElementById("error-alert");
+            const submitBtn = document.getElementById("submit-btn");
+
+            // Tozalash va yuklanish holati
+            errorAlert.classList.add("d-none");
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Kirilmoqda...";
 
             try {
                 const res = await fetch(API.auth.login, {
@@ -39,43 +61,60 @@
                     body: JSON.stringify({ username, password })
                 });
 
+                const data = await res.json();
+
                 if (res.ok) {
-                    const data = await res.json();
+                    // 1. Token va asosiy ma'lumotlarni saqlash
+                    localStorage.setItem("access", data.access); 
+                    localStorage.setItem("username", data.username || username);
                     
-                    // Tokenlarni saqlaymiz
-                    localStorage.setItem("access", data.access);
-                    localStorage.setItem("refresh", data.refresh);
-                    
-                    // Backenddan qaytayotgan rolni saqlaymiz ('admin', 'worker' yoki 'client')
-                    localStorage.setItem("user_role", data.role);
-
-                    // Token ichidan user_id ni ajratib olish logikasi
-                    const base64Url = data.access.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const payload = JSON.parse(window.atob(base64));
-                    
-                    localStorage.setItem("user_id", payload.user_id || payload.id);
-                    
-                    alert("Xush kelibsiz!");
-
-                    // 👇 ROLGA QARAB TO'G'RI SAHIFAGA YO'NALTIRISH
-                    if (data.role === "admin" || data.role === "superuser") {
-                        // Agar kirgan odam admin bo'lsa, srazu admin panelga kiradi
-                        window.location.href = "admin-dashboard.html";
-                    } else {
-                        // Qolganlar (usta va mijozlar) bosh sahifaga o'tadi
-                        window.location.href = "index.html";
+                    // 2. Foydalanuvchi ID sini srazu saqlaymiz (index.html dagi chalkashlikni oldini olish uchun)
+                    const userId = data.user_id || data.id || (data.user ? data.user.id : null);
+                    if (userId) {
+                        localStorage.setItem("user_id", userId);
                     }
 
+                    // 3. Rolni aniqlash va saqlash
+                    let userRole = "client"; // standart holatda mijoz
+                    if (data.user && data.user.role) {
+                        userRole = data.user.role;
+                    } else if (data.role) {
+                        userRole = data.role;
+                    } else if (data.user && data.user.is_superuser) {
+                        userRole = "admin";
+                    }
+                    
+                    localStorage.setItem("user_role", userRole.toLowerCase());
+
+                    // 4. Sahifaga yo'naltirish
+                    redirectByRole(userRole.toLowerCase());
+
                 } else {
-                    const errorData = await res.json();
-                    alert("Xatolik: " + (errorData.detail || "Login yoki parol noto'g'ri!"));
+                    // Backenddan kelgan aniq xatolikni yoki standart xabarni chiqarish
+                    const errorMsg = data.detail || data.non_field_errors || "Username yoki parol noto'g'ri!";
+                    errorAlert.innerText = errorMsg;
+                    errorAlert.classList.remove("d-none");
                 }
             } catch(e) {
                 console.error(e);
-                alert("Serverga ulanishda xatolik!");
+                errorAlert.innerText = "Server bilan aloqa uzildi. Tarmoqni tekshiring!";
+                errorAlert.classList.remove("d-none");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Kirish";
             }
         });
+
+        // Rol bo'yicha sahifalarga yo'naltirish funksiyasi
+        function redirectByRole(role) {
+            if (role === "admin" || role === "superuser") {
+                window.location.href = "dashboard-admin.html"; 
+            } else if (role === "worker" || role === "usta") {
+                window.location.href = "dashboard-worker.html"; 
+            } else {
+                window.location.href = "index.html"; 
+            }
+        }
     </script>
 </body>
 </html>
