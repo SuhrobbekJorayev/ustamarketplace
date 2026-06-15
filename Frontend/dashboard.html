@@ -247,7 +247,6 @@
         const currentUserId = localStorage.getItem("user_id");
         const currentUsername = localStorage.getItem("username");
         
-        // Is_staff va Role toza qiymatlarini olish
         const isStaff = localStorage.getItem("is_staff");
         let currentUserRole = localStorage.getItem("user_role") ? localStorage.getItem("user_role").toLowerCase().trim() : "client";
 
@@ -264,7 +263,6 @@
                 return;
             }
 
-            // 🎯 QAT'IY AUDIT: Agar is_staff true bo'lsa, roliga qaramay Admin panelga haydaymiz!
             if (isStaff === "true" || isStaff === true) {
                 window.location.href = "dashboard-admin.html";
                 return;
@@ -278,7 +276,6 @@
         });
 
         async function loadDashboard() {
-            // Faqat ikki xil ko'rinish mantiqi: worker yoki client
             if (currentUserRole === "worker") {
                 document.getElementById("worker-panel").classList.remove("d-none");
                 document.getElementById("client-panel").classList.add("d-none");
@@ -513,7 +510,9 @@
             try {
                 const headers = await getCustomHeaders();
                 const orderField = document.getElementById("worker-order-sort").value;
-                const url = customUrl || `${API.orders}?ordering=${orderField}`;
+                
+                // 🎯 TUZATISH: Faqat joriy ustaga tegishli buyurtmalarni backend orqali filtrlash
+                const url = customUrl || `${API.orders}?ordering=${orderField}&worker=${currentUserId}`;
 
                 const res = await fetch(url, { headers });
                 const data = await res.json();
@@ -570,16 +569,23 @@
         async function loadCategoriesForService() {
             try {
                 const res = await fetch(API.categories || API.services + 'categories/'); 
-                if (!res.ok) return;
-                const categories = await res.json();
                 const select = document.getElementById("service-category");
+                
+                if (!res.ok) {
+                    select.innerHTML = '<option value="">Kategoriyalarni yuklab bo\'lmadi</option>';
+                    return;
+                }
+                const categories = await res.json();
                 
                 const list = categories.results || categories || [];
                 select.innerHTML = '<option value="">Kategoriyani tanlang...</option>';
                 list.forEach(c => {
                     select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err);
+                document.getElementById("service-category").innerHTML = '<option value="">Yuklashda xatolik yuz berdi</option>';
+            }
         }
 
         function renderPaginationButtons(elemId, prevUrl, nextUrl, callback) {

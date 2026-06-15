@@ -22,7 +22,7 @@
         .page-item.disabled .page-link { background-color: #12141c !important; border-color: #2d3548 !important; color: #5c677d !important; }
     </style>
     <script>
-        // ChatGP mantiqi bo'yicha qat'iy xavfsizlik filtri
+        // Xavfsizlik filtri: is_staff qiymatini har tomonlama tekshirish
         const isStaff = localStorage.getItem("is_staff");
         if (isStaff !== "true" && isStaff !== true) {
             window.location.href = "login.html";
@@ -197,8 +197,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config/endpoints.js"></script>
     <script>
-        // Soddalik va barqarorlik uchun to'liq endpoint manzillari:
-        const BASE_URL = API?.auth?.login ? API.auth.login.split('/api/')[0] : ""; 
+        // XAVFSIZ BASE_URL ANIQLASH (Agar endpoints.js yuklanmay qolsa ham xato bermaydi)
+        let BASE_URL = "";
+        try {
+            if (typeof API !== 'undefined' && API?.auth?.login) {
+                BASE_URL = API.auth.login.split('/api/')[0];
+            }
+        } catch(e) {
+            console.warn("Endpoints config topilmadi, standart yo'nalish qo'llanadi.");
+        }
+
         const ADMIN_API = {
             stats: BASE_URL ? `${BASE_URL}/api/v1/dashboard/stats/` : "/api/v1/dashboard/stats/",
             users: BASE_URL ? `${BASE_URL}/api/v1/dashboard/users/` : "/api/v1/dashboard/users/",
@@ -219,7 +227,7 @@
                 document.getElementById("admin-welcome").innerText = `@${username} (Admin)`;
             }
             
-            // API yuklashlar
+            // API ma'lumotlarini yuklash
             await loadStats();
             await loadAdminCategories();
             await loadAdminUsers();
@@ -268,7 +276,10 @@
                         </li>
                     `;
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err); 
+                document.getElementById("admin-categories-list").innerHTML = `<li class="text-center text-danger p-3">Yuklashda xatolik yuz berdi.</li>`;
+            }
         }
 
         function openCategoryModal() {
@@ -358,7 +369,10 @@
                 });
 
                 renderPagination("admin-users-pagination", data.previous, data.next, loadAdminUsers);
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err); 
+                document.getElementById("admin-users-tbody").innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Xatolik yuz berdi.</td></tr>`;
+            }
         }
 
         async function toggleUserStatus(userId, status) {
@@ -402,7 +416,10 @@
                 });
 
                 renderPagination("admin-orders-pagination", data.previous, data.next, loadAdminOrders);
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err); 
+                document.getElementById("admin-orders-tbody").innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Xatolik yuz berdi.</td></tr>`;
+            }
         }
 
         async function deleteAdminOrder(id) {
@@ -417,7 +434,7 @@
             } catch (err) { console.error(err); }
         }
 
-        // 5. UNIVERSAL PAGINATION
+        // 5. UNIVERSAL PAGINATION (To'g'rilangan variant)
         function renderPagination(containerId, prevUrl, nextUrl, callback) {
             const container = document.getElementById(containerId);
             container.innerHTML = "";
@@ -425,14 +442,18 @@
 
             const prevLi = document.createElement("li");
             prevLi.className = `page-item ${prevUrl ? "" : "disabled"}`;
-            prevLi.innerHTML = `<button class="page-link">« Orqaga</button>`;
-            if (prevUrl) prevLi.querySelector('button').onclick = () => callback(prevUrl);
+            prevLi.innerHTML = `<button type="button" class="page-link">« Orqaga</button>`;
+            if (prevUrl) {
+                prevLi.querySelector('button').onclick = (e) => { e.preventDefault(); callback(prevUrl); };
+            }
             container.appendChild(prevLi);
 
             const nextLi = document.createElement("li");
             nextLi.className = `page-item ${nextUrl ? "" : "disabled"}`;
-            nextLi.innerHTML = `<button class="page-link">Oldinga »</button>`;
-            if (nextUrl) nextLi.querySelector('button').onclick = () => callback(nextUrl);
+            nextLi.innerHTML = `<button type="button" class="page-link">Oldinga »</button>`;
+            if (nextUrl) {
+                nextLi.querySelector('button').onclick = (e) => { e.preventDefault(); callback(nextUrl); };
+            }
             container.appendChild(nextLi);
         }
     </script>
