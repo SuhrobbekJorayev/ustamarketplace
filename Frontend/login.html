@@ -31,6 +31,8 @@
 
     <script src="config/endpoints.js"></script>
     <script>
+        const data = await res.json();
+        console.log("Backenddan kelgan data:", data); // SHU SATRNI QO'SHING
         // Agar foydalanuvchi allaqachon tizimga kirgan bo'lsa, uni tekshirib tegishli sahifaga yo'naltiramiz
         document.addEventListener("DOMContentLoaded", () => {
             const token = localStorage.getItem("access");
