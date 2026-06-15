@@ -116,12 +116,13 @@
         });
 
         function redirectByRole(role) {
-            if (role === "admin" || role === "superuser" || role === "staff") {
-                window.location.href = "dashboard-admin.html"; 
-            } else if (role === "worker" || role === "usta") {
-                window.location.href = "dashboard-worker.html"; 
+            // Yo'naltirish qismi
+            if (role === "admin") {
+                window.location.href = "dashboard-admin.html";
+            } else if (role === "worker" || role === "client") {
+                window.location.href = "index.html"; // Client va Worker uchun Home Page
             } else {
-                window.location.href = "dashboard.html"; 
+                window.location.href = "index.html";
             }
         }
     </script>
