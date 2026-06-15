@@ -190,13 +190,25 @@
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
             
+            // localStorage dan kerakli qiymatlarni aniq olamiz
+            const userRole = localStorage.getItem("role"); // "worker" yoki "client"
+            const isStaff = localStorage.getItem("is_staff");
+
             if (token) {
-                let dashboardLink = userRole === "worker" ? "dashboard-worker.html" : "dashboard-client.html";
-                let btnText = "Kabinet (Dashboard)";
+                // Ikkala rol uchun ham havola bir xil: dashboard.html
+                let dashboardLink = "dashboard.html";
+                // Standart holatda (ya'ni client bo'lsa) chiqadigan matn
+                let btnText = "Kabinet (Mijoz)";
                 let btnClass = "btn-outline-light";
 
-                // Admin tekshiruvi faqat is_staff orqali bajariladi
-                if (isStaff === "true") {
+                // Agar usta (worker) bo'lsa, faqat matn va klass o'zgaradi
+                if (userRole === "worker") {
+                    btnText = "Kabinet (Usta)";
+                    btnClass = "btn-outline-info";
+                }
+
+                // Admin tekshiruvi (is_staff) — bu har doim eng ustun shart
+                if (isStaff === "true" || isStaff === true) {
                     dashboardLink = "dashboard-admin.html"; 
                     btnText = "⚙️ Admin Panel";
                     btnClass = "btn-warning text-dark";
