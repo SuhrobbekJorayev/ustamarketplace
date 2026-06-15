@@ -6,22 +6,10 @@
     <title>Shaxsiy Kabinet - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .rating-stars {
-            direction: rtl;
-            display: inline-block;
-        }
+        .rating-stars { direction: rtl; display: inline-block; }
         .rating-stars input { display: none; }
-        .rating-stars label {
-            font-size: 2.2rem;
-            color: #ddd;
-            cursor: pointer;
-            transition: color 0.15s ease-in-out;
-        }
-        .rating-stars label:hover,
-        .rating-stars label:hover ~ label,
-        .rating-stars input:checked ~ label {
-            color: #ffc107;
-        }
+        .rating-stars label { font-size: 2.2rem; color: #ddd; cursor: pointer; transition: color 0.15s ease-in-out; }
+        .rating-stars label:hover, .rating-stars label:hover ~ label, .rating-stars input:checked ~ label { color: #ffc107; }
     </style>
 </head>
 <body class="bg-light">
@@ -111,143 +99,18 @@
 
     </div>
 
-    <div class="modal fade" id="viewServiceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold" id="view-service-title">Xizmat nomi</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="fw-bold text-dark">Xizmat tavsifi:</span>
-                        <span id="view-service-price" class="badge bg-success fs-6">0 so'm</span>
-                    </div>
-                    <div class="p-3 bg-light rounded text-secondary mb-3" id="view-service-desc" style="white-space: pre-line;"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Yangi Xizmat Yaratish</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="service-form" onsubmit="submitNewService(event)">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Xizmat nomi</label>
-                            <input type="text" id="service-name" class="form-control" required placeholder="Masalan: Professional Elektrik">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Kategoriya</label>
-                            <select id="service-category" class="form-select" required>
-                                <option value="">Kategoriyani tanlang...</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Narxi (so'mda)</label>
-                            <input type="number" id="service-price" class="form-control" required placeholder="100000">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Batafsil tavsif</label>
-                            <textarea id="service-desc" class="form-control" rows="3" placeholder="Xizmat haqida ma'lumot..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-success fw-bold">Xizmatni Saqlash</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editServiceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">✏️ Xizmatni Tahrirlash</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="service-edit-form">
-                    <div class="modal-body">
-                        <input type="hidden" id="edit-service-id">
-                        <div class="mb-3">
-                            <label class="form-label">Xizmat nomi</label>
-                            <input type="text" id="edit-service-name" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Kategoriya</label>
-                            <select id="edit-service-category" class="form-select" required>
-                                <option value="">Kategoriyani tanlang...</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Narxi (so'mda)</label>
-                            <input type="number" id="edit-service-price" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Batafsil tavsif</label>
-                            <textarea id="edit-service-desc" class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-warning fw-bold">O'zgarishlarni Saqlash</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">🌟 Xizmat sifatini baholang</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="review-form" onsubmit="submitReview(event)">
-                    <div class="modal-body text-center">
-                        <input type="hidden" id="review-order-id">
-                        <div class="mb-3">
-                            <label class="form-label d-block fw-bold text-secondary">Ushbu xizmatga necha yulduz berasiz?</label>
-                            <div class="rating-stars">
-                                <input type="radio" id="star5" name="dashboard-rating" value="5" required/><label for="star5">★</label>
-                                <input type="radio" id="star4" name="dashboard-rating" value="4"/><label for="star4">★</label>
-                                <input type="radio" id="star3" name="dashboard-rating" value="3"/><label for="star3">★</label>
-                                <input type="radio" id="star2" name="dashboard-rating" value="2"/><label for="star2">★</label>
-                                <input type="radio" id="star1" name="dashboard-rating" value="1"/><label for="star1">★</label>
-                            </div>
-                        </div>
-                        <div class="mb-3 text-start">
-                            <label class="form-label fw-bold text-secondary">Fikr-mulohaza yoki izohingiz:</label>
-                            <textarea id="review-text" class="form-control" rows="3" placeholder="Izoh qoldiring..." required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-warning fw-bold">Sharhni Yuborish</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="viewServiceModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold" id="view-service-title"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="d-flex justify-content-between mb-3"><span class="fw-bold">Tavsif:</span><span id="view-service-price" class="badge bg-success fs-6"></span></div><div class="p-3 bg-light rounded text-secondary" id="view-service-desc" style="white-space: pre-line;"></div></div></div></div></div>
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">Yangi Xizmat</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form id="service-form" onsubmit="submitNewService(event)"><div class="modal-body"><div class="mb-3"><label class="form-label">Nomi</label><input type="text" id="service-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kategoriya</label><select id="service-category" class="form-select" required></select></div><div class="mb-3"><label class="form-label">Narxi</label><input type="number" id="service-price" class="form-control" required></div><div class="mb-3"><label class="form-label">Tavsif</label><textarea id="service-desc" class="form-control" rows="3"></textarea></div></div><div class="modal-footer"><button type="submit" class="btn btn-success">Saqlash</button></div></form></div></div></div>
+    <div class="modal fade" id="editServiceModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning"><h5 class="modal-title fw-bold">Tahrirlash</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form id="service-edit-form"><div class="modal-body"><input type="hidden" id="edit-service-id"><div class="mb-3"><label class="form-label">Nomi</label><input type="text" id="edit-service-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kategoriya</label><select id="edit-service-category" class="form-select" required></select></div><div class="mb-3"><label class="form-label">Narxi</label><input type="number" id="edit-service-price" class="form-control" required></div><div class="mb-3"><label class="form-label">Tavsif</label><textarea id="edit-service-desc" class="form-control" rows="3"></textarea></div></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Saqlash</button></div></form></div></div></div>
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning"><h5 class="modal-title fw-bold">Baholash</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form id="review-form" onsubmit="submitReview(event)"><div class="modal-body text-center"><input type="hidden" id="review-order-id"><div class="rating-stars"><input type="radio" id="star5" name="dashboard-rating" value="5" required/><label for="star5">★</label><input type="radio" id="star4" name="dashboard-rating" value="4"/><label for="star4">★</label><input type="radio" id="star3" name="dashboard-rating" value="3"/><label for="star3">★</label><input type="radio" id="star2" name="dashboard-rating" value="2"/><label for="star2">★</label><input type="radio" id="star1" name="dashboard-rating" value="1"/><label for="star1">★</label></div><textarea id="review-text" class="form-control mt-3" rows="3" placeholder="Izoh..." required></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Yuborish</button></div></form></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config/endpoints.js"></script>
     <script>
         const currentUserId = localStorage.getItem("user_id");
         const currentUsername = localStorage.getItem("username");
-        
         const isStaff = localStorage.getItem("is_staff");
+        // Roli aniq olish va bo'shliqlardan tozalash
         let currentUserRole = localStorage.getItem("user_role") ? localStorage.getItem("user_role").toLowerCase().trim() : "client";
 
         async function getCustomHeaders() {
@@ -263,7 +126,8 @@
                 return;
             }
 
-            if (isStaff === "true" || isStaff === true) {
+            // Agar admin kirsa, uni darhol admin panelga haydaymiz
+            if (isStaff === "true") {
                 window.location.href = "dashboard-admin.html";
                 return;
             }
@@ -276,6 +140,7 @@
         });
 
         async function loadDashboard() {
+            // ROLGA QARAB TO'G'RI PANELNI KO'RSATISH
             if (currentUserRole === "worker") {
                 document.getElementById("worker-panel").classList.remove("d-none");
                 document.getElementById("client-panel").classList.add("d-none");
@@ -294,7 +159,7 @@
             window.location.href = "login.html";
         }
 
-        // ================= 👤 MIJOZ METODLARI =================
+        // ================= 👤 MIJOZ FUNKSIYALARI =================
         async function loadClientOrders(customUrl = null) {
             try {
                 const headers = await getCustomHeaders();
@@ -319,15 +184,12 @@
                 orders.forEach(order => {
                     let actionCell = "";
                     const statusLower = order.status.toLowerCase();
-                    const serviceName = order.service_name || "Noma'lum Xizmat";
                     const isAlreadyReviewed = allReviews.some(r => parseInt(r.order) === parseInt(order.id));
 
                     if (statusLower === "completed") {
-                        if (isAlreadyReviewed) {
-                            actionCell = `<button class="btn btn-sm btn-light text-success border-success" disabled>✓ Sharh yozilgan</button>`;
-                        } else {
-                            actionCell = `<button class="btn btn-sm btn-warning fw-bold" onclick="openReviewModal(${order.id})">⭐ Sharh</button>`;
-                        }
+                        actionCell = isAlreadyReviewed 
+                            ? `<button class="btn btn-sm btn-light text-success border-success" disabled>✓ Sharh yozilgan</button>` 
+                            : `<button class="btn btn-sm btn-warning fw-bold" onclick="openReviewModal(${order.id})">⭐ Sharh</button>`;
                     } else if (statusLower === "pending" || statusLower === "accepted") {
                         actionCell = `<button class="btn btn-sm btn-outline-danger" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>`;
                     } else {
@@ -337,7 +199,7 @@
                     tbody.innerHTML += `
                         <tr>
                             <td class="fw-bold">#${order.id}</td>
-                            <td class="fw-semibold">🛠 ${serviceName}</td>
+                            <td class="fw-semibold">🛠 ${order.service_name || "Noma'lum"}</td>
                             <td><span class="badge bg-info text-dark text-capitalize">${order.status}</span></td>
                             <td>${actionCell}</td>
                         </tr>`;
@@ -346,44 +208,15 @@
             } catch (err) { console.error(err); }
         }
 
-        function openReviewModal(orderId) {
-            document.getElementById("review-order-id").value = orderId;
-            document.getElementById("review-form").reset();
-            new bootstrap.Modal(document.getElementById('reviewModal')).show();
-        }
-
-        async function submitReview(event) {
-            event.preventDefault();
-            try {
-                const headers = await getCustomHeaders();
-                const res = await fetch(API.reviews, {
-                    method: "POST",
-                    headers: headers,
-                    body: JSON.stringify({
-                        order: parseInt(document.getElementById("review-order-id").value),
-                        rating: parseInt(document.querySelector('input[name="dashboard-rating"]:checked').value),
-                        comment: document.getElementById("review-text").value
-                    })
-                });
-                if (res.ok) {
-                    alert("Sharh muvaffaqiyatli yuborildi!");
-                    bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
-                    await loadClientOrders();
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        // ================= 🛠 USTA METODLARI =================
+        // ================= 🛠 USTA FUNKSIYALARI =================
         async function loadWorkerServices() {
             try {
                 const container = document.getElementById("worker-my-services-container");
                 container.innerHTML = "<div class='text-center text-muted py-4'>Yuklanmoqda...</div>";
 
                 const res = await fetch(API.services);
-                if (!res.ok) throw new Error();
                 const data = await res.json();
                 const services = data.results || data || [];
-
                 const myServices = services.filter(s => String(s.worker) === String(currentUserId));
 
                 if (!myServices.length) {
@@ -394,11 +227,8 @@
                 container.innerHTML = "";
                 myServices.forEach(s => {
                     const avgRating = parseFloat(s.average_rating) || 0;
-                    const reviewsCount = parseInt(s.reviews_count) || 0;
                     const stars = "★".repeat(Math.round(avgRating)) + "☆".repeat(5 - Math.round(avgRating));
-
                     const fullDesc = s.description || 'Tavsif berilmagan';
-                    const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                     const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
                     const safeName = s.name.replace(/"/g, '&quot;');
 
@@ -407,17 +237,15 @@
                             <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold text-primary">${s.name}</h5>
-                                    <div class="mb-2 small"><span class="text-warning">${stars}</span> <span class="text-muted">(${reviewsCount} ta fikr)</span></div>
-                                    <p class="text-secondary small">${shortDesc}</p>
-                                    <button class="btn btn-link p-0 text-decoration-none small" onclick="openWorkerServiceDetailModal('${safeName}', \`${safeDesc}\`, ${s.price})">Batafsil ko'rish →</button>
+                                    <div class="mb-2 small"><span class="text-warning">${stars}</span> <span class="text-muted">(${s.reviews_count || 0} ta fikr)</span></div>
+                                    <p class="text-secondary small text-truncate">${fullDesc}</p>
+                                    <button class="btn btn-link p-0 text-decoration-none small" onclick="openWorkerServiceDetailModal('${safeName}', \`${safeDesc}\`, ${s.price})">Batafsil →</button>
                                 </div>
                                 <div class="card-footer bg-transparent border-0 pt-0 px-3 pb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
-                                    </div>
+                                    <span class="badge bg-success fs-6 mb-2">${parseFloat(s.price).toLocaleString()} so'm</span>
                                     <div class="d-flex gap-2 border-top pt-2">
-                                        <button class="btn btn-sm btn-outline-warning w-50" onclick="openEditServiceModal(${s.id}, '${safeName}', ${s.price}, \`${safeDesc}\`, ${s.category || 'null'})">✏️ Tahrirlash</button>
-                                        <button class="btn btn-sm btn-outline-danger w-50" onclick="deleteService(${s.id})">🗑️ O'chirish</button>
+                                        <button class="btn btn-sm btn-outline-warning w-50" onclick="openEditServiceModal(${s.id}, '${safeName}', ${s.price}, \`${safeDesc}\`, ${s.category || 'null'})">✏️</button>
+                                        <button class="btn btn-sm btn-outline-danger w-50" onclick="deleteService(${s.id})">🗑️</button>
                                     </div>
                                 </div>
                             </div>
@@ -426,92 +254,10 @@
             } catch (err) { console.error(err); }
         }
 
-        function openWorkerServiceDetailModal(name, desc, price) {
-            document.getElementById("view-service-title").innerText = name;
-            document.getElementById("view-service-price").innerText = parseFloat(price).toLocaleString() + " so'm";
-            document.getElementById("view-service-desc").innerText = desc;
-            new bootstrap.Modal(document.getElementById('viewServiceModal')).show();
-        }
-
-        function openServiceModal() {
-            document.getElementById("service-form").reset();
-            new bootstrap.Modal(document.getElementById('serviceModal')).show();
-        }
-
-        async function submitNewService(event) {
-            event.preventDefault();
-            try {
-                const headers = await getCustomHeaders();
-                const res = await fetch(API.services, {
-                    method: "POST",
-                    headers: headers,
-                    body: JSON.stringify({
-                        name: document.getElementById("service-name").value,
-                        category: parseInt(document.getElementById("service-category").value),
-                        price: parseFloat(document.getElementById("service-price").value),
-                        description: document.getElementById("service-desc").value
-                    })
-                });
-                if (res.ok) {
-                    alert("Xizmat yaratildi!");
-                    bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
-                    await loadWorkerServices();
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        function openEditServiceModal(id, name, price, desc, categoryId) {
-            document.getElementById("edit-service-id").value = id;
-            document.getElementById("edit-service-name").value = name;
-            document.getElementById("edit-service-price").value = price;
-            document.getElementById("edit-service-desc").value = desc;
-
-            const editSelect = document.getElementById("edit-service-category");
-            editSelect.innerHTML = document.getElementById("service-category").innerHTML;
-            if(categoryId) editSelect.value = categoryId;
-            new bootstrap.Modal(document.getElementById('editServiceModal')).show();
-        }
-
-        document.getElementById("service-edit-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            try {
-                const headers = await getCustomHeaders();
-                const serviceId = document.getElementById("edit-service-id").value;
-                const res = await fetch(`${API.services}${serviceId}/`, {
-                    method: "PATCH",
-                    headers: headers,
-                    body: JSON.stringify({
-                        name: document.getElementById("edit-service-name").value,
-                        category: parseInt(document.getElementById("edit-service-category").value),
-                        price: parseFloat(document.getElementById("edit-service-price").value),
-                        description: document.getElementById("edit-service-desc").value
-                    })
-                });
-                if (res.ok) {
-                    alert("O'zgarishlar saqlandi!");
-                    bootstrap.Modal.getInstance(document.getElementById('editServiceModal')).hide();
-                    await loadWorkerServices();
-                }
-            } catch (err) { console.error(err); }
-        });
-
-        async function deleteService(serviceId) {
-            if (!confirm("O'chirilsinmi?")) return;
-            try {
-                const headers = await getCustomHeaders();
-                const res = await fetch(`${API.services}${serviceId}/`, { method: "DELETE", headers });
-                if (res.ok) {
-                    document.getElementById(`service-card-${serviceId}`).remove();
-                }
-            } catch (err) { console.error(err); }
-        }
-
         async function loadWorkerOrders(customUrl = null) {
             try {
                 const headers = await getCustomHeaders();
                 const orderField = document.getElementById("worker-order-sort").value;
-                
-                // 🎯 TUZATISH: Faqat joriy ustaga tegishli buyurtmalarni backend orqali filtrlash
                 const url = customUrl || `${API.orders}?ordering=${orderField}&worker=${currentUserId}`;
 
                 const res = await fetch(url, { headers });
@@ -526,13 +272,11 @@
                     const statusLower = order.status.toLowerCase();
 
                     if (statusLower === "pending") {
-                        actionButtons = `
-                            <button class="btn btn-sm btn-success fw-bold" onclick="updateOrderStatus(${order.id}, 'accepted')">Qabul qilish</button>
-                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Rad etish</button>`;
+                        actionButtons = `<button class="btn btn-sm btn-success me-1 fw-bold" onclick="updateOrderStatus(${order.id}, 'accepted')">Qabul</button>
+                                         <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Rad</button>`;
                     } else if (statusLower === "accepted") {
-                        actionButtons = `
-                            <button class="btn btn-sm btn-primary fw-bold" onclick="updateOrderStatus(${order.id}, 'completed')">Tugatildi</button>
-                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>`;
+                        actionButtons = `<button class="btn btn-sm btn-primary me-1 fw-bold" onclick="updateOrderStatus(${order.id}, 'completed')">Tugatildi</button>
+                                         <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>`;
                     } else {
                         actionButtons = `<span class="text-muted small text-capitalize">${order.status}</span>`;
                     }
@@ -540,8 +284,8 @@
                     tbody.innerHTML += `
                         <tr>
                             <td class="fw-bold">#${order.id}</td>
-                            <td class="fw-semibold">👤 ${order.client || 'Noma\'lum'}</td>
-                            <td class="text-secondary">🛠 ${order.service_name || 'Noma\'lum'}</td>
+                            <td>👤 ${order.client || 'Noma\'lum'}</td>
+                            <td>🛠 ${order.service_name || 'Noma\'lum'}</td>
                             <td><span class="badge bg-secondary text-capitalize">${order.status}</span></td>
                             <td>${actionButtons}</td>
                         </tr>`;
@@ -560,8 +304,7 @@
                 });
                 if (res.ok) {
                     alert("Holat yangilandi!");
-                    if (currentUserRole === "worker") { await loadWorkerOrders(); } 
-                    else { await loadClientOrders(); }
+                    await loadDashboard();
                 }
             } catch (err) { console.error(err); }
         }
@@ -570,34 +313,19 @@
             try {
                 const res = await fetch(API.categories || API.services + 'categories/'); 
                 const select = document.getElementById("service-category");
-                
-                if (!res.ok) {
-                    select.innerHTML = '<option value="">Kategoriyalarni yuklab bo\'lmadi</option>';
-                    return;
-                }
+                if (!res.ok) return;
                 const categories = await res.json();
-                
                 const list = categories.results || categories || [];
                 select.innerHTML = '<option value="">Kategoriyani tanlang...</option>';
-                list.forEach(c => {
-                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
-            } catch (err) { 
-                console.error(err);
-                document.getElementById("service-category").innerHTML = '<option value="">Yuklashda xatolik yuz berdi</option>';
-            }
+                list.forEach(c => { select.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+            } catch (err) { console.error(err); }
         }
 
         function renderPaginationButtons(elemId, prevUrl, nextUrl, callback) {
             const container = document.getElementById(elemId);
-            if (!container) return;
-            container.innerHTML = "";
-            if (prevUrl) {
-                container.innerHTML += `<li class="page-item"><button class="page-item btn btn-sm btn-outline-primary me-2" onclick="${callback.name}('${prevUrl}')">← Oldingi</button></li>`;
-            }
-            if (nextUrl) {
-                container.innerHTML += `<li class="page-item"><button class="page-item btn btn-sm btn-outline-primary" onclick="${callback.name}('${nextUrl}')">Keyingi →</button></li>`;
-            }
+            if (!container) return; container.innerHTML = "";
+            if (prevUrl) container.innerHTML += `<li class="page-item"><button class="btn btn-sm btn-outline-primary me-2" onclick="${callback.name}('${prevUrl}')">← Oldingi</button></li>`;
+            if (nextUrl) container.innerHTML += `<li class="page-item"><button class="btn btn-sm btn-outline-primary" onclick="${callback.name}('${nextUrl}')">Keyingi →</button></li>`;
         }
     </script>
 </body>

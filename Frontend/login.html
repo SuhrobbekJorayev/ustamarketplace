@@ -2,123 +2,73 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Tizimga kirish - UstaMarketplace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tizimga Kirish</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+<body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
 
-    <div class="card p-4 shadow-sm border-0" style="width: 100%; max-width: 400px;">
-        <h3 class="text-center fw-bold mb-2">Tizimga kirish</h3>
-        <p class="text-center text-muted small mb-4">UstaMarketplace Demo loyihasi</p>
-        
-        <div id="error-alert" class="alert alert-danger d-none small py-2 text-center" role="alert"></div>
-
-        <form id="login-form">
-            <div class="mb-3">
-                <label class="form-label small fw-bold">Username</label>
-                <input type="text" id="username" class="form-control" required placeholder="Foydalanuvchi nomi">
-            </div>
-            <div class="mb-3">
-                <label class="form-label small fw-bold">Parol</label>
-                <input type="password" id="password" class="form-control" required placeholder="••••••••">
-            </div>
-            <button type="submit" id="submit-btn" class="btn btn-primary w-100 py-2 fw-bold">Kirish</button>
-        </form>
-        
-        <p class="text-center mt-3 mb-0 small">Akkount yo'qmi? <a href="register.html" class="fw-bold">Ro'yxatdan o'tish</a></p>
-        <p class="text-center mt-2 mb-0"><a href="index.html" class="text-secondary small">← Bosh sahifaga qaytish</a></p>
+    <div class="card shadow border-0" style="width: 100%; max-width: 400px; margin-top: 100px;">
+        <div class="card-body p-4">
+            <h3 class="text-center fw-bold text-dark mb-4">Tizimga Kirish</h3>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label">Foydalanuvchi nomi (Username)</label>
+                    <input type="text" id="username" class="form-control" required placeholder="admin yoki usta...">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Parol</label>
+                    <input type="password" id="password" class="form-control" required placeholder="******">
+                </div>
+                <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Kirish</button>
+            </form>
+        </div>
     </div>
 
     <script src="config/endpoints.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const token = localStorage.getItem("access");
-            const isStaff = localStorage.getItem("is_staff");
-            const role = localStorage.getItem("user_role");
-
-            if (token) {
-                redirectByUserStatus(isStaff, role);
-            }
-        });
-
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                return JSON.parse(window.atob(base64));
-            } catch (e) { return null; }
-        }
-
-        document.getElementById("login-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value;
-            const errorAlert = document.getElementById("error-alert");
-            const submitBtn = document.getElementById("submit-btn");
-
-            errorAlert.classList.add("d-none");
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Kirilmoqda...";
+        async function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById("username").value;
+            const passwordInput = document.getElementById("password").value;
 
             try {
-                const res = await fetch(API.auth.login, {
+                // DIQQAT: API.login endpointingiz config/endpoints.js ichida bo'lishi kerak
+                const res = await fetch(API.login || "/api/token/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ username: usernameInput, password: passwordInput })
                 });
 
-                const data = await res.json();
-
-                if (res.ok) {
-                    const token = data.access || data.token;
-                    localStorage.setItem("access", token); 
-                    localStorage.setItem("username", data.username || username);
-
-                    const payload = parseJwt(token);
-                    if (payload) {
-                        localStorage.setItem("user_id", payload.user_id || payload.id);
-                    }
-
-                    // is_staff ni Boolean holatida aniqlash
-                    let isStaffValue = false;
-                    if (data.is_staff !== undefined) isStaffValue = data.is_staff;
-                    else if (data.user && data.user.is_staff !== undefined) isStaffValue = data.user.is_staff;
-                    else if (payload && payload.is_staff !== undefined) isStaffValue = payload.is_staff;
-
-                    // role faqat "worker" yoki "client" bo'ladi
-                    let roleValue = "client";
-                    if (data.role) roleValue = data.role;
-                    else if (data.user && data.user.role) roleValue = data.user.role;
-                    else if (payload && payload.role) roleValue = payload.role;
-
-                    localStorage.setItem("is_staff", isStaffValue.toString());
-                    localStorage.setItem("user_role", roleValue);
-
-                    redirectByUserStatus(isStaffValue.toString(), roleValue);
-
-                } else {
-                    const errorMsg = data.detail || data.non_field_errors || "Username yoki parol noto'g'ri!";
-                    errorAlert.innerText = typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg;
-                    errorAlert.classList.remove("d-none");
+                if (!res.ok) {
+                    alert("Username yoki parol xato!");
+                    return;
                 }
-            } catch(e) {
-                errorAlert.innerText = "Server bilan aloqa uzildi!";
-                errorAlert.classList.remove("d-none");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Kirish";
-            }
-        });
 
-        // Backend qoidalari asosida toza routing
-        function redirectByUserStatus(isStaff, role) {
-            if (isStaff === true || isStaff === "true") {
-                // Admin to'g'ridan-to'g'ri admin dashboardga boradi
-                window.location.href = "dashboard-admin.html";
-            } else {
-                // Oddiy client yoki worker esa umumiy dashboard.html ga boradi (u o'zini auto moslashtiradi)
-                window.location.href = "dashboard.html";
+                const data = await res.json();
+                
+                // Backenddan keladigan ma'lumotlarni aniq saqlaymiz
+                localStorage.setItem("access", data.access || data.token);
+                localStorage.setItem("user_id", data.user_id || data.id);
+                localStorage.setItem("username", data.username);
+                
+                // Rol va Staff ma'lumotlarini tozalab saqlash
+                const role = data.role ? String(data.role).toLowerCase().trim() : "client";
+                const isStaff = String(data.is_staff).toLowerCase().trim(); // "true" yoki "false"
+                
+                localStorage.setItem("user_role", role);
+                localStorage.setItem("is_staff", isStaff);
+
+                // 🚀 TO'G'RI SAHIFAGA YO'NALTIRISH (REDIRECT)
+                if (isStaff === "true") {
+                    window.location.href = "dashboard-admin.html";
+                } else {
+                    window.location.href = "dashboard.html";
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Tizimga kirishda xatolik yuz berdi!");
             }
         }
     </script>
