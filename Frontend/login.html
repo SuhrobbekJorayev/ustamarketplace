@@ -42,25 +42,37 @@
                 if (res.ok) {
                     const data = await res.json();
                     
-                    // Tokenlarni va foydalanuvchi ma'lumotlarini brauzer xotirasiga yozamiz
+                    // Tokenlarni saqlaymiz
                     localStorage.setItem("access", data.access);
                     localStorage.setItem("refresh", data.refresh);
                     
-                    // Token ichidan user_id ni ajratib olish (yoki backend profile orqali olish)
-                    // Hozirgi holatda token decode qilish o'rniga backenddan profilni tekshiramiz
-                    // Biroq ishlashini osonlashtirish uchun foydalanuvchi ID va Rolini aniqlash uchun vaqtincha saqlaymiz:
+                    // Backenddan qaytayotgan rolni saqlaymiz ('admin', 'worker' yoki 'client')
+                    localStorage.setItem("user_role", data.role);
+
+                    // Token ichidan user_id ni ajratib olish logikasi
                     const base64Url = data.access.split('.')[1];
                     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
                     const payload = JSON.parse(window.atob(base64));
                     
-                    localStorage.setItem("user_id", payload.user_id);
+                    localStorage.setItem("user_id", payload.user_id || payload.id);
                     
                     alert("Xush kelibsiz!");
-                    window.location.href = "index.html";
+
+                    // 👇 ROLGA QARAB TO'G'RI SAHIFAGA YO'NALTIRISH
+                    if (data.role === "admin" || data.role === "superuser") {
+                        // Agar kirgan odam admin bo'lsa, srazu admin panelga kiradi
+                        window.location.href = "admin-dashboard.html";
+                    } else {
+                        // Qolganlar (usta va mijozlar) bosh sahifaga o'tadi
+                        window.location.href = "index.html";
+                    }
+
                 } else {
-                    alert("Login yoki parol noto'g'ri!");
+                    const errorData = await res.json();
+                    alert("Xatolik: " + (errorData.detail || "Login yoki parol noto'g'ri!"));
                 }
             } catch(e) {
+                console.error(e);
                 alert("Serverga ulanishda xatolik!");
             }
         });
