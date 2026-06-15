@@ -34,10 +34,11 @@
         // Sahifa yuklanganda tekshirish
         document.addEventListener("DOMContentLoaded", () => {
             const token = localStorage.getItem("access");
-            const role = localStorage.getItem("user_role");
+            const isStaff = localStorage.getItem("is_staff");
 
-            if (token && role) {
-                redirectByRole(role);
+            if (token) {
+                // Agar odam oldin kirgan bo'lsa, to'g'ri dashboardga otib yuborish
+                redirectByStaffStatus(isStaff);
             }
         });
 
@@ -69,36 +70,12 @@
                     localStorage.setItem("access", data.access || data.token); 
                     localStorage.setItem("username", data.username || username);
                     
-                    // 2. Foydalanuvchi ID sini saqlash
-                    const userId = data.user_id || data.id || (data.user ? data.user.id : null);
-                    if (userId) {
-                        localStorage.setItem("user_id", userId);
-                    }
+                    // 2. ChatGP aytgan mantiq: is_staff statusini aniqlab saqlash
+                    const isStaff = data.is_staff || (data.user && data.user.is_staff);
+                    localStorage.setItem("is_staff", isStaff);
 
-                    // 3. Rolni tekshirish (Kengaytirilgan variant)
-                    let userRole = "client"; 
-
-                    if (data.user) {
-                        if (data.user.is_superuser === true || data.user.is_staff === true || data.user.role === "admin") {
-                            userRole = "admin";
-                        } else if (data.user.role === "worker" || data.user.role === "usta") {
-                            userRole = "worker";
-                        } else if (data.user.role) {
-                            userRole = data.user.role;
-                        }
-                    } else if (data.is_superuser === true || data.is_staff === true || data.role === "admin") {
-                        userRole = "admin";
-                    } else if (data.role === "worker" || data.role === "usta") {
-                        userRole = "worker";
-                    } else if (data.role) {
-                        userRole = data.role;
-                    }
-
-                    const finalRole = String(userRole).toLowerCase().trim();
-                    localStorage.setItem("user_role", finalRole);
-
-                    // 4. Yo'naltirish
-                    redirectByRole(finalRole);
+                    // 3. Yo'naltirish shartini ishga tushirish
+                    redirectByStaffStatus(isStaff);
 
                 } else {
                     const errorMsg = data.detail || data.non_field_errors || "Username yoki parol noto'g'ri!";
@@ -115,14 +92,15 @@
             }
         });
 
-        function redirectByRole(role) {
-            // Yo'naltirish qismi
-            if (role === "admin") {
+        // ChatGP aytgan toza shartli funksiya
+        function redirectByStaffStatus(isStaff) {
+            // isStaff qiymati true yoki satr ko'rinishida "true" kelishi mumkinligini hisobga olamiz
+            if (isStaff === true || isStaff === "true") {
+                // admin dashboard
                 window.location.href = "dashboard-admin.html";
-            } else if (role === "worker" || role === "client") {
-                window.location.href = "index.html"; // Client va Worker uchun Home Page
             } else {
-                window.location.href = "index.html";
+                // worker/client dashboard
+                window.location.href = "dashboard.html";
             }
         }
     </script>

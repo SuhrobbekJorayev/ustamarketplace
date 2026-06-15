@@ -2,6 +2,7 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEMO PROJECT - UstaMarketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -10,8 +11,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
-            <div class="collapse navbar-collapse">
-                <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
+            <div class="collapse navbar-collapse show"> <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
             </div>
         </div>
     </nav>
@@ -132,7 +132,7 @@
                         </div>
                         
                         <button type="submit" class="btn btn-primary w-100 mt-2">O'zgarishlarni saqlash</button>
-                    </form>
+                    </</form>
                 </div>
             </div>
         </div>
@@ -141,20 +141,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config/endpoints.js"></script>
     <script>
-        // 🛡️ 1-HIMOYA: Sahifa yuklanishi bilan adminlarni boshqa yoqqa burib yuborish
+        // Global Obyektlar - Modallarni bir marta yaratib olish (Memory leak oldini olish)
+        let detailModal, workerProfileModal, myProfileModal;
+
+        // Xavfsiz matn chiqarish funksiyasi (XSS dan himoya)
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
+            // Modallarni initsializatsiya qilish
+            detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+            workerProfileModal = new bootstrap.Modal(document.getElementById('workerProfileModal'));
+            myProfileModal = new bootstrap.Modal(document.getElementById('myProfileModal'));
+
             const token = localStorage.getItem("access");
             const role = localStorage.getItem("user_role");
 
             if (token && (role === "admin" || role === "superuser")) {
                 window.location.href = "dashboard-admin.html";
+                return;
             }
+            initApp();
         });
 
         let userRole = localStorage.getItem("user_role") || null;
         let currentUrl = API.services; 
+        let servicesDataStore = {}; // Xizmatlar ma'lumotlarini JS xotirasida saqlash (XSS va sintaksis xatolikka qarshi)
 
-        // 🛠️ Universal fetchWithAuth funksiyasi (Headers ichiga token joylash uchun)
         async function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem("access");
             const headers = {
@@ -177,13 +194,10 @@
                 const base64Url = token.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
                 const payload = JSON.parse(window.atob(base64));
-                if (payload.user_id) {
-                    localStorage.setItem("user_id", payload.user_id);
-                    return payload.user_id;
-                }
-                if (payload.id) {
-                    localStorage.setItem("user_id", payload.id);
-                    return payload.id;
+                const userId = payload.user_id || payload.id;
+                if (userId) {
+                    localStorage.setItem("user_id", userId);
+                    return userId;
                 }
             } catch (e) {
                 console.error("Tokenni decode qilishda xatolik:", e);
@@ -191,9 +205,8 @@
             return null;
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
+        async function initApp() {
             renderNavbar();
-            
             const token = localStorage.getItem("access");
             const currentUserId = getUserIdFromToken();
             
@@ -210,7 +223,7 @@
             
             await loadCategories();
             await fetchServices(currentUrl); 
-        });
+        }
 
         function renderNavbar() {
             const nav = document.getElementById("nav-auth-links");
@@ -220,7 +233,6 @@
                 let btnText = "Kabinet (Dashboard)";
                 let btnClass = "btn-outline-light";
 
-                // 🛠️ FIX: "admin.html" eski linki "dashboard-admin.html" ga o'zgartirildi
                 if (userRole === "admin" || userRole === "superuser") {
                     dashboardLink = "dashboard-admin.html"; 
                     btnText = "⚙️ Admin Panel";
@@ -250,7 +262,6 @@
                 userRole = profile.role || (profile.is_superuser ? "admin" : "client");
                 localStorage.setItem("user_role", userRole);
                 
-                // 🛡️ 2-HIMOYA: Agar foydalanuvchi admin bo'lsa srazu sahifadan haydaymiz
                 if (userRole === "admin" || userRole === "superuser") {
                     window.location.href = "dashboard-admin.html";
                     return;
@@ -266,7 +277,9 @@
                 const select = document.getElementById("category-filter");
                 const list = data.results || data || [];
                 select.innerHTML = '<option value="">Barcha kategoriyalar</option>';
-                list.forEach(c => { select.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+                list.forEach(c => { 
+                    select.innerHTML += `<option value="${c.id}">${escapeHTML(c.name)}</option>`; 
+                });
             } catch (err) { 
                 console.error("Kategoriyalar yuklanmadi:", err); 
             }
@@ -283,6 +296,10 @@
                 const data = await res.json();
                 const services = data.results || data || []; 
                 
+                // Keshga saqlaymiz (ID orqali tez topish uchun)
+                servicesDataStore = {};
+                services.forEach(s => { servicesDataStore[s.id] = s; });
+
                 displayServices(services);
                 renderPagination(data.previous, data.next, url);
 
@@ -328,33 +345,33 @@
 
                 const fullDesc = s.description || 'Tavsif berilmagan';
                 const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
-                const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
 
                 const workerName = s.worker_name || "Usta";
                 const workerPhone = s.worker_phone || "Raqam ko'rsatilmagan"; 
                 const workerProfileId = s.worker || 0;
 
+                // Xavfsiz render (Sintaksis xatosi butkul yo'qotildi, ID uzatilyapti xolos)
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <h5 class="card-title fw-bold text-primary mb-0">${s.name}</h5>
+                                    <h5 class="card-title fw-bold text-primary mb-0">${escapeHTML(s.name)}</h5>
                                     <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerProfileId})" class="text-primary fw-bold text-decoration-none small">
-                                        👤 ${workerName}
+                                        👤 ${escapeHTML(workerName)}
                                     </a>
                                 </div>
                                 
                                 ${ratingHTML}
                                 
-                                <p class="text-secondary small mb-3">${shortDesc}</p>
+                                <p class="text-secondary small mb-3">${escapeHTML(shortDesc)}</p>
 
                                 <div class="mb-2 p-2 bg-light border rounded text-secondary small fw-bold">
-                                    📞 Aloqa raqami: <span class="text-dark">${workerPhone}</span>
+                                    📞 Aloqa raqami: <span class="text-dark">${escapeHTML(workerPhone)}</span>
                                 </div>
 
                                 <button class="btn btn-link p-0 text-decoration-none small fw-bold mt-1 d-block text-start" 
-                                    onclick="openDetailModal('${s.name}', \`${safeDesc}\`, ${s.price}, ${s.id}, '[]')">
+                                    onclick="openDetailModal(${s.id})">
                                     Batafsil ko'rish →
                                 </button>
                             </div>
@@ -368,10 +385,13 @@
             });
         }
 
-        async function openDetailModal(name, desc, price, id, reviewsJson) {
-            document.getElementById("detail-title").innerText = name;
-            document.getElementById("detail-desc").innerText = desc;
-            document.getElementById("detail-price").innerText = parseFloat(price).toLocaleString() + " so'm";
+        async function openDetailModal(serviceId) {
+            const service = servicesDataStore[serviceId];
+            if (!service) return;
+
+            document.getElementById("detail-title").innerText = service.name;
+            document.getElementById("detail-desc").innerText = service.description || 'Tavsif berilmagan';
+            document.getElementById("detail-price").innerText = parseFloat(service.price).toLocaleString() + " so'm";
 
             const reviewsListContainer = document.getElementById("detail-reviews-list");
             const avgRatingContainer = document.getElementById("detail-avg-rating");
@@ -381,7 +401,7 @@
 
             let reviews = [];
             try {
-                const res = await fetch(`${API.reviews}?service=${id}`); 
+                const res = await fetch(`${API.reviews}?service=${serviceId}`); 
                 if (res.ok) {
                     const data = await res.json();
                     reviews = data.results || data || [];
@@ -409,10 +429,10 @@
                         <div class="col-md-6">
                             <div class="p-3 bg-white rounded border shadow-sm h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-dark small">👤 ${clientName}</span>
+                                    <span class="fw-bold text-dark small">👤 ${escapeHTML(clientName)}</span>
                                     <span class="text-warning small">${rStars}</span>
                                 </div>
-                                <p class="text-muted small mb-0" style="font-style: italic;">"${commentText}"</p>
+                                <p class="text-muted small mb-0" style="font-style: italic;">"${escapeHTML(commentText)}"</p>
                             </div>
                         </div>
                     `;
@@ -430,10 +450,10 @@
             } else if (userRole === "admin" || userRole === "superuser") {
                 footer.innerHTML += `<button class="btn btn-dark" disabled>Admin Rejimi</button>`;
             } else {
-                footer.innerHTML += `<button class="btn btn-success fw-bold" onclick="bookOrder(${id})">Hozir Buyurtma berish</button>`;
+                footer.innerHTML += `<button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Hozir Buyurtma berish</button>`;
             }
 
-            new bootstrap.Modal(document.getElementById('detailModal')).show();
+            detailModal.show();
         }
 
         async function viewWorkerProfile(workerUserId) {
@@ -444,7 +464,7 @@
             const content = document.getElementById("worker-profile-content");
             content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
             
-            new bootstrap.Modal(document.getElementById('workerProfileModal')).show();
+            workerProfileModal.show();
 
             try {
                 const res = await fetch(`${API.users}worker-public/${workerUserId}/`); 
@@ -459,18 +479,18 @@
 
                     content.innerHTML = `
                         <div class="bg-light p-3 rounded-circle d-inline-block mb-2 text-primary fs-3 fw-bold" style="width:60px; height:60px; line-height:30px;">
-                            ${username[0].toUpperCase()}
+                            ${escapeHTML(username[0].toUpperCase())}
                         </div>
-                        <h4 class="fw-bold mb-1">@${username}</h4>
+                        <h4 class="fw-bold mb-1">@${escapeHTML(username)}</h4>
                         <p class="badge bg-success mb-3">Professional Usta</p>
                         
                         <div class="text-start bg-light p-3 rounded mb-3 small">
                             <p class="mb-2"><strong>💼 Tajriba:</strong> ${experience} yil</p>
-                            <p class="mb-2"><strong>📍 Manzil:</strong> ${location}</p>
-                            <p class="mb-0"><strong>📝 Men haqimda (Bio):</strong> ${bio}</p>
+                            <p class="mb-2"><strong>📍 Manzil:</strong> ${escapeHTML(location)}</p>
+                            <p class="mb-0"><strong>📝 Men haqimda (Bio):</strong> ${escapeHTML(bio)}</p>
                         </div>
                         <div class="p-2 bg-white border rounded text-secondary small fw-bold mb-2">
-                            📞 Aloqa raqami: <span class="text-dark">${phone}</span>
+                            📞 Aloqa raqami: <span class="text-dark">${escapeHTML(phone)}</span>
                         </div>
                     `;
                 } else {
@@ -483,7 +503,7 @@
         }
 
         async function openMyProfileModal() {
-            new bootstrap.Modal(document.getElementById('myProfileModal')).show();
+            myProfileModal.show();
 
             try {
                 const res = await fetchWithAuth(`${API.users}worker-profile/`); 

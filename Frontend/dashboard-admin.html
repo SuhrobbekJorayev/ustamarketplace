@@ -3,142 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Boshqaruv Paneli - Dashboard</title>
+    <title>Admin Professional Panel — UstaMarketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #12141c; color: #e1e7ef; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .sidebar { background-color: #1a1f2c; min-height: 100vh; border-right: 1px solid #2d3548; }
+        .admin-card { background-color: #1a1f2c; border: 1px solid #2d3548; border-radius: 12px; transition: transform 0.2s; }
+        .admin-card:hover { transform: translateY(-3px); }
+        .card-header { background-color: #1e2538 !important; border-bottom: 1px solid #2d3548 !important; color: #fff !important; }
+        .table { color: #e1e7ef !important; }
+        .table-hover tbody tr:hover { background-color: #232b3e !important; color: #fff !important; }
+        .list-group-item { background-color: #1a1f2c !important; color: #e1e7ef !important; border-bottom: 1px solid #2d3548 !important; }
+        .navbar-custom { background-color: #1a1f2c; border-bottom: 1px solid #2d3548; }
+        .modal-content { background-color: #1a1f2c; color: #fff; border: 1px solid #2d3548; }
+        .form-control, .form-select { background-color: #12141c !important; border: 1px solid #2d3548 !important; color: #fff !important; }
+        .form-control:focus, .form-select:focus { border-color: #0d6efd !important; box-shadow: none !important; }
+        .page-link { background-color: #1a1f2c !important; border-color: #2d3548 !important; color: #0d6efd !important; }
+        .page-item.disabled .page-link { background-color: #12141c !important; border-color: #2d3548 !important; color: #5c677d !important; }
+    </style>
+    <script>
+        // ChatGP mantiqi bo'yicha qat'iy xavfsizlik filtri
+        const isStaff = localStorage.getItem("is_staff");
+        if (isStaff !== "true" && isStaff !== true) {
+            window.location.href = "login.html";
+        }
+    </script>
 </head>
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-dark bg-danger shadow mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">🛡️ UstaMarketplace (Admin)</a>
-            <div>
-                <span class="navbar-text text-white fw-bold me-3" id="admin-welcome">@admin</span>
-                <button class="btn btn-sm btn-outline-light" onclick="logout()">Chiqish</button>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm py-3">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-danger fs-4" href="index.html">🛡️ UstaMarketplace <span class="text-white fs-6 fw-normal">| Admin Panel</span></a>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-danger px-3 py-2 me-3 fs-6" id="admin-welcome">@admin</span>
+                <button class="btn btn-sm btn-outline-light fw-bold" onclick="logout()">Chiqish</button>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        
-        <div class="row mb-4" id="stats-container">
-            <div class="col-md-4 mb-2">
-                <div class="card shadow-sm border-0 border-start border-primary border-4">
-                    <div class="card-body">
-                        <h6 class="text-muted fw-bold mb-1">Jami Foydalanuvchilar</h6>
-                        <h3 class="fw-bold text-primary" id="stat-users">...</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-2">
-                <div class="card shadow-sm border-0 border-start border-success border-4">
-                    <div class="card-body">
-                        <h6 class="text-muted fw-bold mb-1">Jami Xizmatlar</h6>
-                        <h3 class="fw-bold text-success" id="stat-services">...</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-2">
-                <div class="card shadow-sm border-0 border-start border-warning border-4">
-                    <div class="card-body">
-                        <h6 class="text-muted fw-bold mb-1">Jami Buyurtmalar</h6>
-                        <h3 class="fw-bold text-warning" id="stat-orders">...</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                        <span class="fw-bold text-dark fs-5">📁 Kategoriyalar</span>
-                        <button class="btn btn-sm btn-outline-primary fw-bold" onclick="openCategoryModal()">+ Qo'shish</button>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush" id="admin-categories-list">
-                            <li class="text-center text-muted p-3">Yuklanmoqda...</li>
-                        </ul>
-                    </div>
+            
+            <div class="col-md-2 sidebar p-4 d-none d-md-block">
+                <p class="text-muted small fw-bold text-uppercase tracking-wider">Navigatsiya</p>
+                <div class="nav flex-column gap-2">
+                    <a href="#" class="btn btn-danger text-start fw-bold py-2 shadow-sm">📊 Dashboard</a>
+                    <a href="#users-section" class="btn btn-outline-secondary text-white text-start py-2 border-0">👥 Foydalanuvchilar</a>
+                    <a href="#categories-section" class="btn btn-outline-secondary text-white text-start py-2 border-0">📁 Kategoriyalar</a>
+                    <a href="#orders-section" class="btn btn-outline-secondary text-white text-start py-2 border-0">📋 Buyurtmalar</a>
                 </div>
             </div>
 
-            <div class="col-md-8 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                        <span class="fw-bold text-dark fs-5">👥 Foydalanuvchilar Nazorati</span>
-                        <select id="admin-user-sort" class="form-select form-select-sm" style="max-width: 180px;" onchange="loadAdminUsers()">
-                            <option value="-id">Yangi foydalanuvchilar</option>
-                            <option value="id">Eski foydalanuvchilar</option>
-                        </select>
+            <div class="col-md-10 p-4 p-md-5">
+                
+                <div class="row mb-5" id="stats-container">
+                    <div class="col-md-4 mb-3">
+                        <div class="card admin-card p-2 border-start border-primary border-4 shadow">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Jami Foydalanuvchilar</h6>
+                                    <h2 class="fw-bold text-primary mb-0" id="stat-users">...</h2>
+                                </div>
+                                <span class="fs-1">👥</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card admin-card p-2 border-start border-success border-4 shadow">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Jami Xizmatlar</h6>
+                                    <h2 class="fw-bold text-success mb-0" id="stat-services">...</h2>
+                                </div>
+                                <span class="fs-1">🛠️</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card admin-card p-2 border-start border-warning border-4 shadow">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Jami Buyurtmalar</h6>
+                                    <h2 class="fw-bold text-warning mb-0" id="stat-orders">...</h2>
+                                </div>
+                                <span class="fs-1">📋</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-5">
+                    
+                    <div class="col-lg-4 mb-4" id="categories-section">
+                        <div class="card admin-card shadow">
+                            <div class="card-header d-flex justify-content-between align-items-center py-3">
+                                <span class="fw-bold fs-5 text-warning">📁 Kategoriyalar</span>
+                                <button class="btn btn-sm btn-primary fw-bold px-3" onclick="openCategoryModal()">+ Qo'shish</button>
+                            </div>
+                            <div class="card-body px-3" style="max-height: 400px; overflow-y: auto;">
+                                <ul class="list-group list-group-flush" id="admin-categories-list">
+                                    <li class="text-center text-muted p-3">Yuklanmoqda...</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8 mb-4" id="users-section">
+                        <div class="card admin-card shadow">
+                            <div class="card-header d-flex justify-content-between align-items-center py-3">
+                                <span class="fw-bold fs-5 text-info">👥 Foydalanuvchilar Nazorati</span>
+                                <select id="admin-user-sort" class="form-select form-select-sm" style="max-width: 200px;" onchange="loadAdminUsers()">
+                                    <option value="-id">Yangi foydalanuvchilar</option>
+                                    <option value="id">Eski foydalanuvchilar</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr class="text-muted small border-bottom border-secondary">
+                                                <th>ID</th>
+                                                <th>Foydalanuvchi</th>
+                                                <th>Rol</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Amal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-users-tbody" class="border-0">
+                                            <tr><td colspan="5" class="text-center text-muted py-4">Yuklanmoqda...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <nav class="mt-3"><ul class="pagination justify-content-center pagination-sm" id="admin-users-pagination"></ul></nav>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card admin-card shadow mb-4" id="orders-section">
+                    <div class="card-header py-3">
+                        <span class="fw-bold fs-5 text-danger">📋 Global Buyurtmalar Monitori</span>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table align-middle table-hover">
+                            <table class="table align-middle">
                                 <thead>
-                                    <tr>
+                                    <tr class="text-muted small border-bottom border-secondary">
                                         <th>ID</th>
-                                        <th>Foydalanuvchi</th>
-                                        <th>Rol</th>
-                                        <th>Status</th>
-                                        <th>Amal</th>
+                                        <th>Mijoz</th>
+                                        <th>Xizmat turi</th>
+                                        <th>Holati</th>
+                                        <th class="text-end">Amal</th>
                                     </tr>
                                 </thead>
-                                <tbody id="admin-users-tbody">
-                                    <tr><td colspan="5" class="text-center text-muted">Yuklanmoqda...</td></tr>
+                                <tbody id="admin-orders-tbody" class="border-0">
+                                    <tr><td colspan="5" class="text-center text-muted py-4">Yuklanmoqda...</td></tr>
                                 </tbody>
                             </table>
                         </div>
-                        <nav><ul class="pagination justify-content-center pagination-sm" id="admin-users-pagination"></ul></nav>
+                        <nav class="mt-3"><ul class="pagination justify-content-center pagination-sm" id="admin-orders-pagination"></ul></nav>
                     </div>
                 </div>
+
             </div>
         </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3">
-                <span class="fw-bold text-dark fs-5">📋 Global Buyurtmalar Monitori</span>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead>
-                            <tr>
-                                <th>Buyurtma ID</th>
-                                <th>Mijoz</th>
-                                <th>Xizmat</th>
-                                <th>Holati</th>
-                                <th>O'chirish</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-orders-tbody">
-                            <tr><td colspan="5" class="text-center text-muted">Yuklanmoqda...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <nav><ul class="pagination justify-content-center pagination-sm" id="admin-orders-pagination"></ul></nav>
-            </div>
-        </div>
-
     </div>
 
     <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="cat-modal-title">Yangi Kategoriya Yaratish</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title fw-bold text-warning" id="cat-modal-title">Yangi Kategoriya Yaratish</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="category-form" onsubmit="submitCategory(event)">
                     <div class="modal-body">
                         <input type="hidden" id="category-id">
                         <div class="mb-3">
-                            <label class="form-label">Kategoriya Nomi</label>
-                            <input type="text" id="category-name" class="form-control" required placeholder="Masalan: Uy ta'mirlash xizmatlari">
+                            <label class="form-label text-muted small fw-bold">Kategoriya Nomi</label>
+                            <input type="text" id="category-name" class="form-control" required placeholder="Masalan: Santexnika xizmatlari">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-primary fw-bold">Saqlash</button>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-sm btn-secondary px-3" data-bs-dismiss="modal">Yopish</button>
+                        <button type="submit" class="btn btn-sm btn-primary fw-bold px-4">Saqlash</button>
                     </div>
                 </form>
             </div>
@@ -148,12 +197,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config/endpoints.js"></script>
     <script>
-        // Soddalik va xavfsizlik uchun faqat admin endpointlarini qo'lda yozib ketsa ham bo'ladi:
+        // Soddalik va barqarorlik uchun to'liq endpoint manzillari:
+        const BASE_URL = API?.auth?.login ? API.auth.login.split('/api/')[0] : ""; 
         const ADMIN_API = {
-            stats: "/api/v1/dashboard/stats/",
-            users: "/api/v1/dashboard/users/",
-            categories: "/api/v1/dashboard/categories/",
-            orders: "/api/v1/dashboard/orders/"
+            stats: BASE_URL ? `${BASE_URL}/api/v1/dashboard/stats/` : "/api/v1/dashboard/stats/",
+            users: BASE_URL ? `${BASE_URL}/api/v1/dashboard/users/` : "/api/v1/dashboard/users/",
+            categories: BASE_URL ? `${BASE_URL}/api/v1/dashboard/categories/` : "/api/v1/dashboard/categories/",
+            orders: BASE_URL ? `${BASE_URL}/api/v1/dashboard/orders/` : "/api/v1/dashboard/orders/"
         };
 
         async function getAdminHeaders() {
@@ -164,15 +214,12 @@
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            if (!localStorage.getItem("access")) {
-                window.location.href = "login.html";
-                return;
-            }
             const username = localStorage.getItem("username");
             if (username) {
                 document.getElementById("admin-welcome").innerText = `@${username} (Admin)`;
             }
             
+            // API yuklashlar
             await loadStats();
             await loadAdminCategories();
             await loadAdminUsers();
@@ -184,18 +231,18 @@
             window.location.href = "login.html";
         }
 
-        // 1. STATISTIKA YUKLASH
+        // 1. STATISTIKA
         async function loadStats() {
             try {
                 const headers = await getAdminHeaders();
                 const res = await fetch(ADMIN_API.stats, { headers });
                 if (res.ok) {
                     const data = await res.json();
-                    document.getElementById("stat-users").innerText = data.total_users || 0;
-                    document.getElementById("stat-services").innerText = data.total_services || 0;
-                    document.getElementById("stat-orders").innerText = data.total_orders || 0;
+                    document.getElementById("stat-users").innerText = data.total_users ?? 0;
+                    document.getElementById("stat-services").innerText = data.total_services ?? 0;
+                    document.getElementById("stat-orders").innerText = data.total_orders ?? 0;
                 }
-            } catch (err) { console.error("Statistika yuklanmadi:", err); }
+            } catch (err) { console.error("Statistika xatoligi:", err); }
         }
 
         // 2. KATEGORIYALAR CRUD
@@ -208,12 +255,12 @@
                 const list = data.results || data || [];
 
                 const container = document.getElementById("admin-categories-list");
-                container.innerHTML = list.length ? "" : `<li class="text-center text-muted p-3">Kategoriyalar mavjud emas.</li>`;
+                container.innerHTML = list.length ? "" : `<li class="text-center text-muted p-3">Kategoriyalar yo'q.</li>`;
 
                 list.forEach(c => {
                     container.innerHTML += `
-                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="fw-semibold text-dark">${c.name}</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-1">
+                            <span class="fw-semibold">${c.name}</span>
                             <div>
                                 <button class="btn btn-sm btn-link text-warning p-0 me-2" onclick="openEditCategoryModal(${c.id}, '${c.name.replace(/'/g, "\\'")}')">✏️</button>
                                 <button class="btn btn-sm btn-link text-danger p-0" onclick="deleteCategory(${c.id})">🗑️</button>
@@ -260,7 +307,6 @@
                 });
 
                 if (res.ok) {
-                    alert("Kategoriya muvaffaqiyatli saqlandi!");
                     bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
                     await loadAdminCategories();
                     await loadStats();
@@ -274,7 +320,6 @@
                 const headers = await getAdminHeaders();
                 const res = await fetch(`${ADMIN_API.categories}${id}/`, { method: "DELETE", headers });
                 if (res.ok) {
-                    alert("Kategoriya o'chirildi.");
                     await loadAdminCategories();
                     await loadStats();
                 } else { alert("O'chirish imkoni bo'lmadi."); }
@@ -293,21 +338,21 @@
                 const users = data.results || data || [];
 
                 const tbody = document.getElementById("admin-users-tbody");
-                tbody.innerHTML = users.length ? "" : `<tr><td colspan="5" class="text-center text-muted">Foydalanuvchilar topilmadi.</td></tr>`;
+                tbody.innerHTML = users.length ? "" : `<tr><td colspan="5" class="text-center text-muted py-3">Foydalanuvchilar topilmadi.</td></tr>`;
 
                 users.forEach(u => {
-                    const statusBadge = u.is_active ? `<span class="badge bg-success">Faol</span>` : `<span class="badge bg-secondary">Bloklangan</span>`;
+                    const statusBadge = u.is_active ? `<span class="badge bg-success-subtle text-success">Faol</span>` : `<span class="badge bg-secondary">Bloklangan</span>`;
                     const actionBtn = u.is_active ? 
-                        `<button class="btn btn-sm btn-outline-danger" onclick="toggleUserStatus(${u.id}, false)">Bloklash</button>` :
-                        `<button class="btn btn-sm btn-outline-success" onclick="toggleUserStatus(${u.id}, true)">Aktivlashtirish</button>`;
+                        `<button class="btn btn-sm btn-outline-danger px-2 py-0" onclick="toggleUserStatus(${u.id}, false)">Bloklash</button>` :
+                        `<button class="btn btn-sm btn-outline-success px-2 py-0" onclick="toggleUserStatus(${u.id}, true)">Aktiv</button>`;
 
                     tbody.innerHTML += `
-                        <tr>
-                            <td>#${u.id}</td>
-                            <td class="fw-bold">${u.username}</td>
-                            <td><span class="badge bg-dark">${u.role || 'client'}</span></td>
+                        <tr class="border-bottom border-secondary-subtle">
+                            <td class="text-muted">#${u.id}</td>
+                            <td class="fw-bold text-white">${u.username}</td>
+                            <td><span class="badge bg-light text-dark text-uppercase font-monospace" style="font-size:10px;">${u.role || 'client'}</span></td>
                             <td>${statusBadge}</td>
-                            <td>${actionBtn}</td>
+                            <td class="text-end">${actionBtn}</td>
                         </tr>
                     `;
                 });
@@ -320,20 +365,18 @@
             if (!confirm(`Foydalanuvchi holatini o'zgartirmoqchimisiz?`)) return;
             try {
                 const headers = await getAdminHeaders();
-                // Swaggerga asosan foydalanuvchini faollik holatini PUT/PATCH orqali o'zgartiramiz
                 const res = await fetch(`${ADMIN_API.users}${userId}/`, {
                     method: "PATCH",
                     headers: headers,
                     body: JSON.stringify({ is_active: status })
                 });
                 if (res.ok) {
-                    alert("Foydalanuvchi statusi yangilandi!");
                     await loadAdminUsers();
                 } else { alert("Xatolik yuz berdi."); }
             } catch (err) { console.error(err); }
         }
 
-        // 4. GLOBAL BUYURTMALAR MONITORI
+        // 4. BUYURTMALAR MONITORI
         async function loadAdminOrders(customUrl = null) {
             try {
                 const headers = await getAdminHeaders();
@@ -344,16 +387,16 @@
                 const orders = data.results || data || [];
 
                 const tbody = document.getElementById("admin-orders-tbody");
-                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="5" class="text-center text-muted">Tizimda buyurtmalar yo'q.</td></tr>`;
+                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="5" class="text-center text-muted py-3">Tizimda buyurtmalar yo'q.</td></tr>`;
 
                 orders.forEach(o => {
                     tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold">#${o.id}</td>
-                            <td>👤 ${o.client || 'Noma\'lum'}</td>
-                            <td class="text-secondary">🛠️ ${o.service_name || 'Xizmat Nomi'}</td>
-                            <td><span class="badge bg-info text-dark text-capitalize">${o.status}</span></td>
-                            <td><button class="btn btn-sm btn-link text-danger p-0" onclick="deleteAdminOrder(${o.id})">🗑️ O'chirish</button></td>
+                        <tr class="border-bottom border-secondary-subtle">
+                            <td class="text-muted fw-bold">#${o.id}</td>
+                            <td class="text-white">👤 ${o.client || 'Noma\'lum'}</td>
+                            <td class="text-info">🛠️ ${o.service_name || 'Xizmat Nomi'}</td>
+                            <td><span class="badge bg-info-subtle text-info text-capitalize px-2 py-1">${o.status}</span></td>
+                            <td class="text-end"><button class="btn btn-sm btn-link text-danger p-0" onclick="deleteAdminOrder(${o.id})">🗑️ O'chirish</button></td>
                         </tr>
                     `;
                 });
@@ -368,14 +411,13 @@
                 const headers = await getAdminHeaders();
                 const res = await fetch(`${ADMIN_API.orders}${id}/`, { method: "DELETE", headers });
                 if (res.ok) {
-                    alert("Buyurtma tizimdan o'chirildi.");
                     await loadAdminOrders();
                     await loadStats();
                 } else { alert("O'chirish imkoniyati bo'lmadi."); }
             } catch (err) { console.error(err); }
         }
 
-        // 5. UNVERSAL PAGINATION FUNCTION
+        // 5. UNIVERSAL PAGINATION
         function renderPagination(containerId, prevUrl, nextUrl, callback) {
             const container = document.getElementById(containerId);
             container.innerHTML = "";
@@ -386,8 +428,6 @@
             prevLi.innerHTML = `<button class="page-link">« Orqaga</button>`;
             if (prevUrl) prevLi.querySelector('button').onclick = () => callback(prevUrl);
             container.appendChild(prevLi);
-
-            container.innerHTML += `<li class="page-item disabled"><span class="page-link text-dark">Sahifa</span></li>`;
 
             const nextLi = document.createElement("li");
             nextLi.className = `page-item ${nextUrl ? "" : "disabled"}`;
