@@ -443,8 +443,13 @@
                     })
                 });
 
+                const errorData = await resMe.json().catch(() => ({}));
+
+                console.log("STATUS:", resMe.status);
+                console.log("DATA:", errorData);
+
                 if (!resMe.ok) {
-                    throw new Error("Asosiy profilni saqlab bo'lmadi");
+                    throw new Error(JSON.stringify(errorData));
                 }
 
                 // Worker profile update
