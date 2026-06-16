@@ -367,103 +367,127 @@
 
         async function openMyProfileModal() {
             myProfileModal.show();
+
             const currentRole = localStorage.getItem("user_role") || "client";
+
             try {
-                // 1. Asosiy user ma'lumotlarini GET qilamiz
-                const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
-                let workerProfileId = null;
+                // User ma'lumotlari
+                const resMe = await fetchWithAuth(API.auth.me, {
+                    method: "GET"
+                });
 
                 if (resMe.ok) {
                     const userData = await resMe.json();
-                    document.getElementById("edit-username").value = userData.username || "";
-                    document.getElementById("edit-phone").value = userData.phone_number || "";
-                    
-                    // DRF'da usta ID-si odatda shu kalitlarda keladi, tekshirib ko'ring:
-                    workerProfileId = userData.worker_profile_id || (userData.profile ? userData.profile.id : null) || userData.worker_id;
-                    if (workerProfileId) {
-                        localStorage.setItem("worker_profile_id", workerProfileId);
-                    }
+
+                    document.getElementById("edit-username").value =
+                        userData.username || "";
+
+                    document.getElementById("edit-phone").value =
+                        userData.phone_number || "";
                 }
 
                 const extraFields = document.getElementById("worker-extra-fields");
-                if (currentRole === 'worker') {
-                    extraFields.classList.remove('d-none');
-                    
-                    const id = workerProfileId || localStorage.getItem("worker_profile_id");
-                    
-                    if (id) {
-                        // RetrieveUpdateAPIView uchun to'g'ri URL: .../worker-profile/ID/
-                        const resWorker = await fetchWithAuth(`${API.profile}${id}/`, { method: "GET" });
-                        if (resWorker.ok) {
-                            const workerData = await resWorker.json();
-                            document.getElementById("edit-experience").value = workerData.experience_years || 0;
-                            document.getElementById("edit-location").value = workerData.location || '';
-                            document.getElementById("edit-bio").value = workerData.bio || '';
-                        }
-                    } else {
-                        console.error("RetrieveUpdateAPIView uchun worker_profile_id topilmadi!");
+
+                if (currentRole === "worker") {
+                    extraFields.classList.remove("d-none");
+
+                    const resWorker = await fetchWithAuth(API.profile, {
+                        method: "GET"
+                    });
+
+                    if (resWorker.ok) {
+                        const workerData = await resWorker.json();
+
+                        document.getElementById("edit-experience").value =
+                            workerData.experience_years || 0;
+
+                        document.getElementById("edit-location").value =
+                            workerData.location || "";
+
+                        document.getElementById("edit-bio").value =
+                            workerData.bio || "";
                     }
-                } else { 
-                    extraFields.classList.add('d-none'); 
+                } else {
+                    extraFields.classList.add("d-none");
                 }
-            } catch (err) { console.error("Profil yuklanmadi:", err); }
+
+            } catch (err) {
+                console.error("Profil yuklanmadi:", err);
+            }
         }
 
         async function handleProfileUpdate(event) {
             if (event) event.preventDefault();
-            
+
             const saveBtn = document.getElementById("save-profile-btn");
+
             saveBtn.disabled = true;
             saveBtn.innerText = "Saqlanmoqda...";
-            
-            const username = document.getElementById("edit-username").value;
-            const phone_number = document.getElementById("edit-phone").value;
-            const currentRole = localStorage.getItem("user_role") || "client";
+
+            const username =
+                document.getElementById("edit-username").value;
+
+            const phone_number =
+                document.getElementById("edit-phone").value;
+
+            const currentRole =
+                localStorage.getItem("user_role") || "client";
 
             try {
-                // 1. Asosiy profilni yangilash
+                // User update
                 const resMe = await fetchWithAuth(API.auth.me, {
-                    method: "PATCH", // Odatda DRF me/ uchun PATCH qabul qiladi, agar xato bersa PUT qiling
-                    body: JSON.stringify({ username, phone_number })
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        username,
+                        phone_number
+                    })
                 });
 
-                if (!resMe.ok) throw new Error("Asosiy profil ma'lumotlarini saqlab bo'lmadi.");
+                if (!resMe.ok) {
+                    throw new Error("Asosiy profilni saqlab bo'lmadi");
+                }
 
-                // 2. Usta profilini yangilash (RetrieveUpdateAPIView qoidalari bo'yicha)
+                // Worker profile update
                 if (currentRole === "worker") {
-                    const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
-                    const location = document.getElementById("edit-location").value;
-                    const bio = document.getElementById("edit-bio").value;
 
-                    const id = localStorage.getItem("worker_profile_id");
-                    
-                    if (!id) {
-                        throw new Error("Xatolik: Yangilash uchun usta profili ID-si topilmadi!");
-                    }
+                    const experience_years =
+                        parseInt(document.getElementById("edit-experience").value) || 0;
 
-                    // Qat'iy format: .../worker-profile/ID/ (oxiridagi slesh shart!)
-                    const targetUrl = `${API.profile}${id}/`;
+                    const location =
+                        document.getElementById("edit-location").value;
 
-                    // RetrieveUpdateAPIView ham PUT, ham PATCH qabul qiladi. PATCH xavfsizroq.
-                    const resWorker = await fetchWithAuth(targetUrl, {
-                        method: "PATCH", 
-                        body: JSON.stringify({ experience_years, location, bio })
+                    const bio =
+                        document.getElementById("edit-bio").value;
+
+                    const resWorker = await fetchWithAuth(API.profile, {
+                        method: "PATCH",
+                        body: JSON.stringify({
+                            experience_years,
+                            location,
+                            bio
+                        })
                     });
 
                     if (!resWorker.ok) {
                         const errData = await resWorker.json().catch(() => ({}));
-                        console.error("Backend xatosi:", errData);
-                        throw new Error(`Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`);
+
+                        console.error(errData);
+
+                        throw new Error(
+                            `Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`
+                        );
                     }
                 }
 
                 alert("Profil muvaffaqiyatli yangilandi! 🎉");
+
                 myProfileModal.hide();
-                await initApp(); 
+
+                await initApp();
 
             } catch (err) {
-                alert(err.message);
                 console.error(err);
+                alert(err.message);
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.innerText = "O'zgarishlarni saqlash";
