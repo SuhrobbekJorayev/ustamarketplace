@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from jobs.models import User
+from jobs.models import User, WorkerProfile
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -17,4 +17,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)
+
+        if user.role == 'worker':
+            WorkerProfile.objects.create(user=user)
+
+        return user

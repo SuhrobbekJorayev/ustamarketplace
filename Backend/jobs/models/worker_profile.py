@@ -12,7 +12,7 @@ class WorkerProfile(models.Model):
     bio = models.TextField(blank=True)
     experience_years = models.PositiveIntegerField(default=0)
 
-    location = models.CharField(max_length=255)
+    location = models.CharField(max_length=255, default="")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
