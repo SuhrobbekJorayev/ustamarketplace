@@ -103,11 +103,11 @@
                     <form id="profile-edit-form">
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Username</label>
-                            <input type="text" id="edit-username" class="form-control" readonly disabled>
+                            <input type="text" id="edit-username" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Telefon raqam</label>
-                            <input type="text" id="edit-phone" class="form-control" readonly disabled>
+                            <input type="text" id="edit-phone" class="form-control" required>
                         </div>
                         <div id="worker-extra-fields" class="d-none border-top pt-3 mt-3">
                             <h6 class="fw-bold mb-3 text-primary">💼 Ustaga tegishli ma'lumotlar</h6>
@@ -124,7 +124,7 @@
                                 <textarea id="edit-bio" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 mt-2">O'zgarishlarni saqlash</button>
+                        <button type="submit" id="save-profile-btn" class="btn btn-primary w-100 mt-2">O'zgarishlarni saqlash</button>
                     </form>
                 </div>
             </div>
@@ -135,8 +135,6 @@
     <script src="config/endpoints.js"></script>
     <script>
         let detailModal, workerProfileModal, myProfileModal;
-        let isStaff = localStorage.getItem("is_staff") || "false";
-        let userRole = localStorage.getItem("user_role") || "client";
         let currentUrl = API.services; 
         let servicesDataStore = {}; 
 
@@ -145,23 +143,32 @@
             return str.toString().replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
             workerProfileModal = new bootstrap.Modal(document.getElementById('workerProfileModal'));
             myProfileModal = new bootstrap.Modal(document.getElementById('myProfileModal'));
-            initApp();
+            
+            document.getElementById("profile-edit-form").addEventListener("submit", handleProfileUpdate);
+            
+            await initApp();
         });
 
         async function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem("access");
-            const headers = { "Content-Type": "application/json", ...options.headers };
-            if (token) { headers["Authorization"] = `Bearer ${token}`; }
+            const headers = { 
+                "Content-Type": "application/json", 
+                ...options.headers 
+            };
+            if (token) { 
+                headers["Authorization"] = `Bearer ${token}`; 
+            }
             return fetch(url, { ...options, headers });
         }
 
         async function initApp() {
             const token = localStorage.getItem("access");
             if (token) {
+                // Navbarni chizishdan oldin majburiy backenddan oxirgi statusni olamiz
                 await checkUserStatus();
             }
             renderNavbar();
@@ -170,46 +177,47 @@
         }
 
         async function checkUserStatus() {
-            let userId = localStorage.getItem("user_id");
-            if (!userId) return;
-            
             try {
-                const res = await fetchWithAuth(`${API.users}${userId}/`);
+                const res = await fetchWithAuth(API.auth.me); 
                 if (res.ok) {
                     const data = await res.json();
-                    isStaff = (data.is_staff === true || data.is_staff === "true").toString();
-                    userRole = data.role || "client";
                     
-                    localStorage.setItem("is_staff", isStaff);
-                    localStorage.setItem("user_role", userRole);
+                    // Backenddan kelgan statuslarni to'g'ri shaklga keltiramiz
+                    let isStaffValue = (data.is_staff === true || data.is_staff === "true" || data.is_staff === 1) ? "true" : "false";
+                    let roleValue = data.role ? String(data.role).toLowerCase().trim() : "client";
+                    
+                    if (roleValue === "admin" || roleValue === "superuser") {
+                        isStaffValue = "true";
+                    }
+
+                    localStorage.setItem("is_staff", isStaffValue);
+                    localStorage.setItem("user_role", roleValue);
                 }
-            } catch(e) { console.error("Foydalanuvchi statusini tekshirishda xato:", e); }
+            } catch(e) { 
+                console.error("Foydalanuvchi statusini tekshirishda xato:", e); 
+            }
         }
 
         function renderNavbar() {
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
             
-            // localStorage dan kerakli qiymatlarni aniq olamiz
-            const userRole = localStorage.getItem("role"); // "worker" yoki "client"
-            const isStaff = localStorage.getItem("is_staff");
+            const currentRole = localStorage.getItem("user_role") || "client";
+            const currentStaff = localStorage.getItem("is_staff") || "false";
 
             if (token) {
-                // Ikkala rol uchun ham havola bir xil: dashboard.html
-                let dashboardLink = "dashboard.html";
-                // Standart holatda (ya'ni client bo'lsa) chiqadigan matn
+                let dashboardLink = "dashboard.html"; 
                 let btnText = "Kabinet (Mijoz)";
                 let btnClass = "btn-outline-light";
 
-                // Agar usta (worker) bo'lsa, faqat matn va klass o'zgaradi
-                if (userRole === "worker") {
+                if (currentRole === "worker") {
                     btnText = "Kabinet (Usta)";
                     btnClass = "btn-outline-info";
+                    dashboardLink = "dashboard.html"; // Ustalar va mijozlar uchun umumiy yoki alohida dashboard nomi
                 }
 
-                // Admin tekshiruvi (is_staff) — bu har doim eng ustun shart
-                if (isStaff === "true" || isStaff === true) {
-                    dashboardLink = "dashboard-admin.html"; 
+                if (currentStaff === "true" || currentRole === "admin") {
+                    dashboardLink = "admin-dashboard.html"; 
                     btnText = "⚙️ Admin Panel";
                     btnClass = "btn-warning text-dark";
                 }
@@ -261,12 +269,15 @@
             const container = document.getElementById("services-container");
             container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>Xizmat topilmadi.</p>";
             
+            const currentRole = localStorage.getItem("user_role") || "client";
+            const currentStaff = localStorage.getItem("is_staff") || "false";
+
             services.forEach(s => {
                 let actionButton = "";
                 
-                if (isStaff === "true") {
+                if (currentStaff === "true") {
                     actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Rejimi</button>`;
-                } else if (userRole === "worker") {
+                } else if (currentRole === "worker") {
                     actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
                 } else {
                     actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Buyurtma berish</button>`;
@@ -276,7 +287,10 @@
                 const reviewsCount = parseInt(s.reviews_count) || 0;
                 let ratingHTML = reviewsCount > 0 
                     ? `<div class="mb-2 small d-flex align-items-center"><span class="text-warning me-1">${"★".repeat(Math.round(avgRating))}</span><span class="text-muted fw-bold">${avgRating.toFixed(1)}</span></div>`
-                    : `<div class="mb-2 small text-muted">☆☆☆☆☆ (Sharhlar yo'q)</div>`;
+                    : `<div class="mb-2 small text-muted">☆☆☆☆š (Sharhlar yo'q)</div>`;
+
+                // Worker mantiqiy kalitini xavfsiz o'qish
+                const workerId = s.worker || s.worker_id || (s.worker_profile ? s.worker_profile.id : 0);
 
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
@@ -284,8 +298,8 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <h5 class="card-title fw-bold text-primary mb-0">${escapeHTML(s.name)}</h5>
-                                    <a href="javascript:void(0)" onclick="viewWorkerProfile(${s.worker || 0})" class="text-primary fw-bold text-decoration-none small">
-                                        👤 ${escapeHTML(s.worker_name || "Usta")}
+                                    <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerId})" class="text-primary fw-bold text-decoration-none small">
+                                        👤 @${escapeHTML(s.worker_name || "Usta")}
                                     </a>
                                 </div>
                                 ${ratingHTML}
@@ -310,10 +324,12 @@
             document.getElementById("detail-price").innerText = parseFloat(service.price).toLocaleString() + " so'm";
 
             const footer = document.getElementById("detail-footer");
+            const currentRole = localStorage.getItem("user_role") || "client";
+            const currentStaff = localStorage.getItem("is_staff") || "false";
             
-            if (isStaff === "true") {
+            if (currentStaff === "true") {
                 footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-dark" disabled>Admin Rejimi</button>`;
-            } else if (userRole === "worker") {
+            } else if (currentRole === "worker") {
                 footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
             } else {
                 footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Hozir Buyurtma berish</button>`;
@@ -323,7 +339,10 @@
         }
 
         async function viewWorkerProfile(workerUserId) {
-            if(!workerUserId || workerUserId === 0) return;
+            if(!workerUserId || workerUserId === 0) {
+                alert("Usta ID profili mavjud emas yoki topilmadi.");
+                return;
+            }
             const content = document.getElementById("worker-profile-content");
             content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
             workerProfileModal.show();
@@ -333,40 +352,98 @@
                 if (res.ok) {
                     const profile = await res.json();
                     content.innerHTML = `
-                        <h4 class="fw-bold mb-1">@${escapeHTML(profile.username)}</h4>
+                        <h4 class="fw-bold mb-1">@${escapeHTML(profile.username || profile.user || "usta")}</h4>
+                        <p class="text-muted mb-3">📞 Telefon: ${escapeHTML(profile.phone_number || "Yashirilgan")}</p>
                         <div class="text-start bg-light p-3 rounded mb-3 small">
                             <p class="mb-2"><strong>💼 Tajriba:</strong> ${profile.experience_years || 0} yil</p>
                             <p class="mb-2"><strong>📍 Manzil:</strong> ${escapeHTML(profile.location || "Kiritilmagan")}</p>
-                            <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "Yo'q")}</p>
+                            <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "Ma'lumot mavjud emas.")}</p>
                         </div>`;
+                } else {
+                    content.innerHTML = `<p class="text-danger py-3">Usta haqida ommaviy ma'lumot topilmadi.</p>`;
                 }
-            } catch (err) { content.innerHTML = `<p class="text-danger py-3">Yuklashda xatolik.</p>`; }
+            } catch (err) { content.innerHTML = `<p class="text-danger py-3">Yuklashda kutilmagan xatolik yuz berdi.</p>`; }
         }
 
         async function openMyProfileModal() {
             myProfileModal.show();
+            const currentRole = localStorage.getItem("user_role") || "client";
             try {
-                const res = await fetchWithAuth(API.profile); 
-                if (res.ok) {
-                    const data = await res.json();
-                    document.getElementById("edit-username").value = data.user?.username || "";
-                    document.getElementById("edit-phone").value = data.user?.phone_number || "";
+                const resMe = await fetchWithAuth(API.auth.me);
+                if (resMe.ok) {
+                    const userData = await resMe.json();
+                    document.getElementById("edit-username").value = userData.username || "";
+                    document.getElementById("edit-phone").value = userData.phone_number || "";
+                }
 
-                    const extraFields = document.getElementById("worker-extra-fields");
-                    if (userRole === 'worker') {
-                        extraFields.classList.remove('d-none');
-                        document.getElementById("edit-experience").value = data.experience_years || 0;
-                        document.getElementById("edit-location").value = data.location || '';
-                        document.getElementById("edit-bio").value = data.bio || '';
-                    } else { extraFields.classList.add('d-none'); }
+                const extraFields = document.getElementById("worker-extra-fields");
+                if (currentRole === 'worker') {
+                    extraFields.classList.remove('d-none');
+                    const resWorker = await fetchWithAuth(API.profile); 
+                    if (resWorker.ok) {
+                        const workerData = await resWorker.json();
+                        document.getElementById("edit-experience").value = workerData.experience_years || 0;
+                        document.getElementById("edit-location").value = workerData.location || '';
+                        document.getElementById("edit-bio").value = workerData.bio || '';
+                    }
+                } else { 
+                    extraFields.classList.add('d-none'); 
                 }
             } catch (err) { console.error("Profil yuklanmadi:", err); }
+        }
+
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+            const saveBtn = document.getElementById("save-profile-btn");
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Saqlanmoqda...";
+            
+            const username = document.getElementById("edit-username").value;
+            const phone_number = document.getElementById("edit-phone").value;
+            const currentRole = localStorage.getItem("user_role") || "client";
+
+            try {
+                const resMe = await fetchWithAuth(API.auth.me, {
+                    method: "PUT",
+                    body: JSON.stringify({ username, phone_number })
+                });
+
+                if (!resMe.ok) throw new Error("Umumiy profil ma'lumotlarini saqlab bo'lmadi.");
+
+                if (currentRole === "worker") {
+                    const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
+                    const location = document.getElementById("edit-location").value;
+                    const bio = document.getElementById("edit-bio").value;
+
+                    const resWorker = await fetchWithAuth(API.profile, {
+                        method: "PUT",
+                        body: JSON.stringify({ experience_years, location, bio })
+                    });
+
+                    if (!resWorker.ok) throw new Error("Usta profil tafsilotlarini saqlab bo'lmadi.");
+                }
+
+                alert("Profil muvaffaqiyatli yangilandi! 🎉");
+                myProfileModal.hide();
+                await initApp(); 
+
+            } catch (err) {
+                alert(err.message);
+                console.error(err);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = "O'zgarishlarni saqlash";
+            }
         }
 
         function applyFilters() {
             const searchQuery = document.getElementById("search-input").value;
             const categoryId = document.getElementById("category-filter").value;
-            currentUrl = `${API.services}?search=${searchQuery}&category=${categoryId}`;
+            const minPrice = document.getElementById("min-price").value;
+            const maxPrice = document.getElementById("max-price").value;
+
+            // Narx filtri mantiqlari to'liq qo'shildi
+            currentUrl = `${API.services}?search=${encodeURIComponent(searchQuery)}&category=${categoryId}&min_price=${minPrice}&max_price=${maxPrice}`;
             fetchServices(currentUrl);
         }
 
@@ -387,7 +464,10 @@
             window.location.href = "order.html";
         }
 
-        function logout() { localStorage.clear(); window.location.href = "login.html"; }
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = "login.html"; 
+        }
     </script>
 </body>
 </html>

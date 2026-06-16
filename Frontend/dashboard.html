@@ -299,7 +299,6 @@
                 const headers = await getCustomHeaders();
                 const orderField = document.getElementById("client-order-sort").value;
                 
-                // 🎯 TUZATISH: Faqat joriy mijozga tegishli buyurtmalarni tortish filtri
                 const url = customUrl || `${API.orders}?ordering=${orderField}&client=${currentUserId}`;
 
                 const [ordersRes, reviewsRes] = await Promise.all([
@@ -343,7 +342,7 @@
                             <td>${actionCell}</td>
                         </tr>`;
                 });
-                renderPaginationButtons("client-pagination", ordersData.previous, ordersData.next, loadClientOrders);
+                renderPaginationButtons("client-pagination", ordersData.previous, ordersData.next, "loadClientOrders");
             } catch (err) { console.error(err); }
         }
 
@@ -544,7 +543,7 @@
                             <td>${actionButtons}</td>
                         </tr>`;
                 });
-                renderPaginationButtons("worker-pagination", data.previous, data.next, loadWorkerOrders);
+                renderPaginationButtons("worker-pagination", data.previous, data.next, "loadWorkerOrders");
             } catch (err) { console.error(err); }
         }
 
@@ -566,7 +565,7 @@
 
         async function loadCategoriesForService() {
             try {
-                const res = await fetch(API.categories || API.services + 'categories/'); 
+                const res = await fetch(API.categories); 
                 const select = document.getElementById("service-category");
                 const editSelect = document.getElementById("edit-service-category");
                 
@@ -582,15 +581,15 @@
             } catch (err) { console.error(err); }
         }
 
-        function renderPaginationButtons(elemId, prevUrl, nextUrl, callback) {
+        function renderPaginationButtons(elemId, prevUrl, nextUrl, callbackName) {
             const container = document.getElementById(elemId);
             if (!container) return;
             container.innerHTML = "";
             if (prevUrl) {
-                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callback.name}('${prevUrl}')">← Oldingi</button></li>`;
+                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callbackName}('${prevUrl}')">← Oldingi</button></li>`;
             }
             if (nextUrl) {
-                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callback.name}('${nextUrl}')">Keyingi →</button></li>`;
+                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callbackName}('${nextUrl}')">Keyingi →</button></li>`;
             }
         }
     </script>

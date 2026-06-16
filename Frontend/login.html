@@ -29,15 +29,18 @@
         <p class="text-center mt-2 mb-0"><a href="index.html" class="text-secondary small">← Bosh sahifaga qaytish</a></p>
     </div>
 
-    <script src="config/endpoints.js"></script>
-    <script>
+<script src="config/endpoints.js"></script>
+<script>
         document.addEventListener("DOMContentLoaded", () => {
             const token = localStorage.getItem("access");
             const isStaff = localStorage.getItem("is_staff");
-            const role = localStorage.getItem("user_role");
 
             if (token) {
-                redirectByUserStatus(isStaff, role);
+                if (isStaff === "true") {
+                    window.location.href = "admin-dashboard.html";
+                } else {
+                    window.location.href = "index.html";
+                }
             }
         });
 
@@ -45,15 +48,34 @@
             try {
                 const base64Url = token.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                return JSON.parse(window.atob(base64));
-            } catch (e) { return null; }
+
+                const jsonPayload = decodeURIComponent(
+                    window.atob(base64)
+                        .split('')
+                        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                        .join('')
+                );
+
+                return JSON.parse(jsonPayload);
+            } catch {
+                return null;
+            }
+        }
+
+        function executeRouting(isStaff) {
+            if (isStaff === true || isStaff === "true") {
+                window.location.href = "admin-dashboard.html";
+            } else {
+                window.location.href = "index.html";
+            }
         }
 
         document.getElementById("login-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            
+
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value;
+
             const errorAlert = document.getElementById("error-alert");
             const submitBtn = document.getElementById("submit-btn");
 
@@ -62,68 +84,69 @@
             submitBtn.innerText = "Kirilmoqda...";
 
             try {
-                const res = await fetch(API.auth.login, {
+                // Login
+                const loginRes = await fetch(API.auth.login, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password })
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
                 });
 
-                const data = await res.json();
+                const loginData = await loginRes.json();
 
-                if (res.ok) {
-                    const token = data.access || data.token;
-                    localStorage.setItem("access", token); 
-                    localStorage.setItem("username", data.username || username);
-
-                    const payload = parseJwt(token);
-                    if (payload) {
-                        localStorage.setItem("user_id", payload.user_id || payload.id);
-                    }
-
-                    // is_staff ni aniqlash
-                    let isStaffValue = false;
-                    if (data.is_staff !== undefined) isStaffValue = data.is_staff;
-                    else if (data.user && data.user.is_staff !== undefined) isStaffValue = data.user.is_staff;
-                    else if (payload && payload.is_staff !== undefined) isStaffValue = payload.is_staff;
-
-                    // roleni tozalab olish (katta-kichik harf muammosiz)
-                    let roleValue = "client";
-                    if (data.role) roleValue = data.role;
-                    else if (data.user && data.user.role) roleValue = data.user.role;
-                    else if (payload && payload.role) roleValue = payload.role;
-                    
-                    roleValue = String(roleValue).toLowerCase().trim();
-
-                    localStorage.setItem("is_staff", isStaffValue.toString());
-                    localStorage.setItem("user_role", roleValue);
-
-                    // Routingga yuborish
-                    redirectByUserStatus(isStaffValue.toString(), roleValue);
-
-                } else {
-                    const errorMsg = data.detail || data.non_field_errors || "Username yoki parol noto'g'ri!";
-                    errorAlert.innerText = typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg;
-                    errorAlert.classList.remove("d-none");
+                if (!loginRes.ok) {
+                    throw new Error(
+                        loginData.detail ||
+                        "Username yoki parol noto'g'ri!"
+                    );
                 }
-            } catch(e) {
-                errorAlert.innerText = "Server bilan aloqa uzildi!";
+
+                // Tokenlar
+                localStorage.setItem("access", loginData.access);
+                localStorage.setItem("refresh", loginData.refresh);
+                localStorage.setItem("username", username);
+
+                const payload = parseJwt(loginData.access);
+
+                if (payload) {
+                    localStorage.setItem(
+                        "user_id",
+                        payload.user_id || payload.id || ""
+                    );
+                }
+
+                // Me endpoint
+                const meRes = await fetch(API.auth.me, {
+                    headers: {
+                        Authorization: `Bearer ${loginData.access}`
+                    }
+                });
+
+                const user = await meRes.json();
+
+                if (!meRes.ok) {
+                    throw new Error(
+                        "Foydalanuvchi ma'lumotlarini olishda xatolik."
+                    );
+                }
+
+                localStorage.setItem("user_role", user.role);
+                localStorage.setItem("is_staff", user.is_staff);
+
+                executeRouting(user.is_staff);
+
+            } catch (error) {
+                errorAlert.innerText = error.message;
                 errorAlert.classList.remove("d-none");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Kirish";
             }
         });
-
-        // 🚀 AYNAN SIZ AYTGAN ROUTING MANTIQI
-        function redirectByUserStatus(isStaff, role) {
-            if (isStaff === true || isStaff === "true") {
-                // Admin bo'lsa -> dashboard-admin.html
-                window.location.href = "dashboard-admin.html";
-            } else {
-                // Client yoki Worker bo'lsa -> Bosh sahifaga (Home Page)
-                window.location.href = "index.html";
-            }
-        }
-    </script>
+</script>
 </body>
 </html>
