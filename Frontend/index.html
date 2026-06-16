@@ -369,33 +369,39 @@
             myProfileModal.show();
             const currentRole = localStorage.getItem("user_role") || "client";
             try {
-                // Asosiy foydalanuvchi ma'lumotlari
+                // 1. Asosiy user ma'lumotlarini GET qilamiz
                 const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
+                let workerProfileId = null;
+
                 if (resMe.ok) {
                     const userData = await resMe.json();
                     document.getElementById("edit-username").value = userData.username || "";
                     document.getElementById("edit-phone").value = userData.phone_number || "";
+                    
+                    // DRF'da usta ID-si odatda shu kalitlarda keladi, tekshirib ko'ring:
+                    workerProfileId = userData.worker_profile_id || (userData.profile ? userData.profile.id : null) || userData.worker_id;
+                    if (workerProfileId) {
+                        localStorage.setItem("worker_profile_id", workerProfileId);
+                    }
                 }
 
                 const extraFields = document.getElementById("worker-extra-fields");
                 if (currentRole === 'worker') {
                     extraFields.classList.remove('d-none');
                     
-                    // TO'G'RILANDI: Oxiridan 'me/' olib tashlandi, shunchaki API.profile
-                    const resWorker = await fetchWithAuth(API.profile, { method: "GET" });
-                    if (resWorker.ok) {
-                        const workerData = await resWorker.json();
-                        // Agar usta ma'lumotlari massiv ichida kelsa (DRF ListAPIView bo'lsa)
-                        const profile = Array.isArray(workerData) ? workerData[0] : workerData;
-                        
-                        if (profile) {
-                            document.getElementById("edit-experience").value = profile.experience_years || 0;
-                            document.getElementById("edit-location").value = profile.location || '';
-                            document.getElementById("edit-bio").value = profile.bio || '';
-                            
-                            // Agar keyinchalik ID kerak bo'lib qolsa, saqlab qo'yamiz
-                            if (profile.id) localStorage.setItem("worker_profile_id", profile.id);
+                    const id = workerProfileId || localStorage.getItem("worker_profile_id");
+                    
+                    if (id) {
+                        // RetrieveUpdateAPIView uchun to'g'ri URL: .../worker-profile/ID/
+                        const resWorker = await fetchWithAuth(`${API.profile}${id}/`, { method: "GET" });
+                        if (resWorker.ok) {
+                            const workerData = await resWorker.json();
+                            document.getElementById("edit-experience").value = workerData.experience_years || 0;
+                            document.getElementById("edit-location").value = workerData.location || '';
+                            document.getElementById("edit-bio").value = workerData.bio || '';
                         }
+                    } else {
+                        console.error("RetrieveUpdateAPIView uchun worker_profile_id topilmadi!");
                     }
                 } else { 
                     extraFields.classList.add('d-none'); 
@@ -404,7 +410,6 @@
         }
 
         async function handleProfileUpdate(event) {
-            // Sahifa yangilanib ketishining oldini olamiz
             if (event) event.preventDefault();
             
             const saveBtn = document.getElementById("save-profile-btn");
@@ -416,19 +421,15 @@
             const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
-                // 1. Asosiy profilni yangilash (URL oxirida / bo'lishi shart!)
-                const resMe = await fetchWithAuth(`${API.auth.me}`, {
-                    method: "PATCH",
+                // 1. Asosiy profilni yangilash
+                const resMe = await fetchWithAuth(API.auth.me, {
+                    method: "PATCH", // Odatda DRF me/ uchun PATCH qabul qiladi, agar xato bersa PUT qiling
                     body: JSON.stringify({ username, phone_number })
                 });
 
-                if (!resMe.ok) {
-                    const errData = await resMe.json().catch(() => ({}));
-                    console.error("User update xatosi:", errData);
-                    throw new Error(`Asosiy profilni saqlab bo'lmadi. Status: ${resMe.status}`);
-                }
+                if (!resMe.ok) throw new Error("Asosiy profil ma'lumotlarini saqlab bo'lmadi.");
 
-                // 2. Agar usta bo'lsa, qo'shimcha ma'lumotlarni yangilash
+                // 2. Usta profilini yangilash (RetrieveUpdateAPIView qoidalari bo'yicha)
                 if (currentRole === "worker") {
                     const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
                     const location = document.getElementById("edit-location").value;
@@ -436,23 +437,22 @@
 
                     const id = localStorage.getItem("worker_profile_id");
                     
-                    // Diqqat: Django URL oxirida doim / belgisini kutadi!
-                    // Agar ID bo'lsa: .../worker-profile/5/, ID bo'lmasa: .../worker-profile/
-                    let targetUrl = id ? `${API.profile}${id}/` : API.profile;
-                    
-                    // Agar endpoints.js ichida API.profile oxirida / bo'lmasa va ID ham topilmasa, unga / qo'shamiz
-                    if (!targetUrl.endsWith('/')) {
-                        targetUrl += '/';
+                    if (!id) {
+                        throw new Error("Xatolik: Yangilash uchun usta profili ID-si topilmadi!");
                     }
 
+                    // Qat'iy format: .../worker-profile/ID/ (oxiridagi slesh shart!)
+                    const targetUrl = `${API.profile}${id}/`;
+
+                    // RetrieveUpdateAPIView ham PUT, ham PATCH qabul qiladi. PATCH xavfsizroq.
                     const resWorker = await fetchWithAuth(targetUrl, {
-                        method: "PATCH",
+                        method: "PATCH", 
                         body: JSON.stringify({ experience_years, location, bio })
                     });
 
                     if (!resWorker.ok) {
                         const errData = await resWorker.json().catch(() => ({}));
-                        console.error("Worker update xatosi:", errData);
+                        console.error("Backend xatosi:", errData);
                         throw new Error(`Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`);
                     }
                 }
