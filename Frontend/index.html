@@ -369,7 +369,8 @@
             myProfileModal.show();
             const currentRole = localStorage.getItem("user_role") || "client";
             try {
-                const resMe = await fetchWithAuth(API.auth.me);
+                // INFO: Profil ochilganda ma'lumotlarni shunchaki GET qilish kerak, PATCH/PUT emas!
+                const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
                 if (resMe.ok) {
                     const userData = await resMe.json();
                     document.getElementById("edit-username").value = userData.username || "";
@@ -379,7 +380,8 @@
                 const extraFields = document.getElementById("worker-extra-fields");
                 if (currentRole === 'worker') {
                     extraFields.classList.remove('d-none');
-                    const resWorker = await fetchWithAuth(API.profile); 
+                    // Bu yerda ham usta ma'lumotlarini dastlab GET orqali yuklab olamiz
+                    const resWorker = await fetchWithAuth(`${API.profile}me/`, { method: "GET" });
                     if (resWorker.ok) {
                         const workerData = await resWorker.json();
                         document.getElementById("edit-experience").value = workerData.experience_years || 0;
@@ -403,8 +405,9 @@
             const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
+                // TO'G'RILANDI: PUT o'rniga PATCH qo'yildi
                 const resMe = await fetchWithAuth(API.auth.me, {
-                    method: "PUT",
+                    method: "PATCH",
                     body: JSON.stringify({ username, phone_number })
                 });
 
@@ -415,8 +418,9 @@
                     const location = document.getElementById("edit-location").value;
                     const bio = document.getElementById("edit-bio").value;
 
-                    const resWorker = await fetchWithAuth(API.profile, {
-                        method: "PUT",
+                    // TO'G'RILANDI: API.profile oxiriga 'me/' va PATCH metodi qo'yildi
+                    const resWorker = await fetchWithAuth(`${API.profile}me/`, {
+                        method: "PATCH",
                         body: JSON.stringify({ experience_years, location, bio })
                     });
 
