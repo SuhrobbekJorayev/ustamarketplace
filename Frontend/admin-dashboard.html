@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
-        /* THEME VARIABLES */
         :root {
             --bg-body: #f1f5f9;
             --bg-surface: rgba(255, 255, 255, 0.85);
@@ -23,7 +22,6 @@
             --glass-blur: blur(12px);
             --shadow-custom: 0 4px 30px rgba(0, 0, 0, 0.03);
         }
-
         [data-theme="dark"] {
             --bg-body: #0f172a;
             --bg-surface: rgba(30, 41, 59, 0.75);
@@ -36,151 +34,32 @@
             --card-icon-bg: #334155;
             --shadow-custom: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             transition: background-color 0.3s, color 0.3s;
         }
-
-        /* SIDEBAR */
         .sidebar {
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: var(--bg-sidebar);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border-right: 1px solid var(--border-color);
-            z-index: 100;
+            width: 250px; height: 100vh; position: fixed; top: 0; left: 0;
+            background: var(--bg-sidebar); backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--border-color); z-index: 100;
         }
-        .logo-section {
-            padding: 24px;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--border-color);
-            letter-spacing: -0.3px;
-        }
-        .sidebar .nav-link {
-            color: var(--text-muted);
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-        .sidebar .nav-link i {
-            margin-right: 12px;
-            font-size: 16px;
-            width: 20px;
-        }
-        .sidebar .nav-link.active {
-            background-color: var(--nav-active-bg);
-            color: var(--nav-active-text);
-            font-weight: 600;
-        }
-
-        /* HEADER */
-        .top-header {
-            margin-left: 250px;
-            height: 65px;
-            background: var(--bg-sidebar);
-            backdrop-filter: var(--glass-blur);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            border-bottom: 1px solid var(--border-color);
-            z-index: 90;
-        }
-        .theme-toggle-btn {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        /* CONTENT */
-        .main-content {
-            margin-left: 250px;
-            padding: 40px;
-            min-height: calc(100vh - 65px);
-        }
-
-        .card-stat {
-            background: var(--bg-surface);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-custom);
-            border-radius: 12px;
-            padding: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .card-stat .card-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .card-stat .card-count {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .card-stat .card-icon-box {
-            width: 46px;
-            height: 46px;
-            background-color: var(--card-icon-bg);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .glass-panel {
-            background: var(--bg-surface);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-custom);
-            border-radius: 12px;
-        }
-
-        .table {
-            background: transparent !important;
-        }
-        .table thead th {
-            color: var(--text-muted) !important;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-color);
-            padding: 14px 20px;
-        }
-        .table tbody td {
-            border-bottom: 1px solid var(--border-color);
-            background: transparent !important;
-            padding: 14px 20px;
-            color: var(--text-main);
-            vertical-align: middle;
-            font-size: 14px;
-        }
+        .logo-section { padding: 24px; font-size: 18px; font-weight: 700; color: var(--text-main); border-bottom: 1px solid var(--border-color); }
+        .sidebar .nav-link { color: var(--text-muted); padding: 12px 24px; display: flex; align-items: center; font-weight: 500; font-size: 14px; transition: all 0.2s; }
+        .sidebar .nav-link i { margin-right: 12px; font-size: 16px; width: 20px; }
+        .sidebar .nav-link.active { background-color: var(--nav-active-bg); color: var(--nav-active-text); font-weight: 600; }
+        .top-header { margin-left: 250px; height: 65px; background: var(--bg-sidebar); backdrop-filter: var(--glass-blur); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid var(--border-color); z-index: 90; }
+        .theme-toggle-btn { background: none; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .main-content { margin-left: 250px; padding: 40px; min-height: calc(100vh - 65px); }
+        .card-stat { background: var(--bg-surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); box-shadow: var(--shadow-custom); border-radius: 12px; padding: 22px; display: flex; align-items: center; justify-content: space-between; }
+        .card-stat .card-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .card-stat .card-count { font-size: 28px; font-weight: 700; color: var(--text-main); }
+        .card-stat .card-icon-box { width: 46px; height: 46px; background-color: var(--card-icon-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .glass-panel { background: var(--bg-surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); box-shadow: var(--shadow-custom); border-radius: 12px; }
+        .table { background: transparent !important; }
+        .table thead th { color: var(--text-muted) !important; font-weight: 600; text-transform: uppercase; font-size: 12px; border-bottom: 1px solid var(--border-color); padding: 14px 20px; }
+        .table tbody td { border-bottom: 1px solid var(--border-color); background: transparent !important; padding: 14px 20px; color: var(--text-main); vertical-align: middle; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -190,453 +69,273 @@
             <i class="fa-solid fa-screwdriver-wrench text-primary me-2"></i> UstaMarketplace
         </div>
         <ul class="nav flex-column mt-3">
-            <li class="nav-item">
-                <a class="nav-link active" href="javascript:void(0)" onclick="switchTab('dashboard', this)">
-                    <i class="fa-solid fa-chart-pie"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)" onclick="switchTab('category', this)">
-                    <i class="fa-solid fa-folder"></i> Kategoriyalar
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)" onclick="switchTab('service', this)">
-                    <i class="fa-solid fa-briefcase"></i> Xizmatlar
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)" onclick="switchTab('user', this)">
-                    <i class="fa-solid fa-users"></i> Foydalanuvchilar
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)" onclick="switchTab('order', this)">
-                    <i class="fa-solid fa-receipt"></i> Buyurtmalar
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)" onclick="switchTab('review', this)">
-                    <i class="fa-solid fa-star"></i> Sharhlar (Reviews)
-                </a>
-            </li>
+            <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('category', this)"><i class="fa-solid fa-folder"></i> Kategoriyalar</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('service', this)"><i class="fa-solid fa-briefcase"></i> Xizmatlar</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('user', this)"><i class="fa-solid fa-users"></i> Foydalanuvchilar</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('order', this)"><i class="fa-solid fa-receipt"></i> Buyurtmalar</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('review', this)"><i class="fa-solid fa-star"></i> Sharhlar</a></li>
         </ul>
     </div>
 
     <div class="top-header">
-        <div>
-            <button class="theme-toggle-btn" onclick="toggleTheme()">
-                <i class="fa-solid fa-moon" id="theme-icon"></i> <span id="theme-text">Dark Mode</span>
-            </button>
-        </div>
-        <div class="admin-profile">
-            <span class="fw-medium"><i class="fa-solid fa-user-shield me-1"></i> Admin Panel</span>
-        </div>
+        <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <i class="fa-solid fa-moon" id="theme-icon"></i> <span id="theme-text">Dark Mode</span>
+        </button>
+        <div class="admin-profile"><span class="fw-medium"><i class="fa-solid fa-user-shield me-1"></i> Admin Panel</span></div>
     </div>
 
     <div class="main-content">
-        <h4 class="fw-bold mb-4" id="page-title">Dashboard</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold m-0" id="page-title">Dashboard</h4>
+            <div id="action-header-area"></div>
+        </div>
 
         <div id="tab-dashboard" class="tab-content-panel">
             <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="card-stat">
-                        <div>
-                            <div class="card-title">Jami Foydalanuvchilar</div>
-                            <div class="card-count" id="stat-users">...</div>
-                        </div>
-                        <div class="card-icon-box"><i class="fa-solid fa-users text-primary"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-stat">
-                        <div>
-                            <div class="card-title">Ustalar (Workers)</div>
-                            <div class="card-count" id="stat-workers">...</div>
-                        </div>
-                        <div class="card-icon-box"><i class="fa-solid fa-user-tie text-success"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-stat">
-                        <div>
-                            <div class="card-title">Xizmatlar turlari</div>
-                            <div class="card-count" id="stat-services">...</div>
-                        </div>
-                        <div class="card-icon-box"><i class="fa-solid fa-briefcase text-warning"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-stat">
-                        <div>
-                            <div class="card-title">Buyurtmalar</div>
-                            <div class="card-count" id="stat-orders">...</div>
-                        </div>
-                        <div class="card-icon-box"><i class="fa-solid fa-receipt text-danger"></i></div>
-                    </div>
-                </div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Jami Foydalanuvchilar</div><div class="card-count" id="stat-users">...</div></div><div class="card-icon-box"><i class="fa-solid fa-users text-primary"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Ustalar (Workers)</div><div class="card-count" id="stat-workers">...</div></div><div class="card-icon-box"><i class="fa-solid fa-user-tie text-success"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Xizmatlar turlari</div><div class="card-count" id="stat-services">...</div></div><div class="card-icon-box"><i class="fa-solid fa-briefcase text-warning"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Buyurtmalar</div><div class="card-count" id="stat-orders">...</div></div><div class="card-icon-box"><i class="fa-solid fa-receipt text-danger"></i></div></div></div>
             </div>
-
             <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <div class="card-stat py-3">
-                        <span class="card-title">Kategoriyalar:</span>
-                        <span class="fw-bold fs-5 text-primary" id="stat-categories">0</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card-stat py-3">
-                        <span class="card-title">Usta Profillari:</span>
-                        <span class="fw-bold fs-5 text-success" id="stat-profiles">0</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card-stat py-3">
-                        <span class="card-title">Sharhlar (Reviews):</span>
-                        <span class="fw-bold fs-5 text-warning" id="stat-reviews">0</span>
-                    </div>
-                </div>
+                <div class="col-md-4"><div class="card-stat py-3"><span class="card-title">Kategoriyalar:</span><span class="fw-bold fs-5 text-primary" id="stat-categories">0</span></div></div>
+                <div class="col-md-4"><div class="card-stat py-3"><span class="card-title">Sharhlar (Reviews):</span><span class="fw-bold fs-5 text-warning" id="stat-reviews">0</span></div></div>
             </div>
-
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="glass-panel p-4">
-                        <h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Mijoz va Usta Balansi</h6>
-                        <div style="height: 250px; position: relative;"><canvas id="chartUsersBar"></canvas></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="glass-panel p-4">
-                        <h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Struktura: Kategoriyalar va Xizmatlar</h6>
-                        <div style="height: 250px; position: relative;" class="d-flex justify-content-center"><canvas id="chartStructureDoughnut"></canvas></div>
-                    </div>
-                </div>
+                <div class="col-md-6"><div class="glass-panel p-4"><h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Mijoz va Usta Balansi</h6><div style="height: 250px; position: relative;"><canvas id="chartUsersBar"></canvas></div></div></div>
+                <div class="col-md-6"><div class="glass-panel p-4"><h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Struktura</h6><div style="height: 250px; position: relative;" class="d-flex justify-content-center"><canvas id="chartStructureDoughnut"></canvas></div></div></div>
             </div>
         </div>
 
         <div id="tab-category" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Kategoriya Nomi</th>
-                            <th>Yaratilgan Sana</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-category"></tbody>
-                </table>
-            </div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Kategoriya Nomi</th><th>Yaratilgan Sana</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-category"></tbody></table></div>
         </div>
 
         <div id="tab-service" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Xizmat Nomi</th>
-                            <th>Kategoriya</th>
-                            <th>Usta</th>
-                            <th>Narxi</th>
-                            <th>Yaratilgan Sana</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-service"></tbody>
-                </table>
-            </div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Xizmat Nomi</th><th>Kategoriya</th><th>Usta</th><th>Narxi</th><th>Yaratilgan Sana</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-service"></tbody></table></div>
         </div>
 
         <div id="tab-user" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Foydalanuvchi</th>
-                            <th>Email</th>
-                            <th>Telefon</th>
-                            <th>Rol</th>
-                            <th>Holati</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-user"></tbody>
-                </table>
-            </div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Email</th><th>Telefon</th><th>Rol</th><th>Holati</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-user"></tbody></table></div>
         </div>
 
         <div id="tab-order" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Mijoz</th>
-                            <th>Xizmat turi</th>
-                            <th>Sana</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-order"></tbody>
-                </table>
-            </div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Mijoz</th><th>Xizmat turi</th><th>Sana</th><th>Status</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-order"></tbody></table></div>
         </div>
 
         <div id="tab-review" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Mijoz</th>
-                            <th>Xizmat</th>
-                            <th>Reyting</th>
-                            <th>Izoh</th>
-                            <th>Sana</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-review"></tbody>
-                </table>
-            </div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Mijoz</th><th>Xizmat</th><th>Reyting</th><th>Izoh</th><th>Sana</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-review"></tbody></table></div>
         </div>
-
     </div>
 
+    <div class="modal fade" id="crudModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content glass-panel" style="background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border-color);">
+                <div class="modal-header border-0"><h5 class="modal-title fw-bold" id="modalTitle">Oyna</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-body" id="modalBody"></div>
+                <div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button type="button" class="btn btn-primary" id="modalSaveBtn" onclick="submitCrudForm()">Saqlash</button></div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="config/endpoints.js"></script>
 
 <script>
         let barChart, doughnutChart;
+        let currentOpenTab = "dashboard";
+        let currentEditId = null;
         const token = localStorage.getItem("access");
+        const headers = { "Content-Type": "application/json", "Authorization": "Bearer " + token };
 
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
+        // 🔐 Backend ViewSet Merosxo'rligiga mos ruxsatnomalar
+        const permissionsMap = {
+            category: { create: true, update: true, delete: true },
+            service: { create: false, update: true, delete: true },
+            user: { create: false, update: true, delete: true },
+            order: { create: false, update: true, delete: true },
+            review: { create: false, update: false, delete: true }
         };
 
-        // ========================
-        // 🌓 LIGHT / DARK MODE TIZIMI
-        // ========================
         function initTheme() {
-            const savedTheme = localStorage.getItem("theme") || "light";
-            document.documentElement.setAttribute("data-theme", savedTheme);
-            updateThemeUI(savedTheme);
+            const theme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", theme);
+            if(theme === "dark") { document.getElementById("theme-icon").className = "fa-solid fa-sun"; document.getElementById("theme-text").innerText = "Light Mode"; }
         }
-
         function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute("data-theme");
-            const newTheme = currentTheme === "dark" ? "light" : "dark";
-            
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
-            updateThemeUI(newTheme);
+            const current = document.documentElement.getAttribute("data-theme");
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+            document.getElementById("theme-icon").className = next === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            document.getElementById("theme-text").innerText = next === "dark" ? "Light Mode" : "Dark Mode";
         }
 
-        function updateThemeUI(theme) {
-            const icon = document.getElementById("theme-icon");
-            const text = document.getElementById("theme-text");
-            if (theme === "dark") {
-                icon.className = "fa-solid fa-sun";
-                text.innerText = "Light Mode";
-            } else {
-                icon.className = "fa-solid fa-moon";
-                text.innerText = "Dark Mode";
-            }
-        }
+        document.addEventListener("DOMContentLoaded", () => { initTheme(); fetchStats(); });
 
-        // ========================
-        // 🚀 FAOLASHTIRISH
-        // ========================
-        document.addEventListener("DOMContentLoaded", () => {
-            initTheme();
-            fetchStats();
-        });
-
-        // ========================
-        // 📊 STATISTIKALARNI YUKLASH
-        // ========================
         async function fetchStats() {
             try {
-                const res = await fetch(API.dashboard.stats, { method: "GET", headers });
+                const res = await fetch(API.dashboard.stats, { headers });
                 const data = await res.json();
-
                 document.getElementById("stat-users").innerText = data.users ?? 0;
                 document.getElementById("stat-workers").innerText = data.workers ?? 0;
                 document.getElementById("stat-services").innerText = data.services ?? 0;
                 document.getElementById("stat-orders").innerText = data.orders ?? 0;
                 document.getElementById("stat-categories").innerText = data.categories ?? 0;
                 document.getElementById("stat-reviews").innerText = data.reviews ?? 0;
-                document.getElementById("stat-profiles").innerText = data.worker_profiles ?? 0;
-
                 renderCharts(data);
-            } catch (err) {
-                console.error("Stats API yuklashda xatolik:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function renderCharts(data) {
-            if (barChart) barChart.destroy();
-            if (doughnutChart) doughnutChart.destroy();
-
-            const safeUsers = data.users ?? 0;
-            const safeWorkers = data.workers ?? 0;
-
-            barChart = new Chart(document.getElementById("chartUsersBar"), {
-                type: "bar",
-                data: {
-                    labels: ["Mijozlar", "Ustalar"],
-                    datasets: [{
-                        data: [Math.max(safeUsers - safeWorkers, 0), safeWorkers],
-                        backgroundColor: ["#1e40af", "#10b981"]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            doughnutChart = new Chart(document.getElementById("chartStructureDoughnut"), {
-                type: "doughnut",
-                data: {
-                    labels: ["Kategoriyalar", "Xizmatlar"],
-                    datasets: [{
-                        data: [data.categories ?? 0, data.services ?? 0],
-                        backgroundColor: ["#64748b", "#f59e0b"]
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            if (barChart) barChart.destroy(); if (doughnutChart) doughnutChart.destroy();
+            barChart = new Chart(document.getElementById("chartUsersBar"), { type: "bar", data: { labels: ["Mijozlar", "Ustalar"], datasets: [{ data: [Math.max((data.users ?? 0) - (data.workers ?? 0), 0), data.workers ?? 0], backgroundColor: ["#1e40af", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+            doughnutChart = new Chart(document.getElementById("chartStructureDoughnut"), { type: "doughnut", data: { labels: ["Kategoriyalar", "Xizmatlar"], datasets: [{ data: [data.categories ?? 0, data.services ?? 0], backgroundColor: ["#64748b", "#f59e0b"] }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
 
-        // ========================
-        // 📦 JADVAL MA'LUMOTLARINI ASYNCHRON YUKLASH
-        // ========================
+        // =====================================
+        // 📦 KODLAR TO'LIQ INTEGRATSIYA QILINGAN JADVAL CHIZISH
+        // =====================================
         async function fetchList(type) {
             try {
-                const endpoints = {
-                    category: API.categories,
-                    service: API.services,
-                    user: API.users,
-                    order: API.orders,
-                    review: API.reviews
-                };
-
+                const endpoints = { category: API.categories, service: API.services, user: API.users, order: API.orders, review: API.reviews };
                 if (!endpoints[type]) return;
 
-                const res = await fetch(endpoints[type], { method: "GET", headers });
+                const res = await fetch(endpoints[type], { headers });
                 const data = await res.json();
-                
-                // Django DRF ko'pincha "results" array qaytaradi, aks holda arrayning o'zi
-                const list = data.results || data; 
+                const list = data.results || data;
                 const tbody = document.getElementById(`list-${type}`);
-                
                 if (!tbody) return;
                 tbody.innerHTML = "";
+
+                const perms = permissionsMap[type];
 
                 list.forEach(item => {
                     let row = "";
                     const dateFormatted = item.created_at ? new Date(item.created_at).toLocaleDateString() : '-';
+                    
+                    // Amallar tugmalari matni
+                    let actions = `<td class="text-end">`;
+                    if (perms.update) actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('${type}', ${item.id}, ${safeStringify(item)})"><i class="fa-solid fa-pen"></i></button>`;
+                    if (perms.delete) actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${type}', ${item.id})"><i class="fa-solid fa-trash"></i></button>`;
+                    actions += `</td>`;
 
                     if (type === "category") {
-                        row = `<tr>
-                            <td><strong>#${item.id}</strong></td>
-                            <td>${item.name ?? "-"}</td>
-                            <td>${dateFormatted}</td>
-                        </tr>`;
+                        row = `<tr><td><strong>#${item.id}</strong></td><td>${item.name ?? "-"}</td><td>${dateFormatted}</td>${actions}</tr>`;
                     }
                     else if (type === "service") {
-                        // Ustunlar HTMLga (ID, Xizmat nomi, Kategoriya, Usta, Narxi, Sana) to'liq moslangan
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td>
-                            <td>${item.name ?? "-"}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.name ?? "-"}</td>
                             <td><span class="badge bg-secondary">${item.category_name || 'Mavjud emas'}</span></td>
                             <td>${item.worker_name || 'Noma\'lum'}</td>
                             <td class="text-success fw-bold">${item.price ? parseFloat(item.price).toLocaleString() : 0} UZS</td>
-                            <td>${dateFormatted}</td>
+                            <td>${dateFormatted}</td>${actions}
                         </tr>`;
                     }
                     else if (type === "user") {
-                        // HTML dagi ustunlar: ID, Foydalanuvchi, Email, Telefon, Rol, Holati
                         const roleBadge = item.role === 'worker' ? 'bg-success' : (item.role === 'admin' ? 'bg-danger' : 'bg-primary');
                         const statusBadge = item.is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle';
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td>
-                            <td>${item.username ?? "-"}</td>
-                            <td>${item.email || '-'}</td>
-                            <td>${item.phone_number || '-'}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.username ?? "-"}</td><td>${item.email || '-'}</td><td>${item.phone_number || '-'}</td>
                             <td><span class="badge ${roleBadge}">${item.role ?? 'client'}</span></td>
-                            <td><span class="badge ${statusBadge}">${item.is_active ? 'Faol' : 'Bloklangan'}</span></td>
+                            <td><span class="badge ${statusBadge}">${item.is_active ? 'Faol' : 'Bloklangan'}</span></td>${actions}
                         </tr>`;
                     }
                     else if (type === "order") {
-                        // HTML dagi ustunlar: ID, Mijoz, Xizmat turi, Sana, Status
-                        let statusColor = "bg-warning text-dark";
-                        if (item.status === "completed") statusColor = "bg-success";
-                        if (item.status === "canceled") statusColor = "bg-danger";
-
+                        let statusColor = item.status === "completed" ? "bg-success" : (item.status === "canceled" ? "bg-danger" : "bg-warning text-dark");
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td>
-                            <td>${item.client_name || 'Noma\'lum'}</td>
-                            <td>${item.service_name || '-'}</td>
-                            <td>${dateFormatted}</td>
-                            <td><span class="badge ${statusColor}">${item.status || "pending"}</span></td>
+                            <td><strong>#${item.id}</strong></td><td>${item.client_name || 'Noma\'lum'}</td><td>${item.service_name || '-'}</td>
+                            <td>${dateFormatted}</td><td><span class="badge ${statusColor}">${item.status || "pending"}</span></td>${actions}
                         </tr>`;
                     }
                     else if (type === "review") {
-                        // Yulduzchalarni chizish logikasi (Reyting bo'yicha)
-                        let stars = "";
-                        const rating = item.rating ?? 0;
-                        for(let i = 1; i <= 5; i++) {
-                            stars += `<i class="fa-star ${i <= rating ? 'fa-solid text-warning' : 'fa-regular text-muted'}"></i>`;
-                        }
-
+                        let stars = ""; const rating = item.rating ?? 0;
+                        for(let i = 1; i <= 5; i++) { stars += `<i class="fa-star ${i <= rating ? 'fa-solid text-warning' : 'fa-regular text-muted'}"></i>`; }
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td>
-                            <td>${item.client_name || 'Anonim'}</td>
-                            <td>${item.service_name || '-'}</td>
-                            <td>${stars}</td>
-                            <td><small>${item.comment || '-'}</small></td>
-                            <td>${dateFormatted}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.client_name || 'Anonim'}</td><td>${item.service_name || '-'}</td>
+                            <td>${stars}</td><td><small>${item.comment || '-'}</small></td><td>${dateFormatted}</td>${actions}
                         </tr>`;
                     }
-
                     tbody.innerHTML += row;
                 });
-
-            } catch (err) {
-                console.error("Ro'yxatni yuklashda xatolik:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
-        // ========================
-        // 🧭 TABLARNI ALMASHTIRISH
-        // ========================
+        function safeStringify(obj) { return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
+        function safeParse(str) { return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+
+        // =====================================
+        // 🛠 CRUD OPERATSIYALARI MODALLARI
+        // =====================================
+        function openAddModal(type) {
+            currentEditId = null;
+            document.getElementById("modalTitle").innerText = "Yangi Kategoriya Qo'shish";
+            document.getElementById("modalBody").innerHTML = `<div class="mb-3"><label class="form-label">Kategoriya Nomi</label><input type="text" id="input-cat-name" class="form-control" placeholder="Masalan: Tozalash" required></div>`;
+            new bootstrap.Modal(document.getElementById('crudModal')).show();
+        }
+
+        function openEditModal(type, id, encodedObj) {
+            currentEditId = id; const item = safeParse(encodedObj);
+            document.getElementById("modalTitle").innerText = `Tahrirlash #${id}`;
+            let bodyHtml = "";
+
+            if (type === "category") {
+                bodyHtml = `<div class="mb-3"><label class="form-label">Kategoriya Nomi</label><input type="text" id="input-cat-name" class="form-control" value="${item.name || ''}" required></div>`;
+            } else if (type === "user") {
+                bodyHtml = `
+                    <div class="mb-3"><label class="form-label">Username</label><input type="text" id="input-user-username" class="form-control" value="${item.username || ''}"></div>
+                    <div class="mb-3"><label class="form-label">Rol</label><select id="select-user-role" class="form-select"><option value="client" ${item.role === 'client'?'selected':''}>Client</option><option value="worker" ${item.role === 'worker'?'selected':''}>Worker</option></select></div>
+                    <div class="mb-3"><label class="form-label">Holat</label><select id="select-user-active" class="form-select"><option value="true" ${item.is_active?'selected':''}>Faol</option><option value="false" ${!item.is_active?'selected':''}>Bloklangan</option></select></div>`;
+            } else if (type === "order") {
+                bodyHtml = `<div class="mb-3"><label class="form-label">Status</label><select id="select-order-status" class="form-select"><option value="pending" ${item.status==='pending'?'selected':''}>Pending</option><option value="completed" ${item.status==='completed'?'selected':''}>Completed</option><option value="canceled" ${item.status==='canceled'?'selected':''}>Canceled</option></select></div>`;
+            } else if (type === "service") {
+                bodyHtml = `<div class="mb-3"><label class="form-label">Xizmat Nomi</label><input type="text" id="input-service-name" class="form-control" value="${item.name || ''}"><label class="form-label mt-2">Narxi (UZS)</label><input type="number" id="input-service-price" class="form-control" value="${item.price || 0}"></div>`;
+            }
+            document.getElementById("modalBody").innerHTML = bodyHtml;
+            new bootstrap.Modal(document.getElementById('crudModal')).show();
+        }
+
+        async function submitCrudForm() {
+            const type = currentOpenTab; let payload = {}; let method = currentEditId ? "PATCH" : "POST";
+            let endpoints = { category: API.categories, service: API.services, user: API.users, order: API.orders };
+            let url = currentEditId ? `${endpoints[type]}${currentEditId}/` : endpoints.category;
+
+            if (type === "category") payload = { name: document.getElementById("input-cat-name").value };
+            else if (type === "user") payload = { username: document.getElementById("input-user-username").value, role: document.getElementById("select-user-role").value, is_active: document.getElementById("select-user-active").value === "true" };
+            else if (type === "order") payload = { status: document.getElementById("select-order-status").value };
+            else if (type === "service") payload = { name: document.getElementById("input-service-name").value, price: document.getElementById("input-service-price").value };
+
+            try {
+                const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
+                if (res.ok) { bootstrap.Modal.getInstance(document.getElementById('crudModal')).hide(); fetchList(type); fetchStats(); }
+                else { alert("Xatolik: Backend talablarini tekshiring."); }
+            } catch(err) { console.error(err); }
+        }
+
+        async function deleteItem(type, id) {
+            if (!confirm("Haqiqatdan o'chirmoqchimisiz?")) return;
+            let endpoints = { category: API.categories, service: API.services, user: API.users, order: API.orders, review: API.reviews };
+            try {
+                const res = await fetch(`${endpoints[type]}${id}/`, { method: "DELETE", headers });
+                if (res.ok) { fetchList(type); fetchStats(); } else { alert("O'chirishda xatolik yuz berdi."); }
+            } catch(err) { console.error(err); }
+        }
+
         function switchTab(tab, el) {
-            document.querySelectorAll(".tab-content-panel").forEach(t => t.style.display = "none");
+            currentOpenTab = tab; document.querySelectorAll(".tab-content-panel").forEach(t => t.style.display = "none");
+            const active = document.getElementById(`tab-${tab}`); if (active) active.style.display = "block";
+            document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active")); el.classList.add("active");
             
-            const activeTab = document.getElementById(`tab-${tab}`);
-            if (activeTab) activeTab.style.display = "block";
-
-            document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
-            el.classList.add("active");
-
-            const titles = {
-                dashboard: "Dashboard",
-                category: "Kategoriyalar boshqaruvi",
-                service: "Xizmatlar ro'yxati",
-                user: "Foydalanuvchilar nazorati",
-                order: "Buyurtmalar oqimi",
-                review: "Mijozlar sharhlari"
-            };
+            const titles = { dashboard: "Dashboard", category: "Kategoriyalar boshqaruvi", service: "Xizmatlar ro'yxati", user: "Foydalanuvchilar nazorati", order: "Buyurtmalar oqimi", review: "Mijozlar sharhlari" };
             document.getElementById("page-title").innerText = titles[tab] || "Dashboard";
 
-            if (tab === "dashboard") {
-                fetchStats();
-            } else {
-                fetchList(tab);
-            }
+            const actionArea = document.getElementById("action-header-area");
+            if (permissionsMap[tab] && permissionsMap[tab].create) actionArea.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openAddModal('${tab}')"><i class="fa-solid fa-plus me-1"></i> Yangi Qo'shish</button>`;
+            else actionArea.innerHTML = "";
+
+            if (tab === "dashboard") fetchStats(); else fetchList(tab);
         }
 </script>
 </body>
