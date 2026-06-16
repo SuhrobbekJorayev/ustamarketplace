@@ -404,7 +404,9 @@
         }
 
         async function handleProfileUpdate(event) {
-            event.preventDefault();
+            // Sahifa yangilanib ketishining oldini olamiz
+            if (event) event.preventDefault();
+            
             const saveBtn = document.getElementById("save-profile-btn");
             saveBtn.disabled = true;
             saveBtn.innerText = "Saqlanmoqda...";
@@ -414,13 +416,17 @@
             const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
-                // 1. Asosiy profilni yangilash
-                const resMe = await fetchWithAuth(API.auth.me, {
+                // 1. Asosiy profilni yangilash (URL oxirida / bo'lishi shart!)
+                const resMe = await fetchWithAuth(`${API.auth.me}`, {
                     method: "PATCH",
                     body: JSON.stringify({ username, phone_number })
                 });
 
-                if (!resMe.ok) throw new Error("Umumiy profil ma'lumotlarini saqlab bo'lmadi.");
+                if (!resMe.ok) {
+                    const errData = await resMe.json().catch(() => ({}));
+                    console.error("User update xatosi:", errData);
+                    throw new Error(`Asosiy profilni saqlab bo'lmadi. Status: ${resMe.status}`);
+                }
 
                 // 2. Agar usta bo'lsa, qo'shimcha ma'lumotlarni yangilash
                 if (currentRole === "worker") {
@@ -428,13 +434,27 @@
                     const location = document.getElementById("edit-location").value;
                     const bio = document.getElementById("edit-bio").value;
 
-                    // TO'G'RILANDI: Oxiridan 'me/' olib tashlandi, PATCH metodi qoldi
-                    const resWorker = await fetchWithAuth(API.profile, {
+                    const id = localStorage.getItem("worker_profile_id");
+                    
+                    // Diqqat: Django URL oxirida doim / belgisini kutadi!
+                    // Agar ID bo'lsa: .../worker-profile/5/, ID bo'lmasa: .../worker-profile/
+                    let targetUrl = id ? `${API.profile}${id}/` : API.profile;
+                    
+                    // Agar endpoints.js ichida API.profile oxirida / bo'lmasa va ID ham topilmasa, unga / qo'shamiz
+                    if (!targetUrl.endsWith('/')) {
+                        targetUrl += '/';
+                    }
+
+                    const resWorker = await fetchWithAuth(targetUrl, {
                         method: "PATCH",
                         body: JSON.stringify({ experience_years, location, bio })
                     });
 
-                    if (!resWorker.ok) throw new Error("Usta profil tafsilotlarini saqlab bo'lmadi.");
+                    if (!resWorker.ok) {
+                        const errData = await resWorker.json().catch(() => ({}));
+                        console.error("Worker update xatosi:", errData);
+                        throw new Error(`Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`);
+                    }
                 }
 
                 alert("Profil muvaffaqiyatli yangilandi! 🎉");
@@ -448,7 +468,7 @@
                 saveBtn.disabled = false;
                 saveBtn.innerText = "O'zgarishlarni saqlash";
             }
-        } 
+        }
 
         function applyFilters() {
             const searchQuery = document.getElementById("search-input").value;
