@@ -82,7 +82,15 @@
         <button class="theme-toggle-btn" onclick="toggleTheme()">
             <i class="fa-solid fa-moon" id="theme-icon"></i> <span id="theme-text">Dark Mode</span>
         </button>
-        <div class="admin-profile"><span class="fw-medium"><i class="fa-solid fa-user-shield me-1"></i> Admin Panel</span></div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-profile">
+                <span class="fw-medium text-muted"><i class="fa-solid fa-user-shield text-danger me-1"></i> Admin Panel</span>
+            </div>
+            <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 px-3" onclick="handleLogout()" style="border-radius: 6px;">
+                <i class="fa-solid fa-right-from-bracket"></i> Chiqish
+            </button>
+        </div>
     </div>
 
     <div class="main-content">
@@ -147,6 +155,7 @@
         let barChart, doughnutChart;
         let currentOpenTab = "dashboard";
         let currentEditId = null;
+        
         const token = localStorage.getItem("access");
         const headers = { "Content-Type": "application/json", "Authorization": "Bearer " + token };
 
@@ -158,11 +167,31 @@
             review: { create: false, update: false, delete: true }
         };
 
+        // =====================================
+        // 🔒 XAVFSIZLIK VA INTERFEYS YUKLANISHI (Birlashtirildi)
+        // =====================================
+        document.addEventListener("DOMContentLoaded", () => { 
+            // 1. Birinchi navbatda tokenni tekshiramiz
+            if (!token) {
+                alert("Tizimga kirilmagan! Avval login qiling.");
+                window.location.href = "login.html";
+                return; // Kod shu yerda to'xtaydi, pastdagilar ishlamaydi
+            }
+            
+            // 2. Agar token bo'lsa, vizual qism va statistikani yuklaymiz
+            initTheme(); 
+            fetchStats(); 
+        });
+
         function initTheme() {
             const theme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", theme);
-            if(theme === "dark") { document.getElementById("theme-icon").className = "fa-solid fa-sun"; document.getElementById("theme-text").innerText = "Light Mode"; }
+            if(theme === "dark") { 
+                document.getElementById("theme-icon").className = "fa-solid fa-sun"; 
+                document.getElementById("theme-text").innerText = "Light Mode"; 
+            }
         }
+
         function toggleTheme() {
             const current = document.documentElement.getAttribute("data-theme");
             const next = current === "dark" ? "light" : "dark";
@@ -171,8 +200,6 @@
             document.getElementById("theme-icon").className = next === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
             document.getElementById("theme-text").innerText = next === "dark" ? "Light Mode" : "Dark Mode";
         }
-
-        document.addEventListener("DOMContentLoaded", () => { initTheme(); fetchStats(); });
 
         async function fetchStats() {
             try {
@@ -189,17 +216,30 @@
         }
 
         function renderCharts(data) {
-            if (barChart) barChart.destroy(); if (doughnutChart) doughnutChart.destroy();
-            barChart = new Chart(document.getElementById("chartUsersBar"), { type: "bar", data: { labels: ["Mijozlar", "Ustalar"], datasets: [{ data: [Math.max((data.users ?? 0) - (data.workers ?? 0), 0), data.workers ?? 0], backgroundColor: ["#1e40af", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-            doughnutChart = new Chart(document.getElementById("chartStructureDoughnut"), { type: "doughnut", data: { labels: ["Kategoriyalar", "Xizmatlar"], datasets: [{ data: [data.categories ?? 0, data.services ?? 0], backgroundColor: ["#64748b", "#f59e0b"] }] }, options: { responsive: true, maintainAspectRatio: false } });
+            if (barChart) barChart.destroy(); 
+            if (doughnutChart) doughnutChart.destroy();
+            
+            barChart = new Chart(document.getElementById("chartUsersBar"), { 
+                type: "bar", 
+                data: { 
+                    labels: ["Mijozlar", "Ustalar"], 
+                    datasets: [{ data: [Math.max((data.users ?? 0) - (data.workers ?? 0), 0), data.workers ?? 0], backgroundColor: ["#1e40af", "#10b981"] }] 
+                }, 
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
+            });
+            
+            doughnutChart = new Chart(document.getElementById("chartStructureDoughnut"), { 
+                type: "doughnut", 
+                data: { 
+                    labels: ["Kategoriyalar", "Xizmatlar"], 
+                    datasets: [{ data: [data.categories ?? 0, data.services ?? 0], backgroundColor: ["#64748b", "#f59e0b"] }] 
+                }, 
+                options: { responsive: true, maintainAspectRatio: false } 
+            });
         }
 
-        // =====================================
-        // 🛠 TUZATILGAN: FETCHLIST FUNKSIYASI (Dashboard Endpointlari bilan)
-        // =====================================
         async function fetchList(type) {
             try {
-                // User va Order endi xavfsiz dashboard admin yo'laklariga ulandi
                 const endpoints = { 
                     category: API.categories, 
                     service: API.services, 
@@ -212,7 +252,6 @@
                 const res = await fetch(endpoints[type], { headers });
                 const data = await res.json();
                 
-                // Pagination results yoki to'g'ridan-to'g'ri arraylik holatni qo'llab quvvatlash
                 const list = data.results || (Array.isArray(data) ? data : []);
                 const tbody = document.getElementById(`list-${type}`);
                 if (!tbody) return;
@@ -301,13 +340,9 @@
             new bootstrap.Modal(document.getElementById('crudModal')).show();
         }
 
-        // =====================================
-        // 🛠 TUZATILGAN: SUBMITCRUDFORM (Tahrirlash va Yaratish Dashboard endpointlari bilan)
-        // =====================================
         async function submitCrudForm() {
             const type = currentOpenTab; let payload = {}; let method = currentEditId ? "PATCH" : "POST";
             
-            // Endpointlar dashboard xavfsiz yo'laklariga moslandi
             let endpoints = { 
                 category: API.categories, 
                 service: API.services, 
@@ -323,14 +358,16 @@
 
             try {
                 const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
-                if (res.ok) { bootstrap.Modal.getInstance(document.getElementById('crudModal')).hide(); fetchList(type); fetchStats(); }
-                else { alert("Xatolik: Backend talablarini tekshiring."); }
+                if (res.ok) { 
+                    bootstrap.Modal.getInstance(document.getElementById('crudModal')).hide(); 
+                    fetchList(type); 
+                    fetchStats(); 
+                } else { 
+                    alert("Xatolik: Backend talablarini tekshiring."); 
+                }
             } catch(err) { console.error(err); }
         }
 
-        // =====================================
-        // 🛠 TUZATILGAN: DELETEITEM (O'chirish Dashboard endpointlari bilan)
-        // =====================================
         async function deleteItem(type, id) {
             if (!confirm("Haqiqatdan o'chirmoqchimisiz?")) return;
             
@@ -348,18 +385,37 @@
         }
 
         function switchTab(tab, el) {
-            currentOpenTab = tab; document.querySelectorAll(".tab-content-panel").forEach(t => t.style.display = "none");
-            const active = document.getElementById(`tab-${tab}`); if (active) active.style.display = "block";
-            document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active")); el.classList.add("active");
+            currentOpenTab = tab; 
+            document.querySelectorAll(".tab-content-panel").forEach(t => t.style.display = "none");
+            const active = document.getElementById(`tab-${tab}`); 
+            if (active) active.style.display = "block";
+            document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active")); 
+            el.classList.add("active");
             
             const titles = { dashboard: "Dashboard", category: "Kategoriyalar boshqaruvi", service: "Xizmatlar ro'yxati", user: "Foydalanuvchilar nazorati", order: "Buyurtmalar oqimi", review: "Mijozlar sharhlari" };
             document.getElementById("page-title").innerText = titles[tab] || "Dashboard";
 
             const actionArea = document.getElementById("action-header-area");
-            if (permissionsMap[tab] && permissionsMap[tab].create) actionArea.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openAddModal('${tab}')"><i class="fa-solid fa-plus me-1"></i> Yangi Qo'shish</button>`;
-            else actionArea.innerHTML = "";
+            if (permissionsMap[tab] && permissionsMap[tab].create) {
+                actionArea.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openAddModal('${tab}')"><i class="fa-solid fa-plus me-1"></i> Yangi Qo'shish</button>`;
+            } else {
+                actionArea.innerHTML = "";
+            }
 
             if (tab === "dashboard") fetchStats(); else fetchList(tab);
+        }
+
+        // =====================================
+        // 🚪 TIZIMDAN CHIQISH (LOGOUT) FUNKSIYASI
+        // =====================================
+        function handleLogout() {
+            if (confirm("Haqiqatdan ham tizimdan chiqmoqchimisiz?")) {
+                localStorage.removeItem("access");
+                localStorage.removeItem("refresh");
+                localStorage.removeItem("user_role");
+                localStorage.removeItem("worker_profile_id");
+                window.location.href = "login.html"; 
+            }
         }
 </script>
 </body>
