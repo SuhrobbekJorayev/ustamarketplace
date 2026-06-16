@@ -369,7 +369,7 @@
             myProfileModal.show();
             const currentRole = localStorage.getItem("user_role") || "client";
             try {
-                // INFO: Profil ochilganda ma'lumotlarni shunchaki GET qilish kerak, PATCH/PUT emas!
+                // Asosiy foydalanuvchi ma'lumotlari
                 const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
                 if (resMe.ok) {
                     const userData = await resMe.json();
@@ -380,13 +380,22 @@
                 const extraFields = document.getElementById("worker-extra-fields");
                 if (currentRole === 'worker') {
                     extraFields.classList.remove('d-none');
-                    // Bu yerda ham usta ma'lumotlarini dastlab GET orqali yuklab olamiz
-                    const resWorker = await fetchWithAuth(`${API.profile}me/`, { method: "GET" });
+                    
+                    // TO'G'RILANDI: Oxiridan 'me/' olib tashlandi, shunchaki API.profile
+                    const resWorker = await fetchWithAuth(API.profile, { method: "GET" });
                     if (resWorker.ok) {
                         const workerData = await resWorker.json();
-                        document.getElementById("edit-experience").value = workerData.experience_years || 0;
-                        document.getElementById("edit-location").value = workerData.location || '';
-                        document.getElementById("edit-bio").value = workerData.bio || '';
+                        // Agar usta ma'lumotlari massiv ichida kelsa (DRF ListAPIView bo'lsa)
+                        const profile = Array.isArray(workerData) ? workerData[0] : workerData;
+                        
+                        if (profile) {
+                            document.getElementById("edit-experience").value = profile.experience_years || 0;
+                            document.getElementById("edit-location").value = profile.location || '';
+                            document.getElementById("edit-bio").value = profile.bio || '';
+                            
+                            // Agar keyinchalik ID kerak bo'lib qolsa, saqlab qo'yamiz
+                            if (profile.id) localStorage.setItem("worker_profile_id", profile.id);
+                        }
                     }
                 } else { 
                     extraFields.classList.add('d-none'); 
@@ -405,7 +414,7 @@
             const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
-                // TO'G'RILANDI: PUT o'rniga PATCH qo'yildi
+                // 1. Asosiy profilni yangilash
                 const resMe = await fetchWithAuth(API.auth.me, {
                     method: "PATCH",
                     body: JSON.stringify({ username, phone_number })
@@ -413,13 +422,14 @@
 
                 if (!resMe.ok) throw new Error("Umumiy profil ma'lumotlarini saqlab bo'lmadi.");
 
+                // 2. Agar usta bo'lsa, qo'shimcha ma'lumotlarni yangilash
                 if (currentRole === "worker") {
                     const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
                     const location = document.getElementById("edit-location").value;
                     const bio = document.getElementById("edit-bio").value;
 
-                    // TO'G'RILANDI: API.profile oxiriga 'me/' va PATCH metodi qo'yildi
-                    const resWorker = await fetchWithAuth(`${API.profile}me/`, {
+                    // TO'G'RILANDI: Oxiridan 'me/' olib tashlandi, PATCH metodi qoldi
+                    const resWorker = await fetchWithAuth(API.profile, {
                         method: "PATCH",
                         body: JSON.stringify({ experience_years, location, bio })
                     });
@@ -438,7 +448,7 @@
                 saveBtn.disabled = false;
                 saveBtn.innerText = "O'zgarishlarni saqlash";
             }
-        }
+        } 
 
         function applyFilters() {
             const searchQuery = document.getElementById("search-input").value;
