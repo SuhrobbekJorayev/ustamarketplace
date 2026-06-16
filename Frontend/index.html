@@ -436,20 +436,15 @@
             try {
                 // User update
                 const resMe = await fetchWithAuth(API.auth.me, {
-                    method: "PATCH",
+                    method: "PUT",
                     body: JSON.stringify({
                         username,
                         phone_number
                     })
                 });
 
-                const errorData = await resMe.json().catch(() => ({}));
-
-                console.log("STATUS:", resMe.status);
-                console.log("DATA:", errorData);
-
                 if (!resMe.ok) {
-                    throw new Error(JSON.stringify(errorData));
+                    throw new Error("Asosiy profilni saqlab bo'lmadi");
                 }
 
                 // Worker profile update
