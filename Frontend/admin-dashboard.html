@@ -150,7 +150,6 @@
         const token = localStorage.getItem("access");
         const headers = { "Content-Type": "application/json", "Authorization": "Bearer " + token };
 
-        // 🔐 Backend ViewSet Merosxo'rligiga mos ruxsatnomalar
         const permissionsMap = {
             category: { create: true, update: true, delete: true },
             service: { create: false, update: true, delete: true },
@@ -196,16 +195,25 @@
         }
 
         // =====================================
-        // 📦 KODLAR TO'LIQ INTEGRATSIYA QILINGAN JADVAL CHIZISH
+        // 🛠 TUZATILGAN: FETCHLIST FUNKSIYASI (Dashboard Endpointlari bilan)
         // =====================================
         async function fetchList(type) {
             try {
-                const endpoints = { category: API.categories, service: API.services, user: API.users, order: API.orders, review: API.reviews };
+                // User va Order endi xavfsiz dashboard admin yo'laklariga ulandi
+                const endpoints = { 
+                    category: API.categories, 
+                    service: API.services, 
+                    user: API.dashboard.users, 
+                    order: API.dashboard.orders, 
+                    review: API.reviews 
+                };
                 if (!endpoints[type]) return;
 
                 const res = await fetch(endpoints[type], { headers });
                 const data = await res.json();
-                const list = data.results || data;
+                
+                // Pagination results yoki to'g'ridan-to'g'ri arraylik holatni qo'llab quvvatlash
+                const list = data.results || (Array.isArray(data) ? data : []);
                 const tbody = document.getElementById(`list-${type}`);
                 if (!tbody) return;
                 tbody.innerHTML = "";
@@ -216,7 +224,6 @@
                     let row = "";
                     const dateFormatted = item.created_at ? new Date(item.created_at).toLocaleDateString() : '-';
                     
-                    // Amallar tugmalari matni
                     let actions = `<td class="text-end">`;
                     if (perms.update) actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('${type}', ${item.id}, ${safeStringify(item)})"><i class="fa-solid fa-pen"></i></button>`;
                     if (perms.delete) actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${type}', ${item.id})"><i class="fa-solid fa-trash"></i></button>`;
@@ -246,7 +253,7 @@
                     else if (type === "order") {
                         let statusColor = item.status === "completed" ? "bg-success" : (item.status === "canceled" ? "bg-danger" : "bg-warning text-dark");
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td><td>${item.client_name || 'Noma\'lum'}</td><td>${item.service_name || '-'}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.client_name || `Mijoz #${item.client || ''}`}</td><td>${item.service_name || '-'}</td>
                             <td>${dateFormatted}</td><td><span class="badge ${statusColor}">${item.status || "pending"}</span></td>${actions}
                         </tr>`;
                     }
@@ -266,9 +273,6 @@
         function safeStringify(obj) { return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
         function safeParse(str) { return JSON.parse(decodeURIComponent(escape(atob(str)))); }
 
-        // =====================================
-        // 🛠 CRUD OPERATSIYALARI MODALLARI
-        // =====================================
         function openAddModal(type) {
             currentEditId = null;
             document.getElementById("modalTitle").innerText = "Yangi Kategoriya Qo'shish";
@@ -297,10 +301,20 @@
             new bootstrap.Modal(document.getElementById('crudModal')).show();
         }
 
+        // =====================================
+        // 🛠 TUZATILGAN: SUBMITCRUDFORM (Tahrirlash va Yaratish Dashboard endpointlari bilan)
+        // =====================================
         async function submitCrudForm() {
             const type = currentOpenTab; let payload = {}; let method = currentEditId ? "PATCH" : "POST";
-            let endpoints = { category: API.categories, service: API.services, user: API.users, order: API.orders };
-            let url = currentEditId ? `${endpoints[type]}${currentEditId}/` : endpoints.category;
+            
+            // Endpointlar dashboard xavfsiz yo'laklariga moslandi
+            let endpoints = { 
+                category: API.categories, 
+                service: API.services, 
+                user: API.dashboard.users, 
+                order: API.dashboard.orders 
+            };
+            let url = currentEditId ? `${endpoints[type]}${currentEditId}/` : endpoints[type];
 
             if (type === "category") payload = { name: document.getElementById("input-cat-name").value };
             else if (type === "user") payload = { username: document.getElementById("input-user-username").value, role: document.getElementById("select-user-role").value, is_active: document.getElementById("select-user-active").value === "true" };
@@ -314,9 +328,19 @@
             } catch(err) { console.error(err); }
         }
 
+        // =====================================
+        // 🛠 TUZATILGAN: DELETEITEM (O'chirish Dashboard endpointlari bilan)
+        // =====================================
         async function deleteItem(type, id) {
             if (!confirm("Haqiqatdan o'chirmoqchimisiz?")) return;
-            let endpoints = { category: API.categories, service: API.services, user: API.users, order: API.orders, review: API.reviews };
+            
+            let endpoints = { 
+                category: API.categories, 
+                service: API.services, 
+                user: API.dashboard.users, 
+                order: API.dashboard.orders, 
+                review: API.reviews 
+            };
             try {
                 const res = await fetch(`${endpoints[type]}${id}/`, { method: "DELETE", headers });
                 if (res.ok) { fetchList(type); fetchStats(); } else { alert("O'chirishda xatolik yuz berdi."); }
