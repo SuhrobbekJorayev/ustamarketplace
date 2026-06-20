@@ -12,7 +12,7 @@ def order_created(sender, instance, created, **kwargs):
 
     worker_user = instance.service.worker.user
 
-    send_order_notification_mail.delay(
+    send_order_notification_mail(
         to_email=worker_user.email,
         worker_username=worker_user.username,
         order_id=instance.id,
