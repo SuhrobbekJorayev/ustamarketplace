@@ -106,6 +106,10 @@
                             <input type="text" id="edit-username" class="form-control" required>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label small fw-bold">Email manzili</label>
+                            <input type="email" id="edit-email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label small fw-bold">Telefon raqam</label>
                             <input type="text" id="edit-phone" class="form-control" required>
                         </div>
@@ -168,7 +172,6 @@
         async function initApp() {
             const token = localStorage.getItem("access");
             if (token) {
-                // Navbarni chizishdan oldin majburiy backenddan oxirgi statusni olamiz
                 await checkUserStatus();
             }
             renderNavbar();
@@ -181,8 +184,6 @@
                 const res = await fetchWithAuth(API.auth.me); 
                 if (res.ok) {
                     const data = await res.json();
-                    
-                    // Backenddan kelgan statuslarni to'g'ri shaklga keltiramiz
                     let isStaffValue = (data.is_staff === true || data.is_staff === "true" || data.is_staff === 1) ? "true" : "false";
                     let roleValue = data.role ? String(data.role).toLowerCase().trim() : "client";
                     
@@ -201,7 +202,6 @@
         function renderNavbar() {
             const nav = document.getElementById("nav-auth-links");
             const token = localStorage.getItem("access");
-            
             const currentRole = localStorage.getItem("user_role") || "client";
             const currentStaff = localStorage.getItem("is_staff") || "false";
 
@@ -213,7 +213,7 @@
                 if (currentRole === "worker") {
                     btnText = "Kabinet (Usta)";
                     btnClass = "btn-outline-info";
-                    dashboardLink = "dashboard.html"; // Ustalar va mijozlar uchun umumiy yoki alohida dashboard nomi
+                    dashboardLink = "dashboard.html";
                 }
 
                 if (currentStaff === "true" || currentRole === "admin") {
@@ -274,7 +274,6 @@
 
             services.forEach(s => {
                 let actionButton = "";
-                
                 if (currentStaff === "true") {
                     actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Rejimi</button>`;
                 } else if (currentRole === "worker") {
@@ -287,9 +286,8 @@
                 const reviewsCount = parseInt(s.reviews_count) || 0;
                 let ratingHTML = reviewsCount > 0 
                     ? `<div class="mb-2 small d-flex align-items-center"><span class="text-warning me-1">${"★".repeat(Math.round(avgRating))}</span><span class="text-muted fw-bold">${avgRating.toFixed(1)}</span></div>`
-                    : `<div class="mb-2 small text-muted">☆☆☆☆š (Sharhlar yo'q)</div>`;
+                    : `<div class="mb-2 small text-muted">☆☆☆☆☆ (Sharhlar yo'q)</div>`;
 
-                // Worker mantiqiy kalitini xavfsiz o'qish
                 const workerId = s.worker || s.worker_id || (s.worker_profile ? s.worker_profile.id : 0);
 
                 container.innerHTML += `
@@ -367,45 +365,29 @@
 
         async function openMyProfileModal() {
             myProfileModal.show();
-
             const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
-                // User ma'lumotlari
-                const resMe = await fetchWithAuth(API.auth.me, {
-                    method: "GET"
-                });
+                const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
 
                 if (resMe.ok) {
                     const userData = await resMe.json();
-
-                    document.getElementById("edit-username").value =
-                        userData.username || "";
-
-                    document.getElementById("edit-phone").value =
-                        userData.phone_number || "";
+                    document.getElementById("edit-username").value = userData.username || "";
+                    document.getElementById("edit-email").value = userData.email || ""; // 📨 Email qiymatini inputga yuklash
+                    document.getElementById("edit-phone").value = userData.phone_number || "";
                 }
 
                 const extraFields = document.getElementById("worker-extra-fields");
 
                 if (currentRole === "worker") {
                     extraFields.classList.remove("d-none");
-
-                    const resWorker = await fetchWithAuth(API.profile, {
-                        method: "GET"
-                    });
+                    const resWorker = await fetchWithAuth(API.profile, { method: "GET" });
 
                     if (resWorker.ok) {
                         const workerData = await resWorker.json();
-
-                        document.getElementById("edit-experience").value =
-                            workerData.experience_years || 0;
-
-                        document.getElementById("edit-location").value =
-                            workerData.location || "";
-
-                        document.getElementById("edit-bio").value =
-                            workerData.bio || "";
+                        document.getElementById("edit-experience").value = workerData.experience_years || 0;
+                        document.getElementById("edit-location").value = workerData.location || "";
+                        document.getElementById("edit-bio").value = workerData.bio || "";
                     }
                 } else {
                     extraFields.classList.add("d-none");
@@ -420,25 +402,21 @@
             if (event) event.preventDefault();
 
             const saveBtn = document.getElementById("save-profile-btn");
-
             saveBtn.disabled = true;
             saveBtn.innerText = "Saqlanmoqda...";
 
-            const username =
-                document.getElementById("edit-username").value;
-
-            const phone_number =
-                document.getElementById("edit-phone").value;
-
-            const currentRole =
-                localStorage.getItem("user_role") || "client";
+            const username = document.getElementById("edit-username").value;
+            const email = document.getElementById("edit-email").value; // 📨 Email qiymatini formadan olish
+            const phone_number = document.getElementById("edit-phone").value;
+            const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
-                // User update
+                // User update (PUT so'rovida endi email ham yuboriladi)
                 const resMe = await fetchWithAuth(API.auth.me, {
                     method: "PUT",
                     body: JSON.stringify({
                         username,
+                        email, // backend qabul qilishi uchun ulandi
                         phone_number
                     })
                 });
@@ -449,15 +427,9 @@
 
                 // Worker profile update
                 if (currentRole === "worker") {
-
-                    const experience_years =
-                        parseInt(document.getElementById("edit-experience").value) || 0;
-
-                    const location =
-                        document.getElementById("edit-location").value;
-
-                    const bio =
-                        document.getElementById("edit-bio").value;
+                    const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
+                    const location = document.getElementById("edit-location").value;
+                    const bio = document.getElementById("edit-bio").value;
 
                     const resWorker = await fetchWithAuth(API.profile, {
                         method: "PATCH",
@@ -470,19 +442,13 @@
 
                     if (!resWorker.ok) {
                         const errData = await resWorker.json().catch(() => ({}));
-
                         console.error(errData);
-
-                        throw new Error(
-                            `Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`
-                        );
+                        throw new Error(`Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`);
                     }
                 }
 
                 alert("Profil muvaffaqiyatli yangilandi! 🎉");
-
                 myProfileModal.hide();
-
                 await initApp();
 
             } catch (err) {
@@ -500,7 +466,6 @@
             const minPrice = document.getElementById("min-price").value;
             const maxPrice = document.getElementById("max-price").value;
 
-            // Narx filtri mantiqlari to'liq qo'shildi
             currentUrl = `${API.services}?search=${encodeURIComponent(searchQuery)}&category=${categoryId}&min_price=${minPrice}&max_price=${maxPrice}`;
             fetchServices(currentUrl);
         }

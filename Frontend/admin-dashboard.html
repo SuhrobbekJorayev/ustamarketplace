@@ -167,18 +167,12 @@
             review: { create: false, update: false, delete: true }
         };
 
-        // =====================================
-        // 🔒 XAVFSIZLIK VA INTERFEYS YUKLANISHI (Birlashtirildi)
-        // =====================================
         document.addEventListener("DOMContentLoaded", () => { 
-            // 1. Birinchi navbatda tokenni tekshiramiz
             if (!token) {
                 alert("Tizimga kirilmagan! Avval login qiling.");
                 window.location.href = "login.html";
-                return; // Kod shu yerda to'xtaydi, pastdagilar ishlamaydi
+                return;
             }
-            
-            // 2. Agar token bo'lsa, vizual qism va statistikani yuklaymiz
             initTheme(); 
             fetchStats(); 
         });
@@ -329,6 +323,7 @@
             } else if (type === "user") {
                 bodyHtml = `
                     <div class="mb-3"><label class="form-label">Username</label><input type="text" id="input-user-username" class="form-control" value="${item.username || ''}"></div>
+                    <div class="mb-3"><label class="form-label">Email</label><input type="email" id="input-user-email" class="form-control" value="${item.email || ''}"></div>
                     <div class="mb-3"><label class="form-label">Rol</label><select id="select-user-role" class="form-select"><option value="client" ${item.role === 'client'?'selected':''}>Client</option><option value="worker" ${item.role === 'worker'?'selected':''}>Worker</option></select></div>
                     <div class="mb-3"><label class="form-label">Holat</label><select id="select-user-active" class="form-select"><option value="true" ${item.is_active?'selected':''}>Faol</option><option value="false" ${!item.is_active?'selected':''}>Bloklangan</option></select></div>`;
             } else if (type === "order") {
@@ -347,12 +342,19 @@
                 category: API.categories, 
                 service: API.services, 
                 user: API.dashboard.users, 
-                order: API.dashboard.orders 
+                order: API.dashboard.orders
             };
             let url = currentEditId ? `${endpoints[type]}${currentEditId}/` : endpoints[type];
 
             if (type === "category") payload = { name: document.getElementById("input-cat-name").value };
-            else if (type === "user") payload = { username: document.getElementById("input-user-username").value, role: document.getElementById("select-user-role").value, is_active: document.getElementById("select-user-active").value === "true" };
+            else if (type === "user") {
+                payload = { 
+                    username: document.getElementById("input-user-username").value, 
+                    email: document.getElementById("input-user-email").value,
+                    role: document.getElementById("select-user-role").value, 
+                    is_active: document.getElementById("select-user-active").value === "true" 
+                };
+            }
             else if (type === "order") payload = { status: document.getElementById("select-order-status").value };
             else if (type === "service") payload = { name: document.getElementById("input-service-name").value, price: document.getElementById("input-service-price").value };
 
@@ -405,9 +407,6 @@
             if (tab === "dashboard") fetchStats(); else fetchList(tab);
         }
 
-        // =====================================
-        // 🚪 TIZIMDAN CHIQISH (LOGOUT) FUNKSIYASI
-        // =====================================
         function handleLogout() {
             if (confirm("Haqiqatdan ham tizimdan chiqmoqchimisiz?")) {
                 localStorage.removeItem("access");
