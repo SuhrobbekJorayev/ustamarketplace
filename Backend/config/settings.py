@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # apps
-    'jobs',
+    # 'jobs',
+    'jobs.apps.JobsConfig',
 ]
 
 MIDDLEWARE = [
