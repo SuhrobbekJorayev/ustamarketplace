@@ -537,7 +537,7 @@
                     tbody.innerHTML += `
                         <tr>
                             <td class="fw-bold">#${order.id}</td>
-                            <td class="fw-semibold">👤 ${order.client_name || order.client || 'Noma\'lum'}</td>
+                            <td class="fw-semibold">👤 ${order.client_username || 'Noma\'lum'}</td>
                             <td class="text-secondary">🛠 ${order.service_name || 'Noma\'lum'}</td>
                             <td><span class="badge bg-secondary text-capitalize">${order.status}</span></td>
                             <td>${actionButtons}</td>
