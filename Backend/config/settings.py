@@ -47,8 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # apps
-    # 'jobs',
-    'jobs.apps.JobsConfig',
+    'jobs',
 ]
 
 MIDDLEWARE = [
@@ -185,5 +184,5 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Celery
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+# CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+# CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')

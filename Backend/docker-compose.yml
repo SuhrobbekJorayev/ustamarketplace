@@ -12,20 +12,20 @@ services:
       - .env
     depends_on:
       - postgres
-      - rabbitmq
-      - redis
+#      - rabbitmq
+#      - redis
 
-  celery:
-    build: .
-    command: celery -A config worker -l info
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
+#  celery:
+#    build: .
+#    command: celery -A config worker -l info
+#    volumes:
+#      - .:/app
+#    env_file:
+#      - .env
+#    depends_on:
+#      - postgres
+#      - rabbitmq
+#      - redis
 
   postgres:
     image: postgres:16
@@ -34,13 +34,13 @@ services:
     ports:
       - "5432:5432"
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
+#  rabbitmq:
+#    image: rabbitmq:3-management
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#
+#  redis:
+#    image: redis:7-alpine
+#    ports:
+#      - "6379:6379"

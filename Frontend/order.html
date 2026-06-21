@@ -11,7 +11,7 @@
             <div class="col-md-6">
                 <div class="card p-4 shadow-sm border-0">
                     <h3 class="fw-bold text-center mb-4 text-primary">Buyurtmani tasdiqlash</h3>
-                    
+
                     <div id="service-summary" class="p-3 bg-light rounded mb-4">
                         <h5>Yuklanmoqda...</h5>
                     </div>
@@ -42,54 +42,89 @@
                 window.location.href = "index.html";
                 return;
             }
-            
-            // Tanlangan xizmat ma'lumotlarini yuklab ko'rsatish
+
+            if (!API || !API.services || !API.orders) {
+                alert("API endpointlar topilmadi. endpoints.js ni tekshiring.");
+                return;
+            }
+
             try {
-                // Yangi sxemada GET /api/v1/services/{id}/ mavjud
                 const res = await fetch(`${API.services}${serviceId}/`);
-                if (res.ok) {
-                    const service = await res.json();
-                    document.getElementById("service-summary").innerHTML = `
-                        <h5 class="fw-bold text-dark">${service.name}</h5>
-                        <p class="text-muted small mb-2">${service.description || 'Tavsif berilmagan'}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>Usta: <b>@${service.worker_name}</b></span>
-                            <span class="badge bg-success fs-6">${parseFloat(service.price).toLocaleString()} so'm</span>
-                        </div>
-                    `;
-                } else {
-                    document.getElementById("service-summary").innerHTML = `<p class="text-danger mb-0">Xizmat ma'lumotlarini yuklab bo'lmadi.</p>`;
+
+                if (!res.ok) {
+                    document.getElementById("service-summary").innerHTML =
+                        `<p class="text-danger mb-0">Xizmat ma'lumotlarini yuklab bo'lmadi.</p>`;
+                    return;
                 }
-            } catch(e) {
-                console.error(e);
+
+                const service = await res.json();
+
+                document.getElementById("service-summary").innerHTML = `
+                    <h5 class="fw-bold text-dark">${service.name}</h5>
+                    <p class="text-muted small mb-2">${service.description || 'Tavsif berilmagan'}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Usta: <b>@${service.worker_name || "Noma'lum"}</b></span>
+                        <span class="badge bg-success fs-6">
+                            ${service.price ? parseFloat(service.price).toLocaleString() : "0"} so'm
+                        </span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Service fetch error:", error);
+                document.getElementById("service-summary").innerHTML =
+                    `<p class="text-danger mb-0">Tarmoq xatosi sabab xizmat yuklanmadi.</p>`;
             }
         });
 
         async function submitOrder() {
+            if (!token) {
+                alert("Avval tizimga kiring.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (!serviceId) {
+                alert("Xizmat topilmadi.");
+                return;
+            }
+
             try {
-                // POST /api/v1/orders/ so'rovi uchun Authorization header shart
                 const res = await fetch(API.orders, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` // Tokenni shu yerda yuboramiz
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        service: parseInt(serviceId) // Sxema faqat shu maydonni talab qiladi
+                        service: Number(serviceId)
                     })
                 });
 
-                if (res.status === 201 || res.ok) {
-                    alert("Buyurtmangiz muvaffaqiyatli yaratildi! 🎉 Kabinet orqali kuzatishingiz mumkin.");
+                const data = await res.json().catch(() => null);
+                console.log("Order response:", data);
+
+                if (res.ok) {
+                    alert("Buyurtmangiz muvaffaqiyatli yaratildi! 🎉");
                     localStorage.removeItem("selected_service_id");
                     window.location.href = "dashboard.html";
-                } else {
-                    const errData = await res.json();
-                    alert("Buyurtma berishda xatolik: " + (errData.detail || "Xatolik yuz berdi"));
+                    return;
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Tarmoq xatosi yoki server o'chiq!");
+
+                let errorMessage = "Buyurtma berishda xatolik yuz berdi.";
+
+                if (data) {
+                    if (data.detail) {
+                        errorMessage = data.detail;
+                    } else {
+                        errorMessage = JSON.stringify(data);
+                    }
+                }
+
+                alert("Buyurtma berishda xatolik: " + errorMessage);
+
+            } catch (error) {
+                console.error("Order submit error:", error);
+                alert("Tarmoq xatosi yoki server o‘chiq.");
             }
         }
     </script>
