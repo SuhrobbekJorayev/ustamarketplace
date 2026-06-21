@@ -100,10 +100,23 @@
                     })
                 });
 
-                const data = await res.json().catch(() => null);
-                console.log("Order response:", data);
+                console.log("Order response status:", res.status);
 
-                if (res.ok) {
+                // body bo‘lsa parse qilamiz, bo‘lmasa null
+                let data = null;
+                const text = await res.text();
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.warn("JSON parse bo'lmadi:", text);
+                    }
+                }
+
+                console.log("Order response data:", data);
+
+                // MUHIM: faqat statusga qarab success qilamiz
+                if (res.status === 201 || res.status === 200) {
                     alert("Buyurtmangiz muvaffaqiyatli yaratildi! 🎉");
                     localStorage.removeItem("selected_service_id");
                     window.location.href = "dashboard.html";
@@ -127,6 +140,7 @@
                 alert("Tarmoq xatosi yoki server o‘chiq.");
             }
         }
+
     </script>
 </body>
 </html>
