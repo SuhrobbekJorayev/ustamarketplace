@@ -52,8 +52,9 @@
                 const res = await fetch(`${API.services}${serviceId}/`);
 
                 if (!res.ok) {
-                    document.getElementById("service-summary").innerHTML =
-                        `<p class="text-danger mb-0">Xizmat ma'lumotlarini yuklab bo'lmadi.</p>`;
+                    document.getElementById("service-summary").innerHTML = `
+                        <p class="text-danger mb-0">Xizmat ma'lumotlarini yuklab bo'lmadi.</p>
+                    `;
                     return;
                 }
 
@@ -61,7 +62,7 @@
 
                 document.getElementById("service-summary").innerHTML = `
                     <h5 class="fw-bold text-dark">${service.name}</h5>
-                    <p class="text-muted small mb-2">${service.description || 'Tavsif berilmagan'}</p>
+                    <p class="text-muted small mb-2">${service.description || "Tavsif berilmagan"}</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>Usta: <b>@${service.worker_name || "Noma'lum"}</b></span>
                         <span class="badge bg-success fs-6">
@@ -71,20 +72,21 @@
                 `;
             } catch (error) {
                 console.error("Service fetch error:", error);
-                document.getElementById("service-summary").innerHTML =
-                    `<p class="text-danger mb-0">Tarmoq xatosi sabab xizmat yuklanmadi.</p>`;
+                document.getElementById("service-summary").innerHTML = `
+                    <p class="text-danger mb-0">Tarmoq xatosi sabab xizmat yuklanmadi.</p>
+                `;
             }
         });
 
         async function submitOrder() {
             if (!token) {
-                alert("Avval tizimga kiring.");
+                alert("Buyurtma berish uchun avval tizimga kiring!");
                 window.location.href = "login.html";
                 return;
             }
 
             if (!serviceId) {
-                alert("Xizmat topilmadi.");
+                alert("Xizmat tanlanmagan!");
                 return;
             }
 
@@ -102,22 +104,23 @@
 
                 console.log("Order response status:", res.status);
 
-                // body bo‘lsa parse qilamiz, bo‘lmasa null
+                // response body bo‘sh bo‘lsa ham yiqilmasin
                 let data = null;
                 const text = await res.text();
+
                 if (text) {
                     try {
                         data = JSON.parse(text);
                     } catch (e) {
-                        console.warn("JSON parse bo'lmadi:", text);
+                        console.warn("Response JSON emas:", text);
                     }
                 }
 
                 console.log("Order response data:", data);
 
-                // MUHIM: faqat statusga qarab success qilamiz
+                // Agar backend order yaratgan bo‘lsa — success
                 if (res.status === 201 || res.status === 200) {
-                    alert("Buyurtmangiz muvaffaqiyatli yaratildi! 🎉");
+                    alert("Buyurtmangiz muvaffaqiyatli yaratildi! 🎉 Kabinet orqali kuzatishingiz mumkin.");
                     localStorage.removeItem("selected_service_id");
                     window.location.href = "dashboard.html";
                     return;
@@ -136,11 +139,10 @@
                 alert("Buyurtma berishda xatolik: " + errorMessage);
 
             } catch (error) {
-                console.error("Order submit error:", error);
+                console.error("submitOrder error:", error);
                 alert("Tarmoq xatosi yoki server o‘chiq.");
             }
         }
-
     </script>
 </body>
 </html>
