@@ -10,7 +10,7 @@ def order_created(sender, instance, created, **kwargs):
     if not created:
         return
 
-    worker_user = instance.service.worker.user
+    worker_user = instance.service.worker
 
     send_order_notification_mail(
         to_email=worker_user.email,
