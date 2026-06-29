@@ -152,7 +152,7 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "https://ustamarketplace-frontend.onrender.com",
+    "https://ustamarketplace.onrender.com",
 ]
 
 REST_FRAMEWORK = {
