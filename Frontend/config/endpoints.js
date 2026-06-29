@@ -1,6 +1,6 @@
 // config/endpoints.js
 
-const BASE_URL = "https://ustamarketplace.onrender.com";
+const BASE_URL = "https://ustamarketplace-backend.onrender.com";
 
 const API = {
     auth: {
