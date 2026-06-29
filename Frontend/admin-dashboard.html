@@ -159,13 +159,40 @@
         const token = localStorage.getItem("access");
         const headers = { "Content-Type": "application/json", "Authorization": "Bearer " + token };
 
+        // Backend imkoniyatlariga to'liq moslashtirilgan ruxsatlar xaritasi
         const permissionsMap = {
             category: { create: true, update: true, delete: true },
             service: { create: false, update: true, delete: true },
-            user: { create: false, update: true, delete: true },
+            user: { create: false, update: true, delete: true }, // Admin bo'lmaganlar uchun dynamic tekshiriladi
             order: { create: false, update: true, delete: true },
-            review: { create: false, update: false, delete: true }
+            review: { create: false, update: false, delete: true } // Update butunlay o'chirildi
         };
+
+        // DRF Endpoint Builder Helper funksiyasi (oxiridagi / slash muammosini oldini oladi)
+        function getEndpoint(type, id = null) {
+            const endpoints = { 
+                category: API.categories, 
+                service: API.services, 
+                user: API.dashboard.users, 
+                order: API.dashboard.orders, 
+                review: API.reviews 
+            };
+            let base = endpoints[type];
+            if (!base) return "";
+            if (!base.endsWith('/')) base += '/';
+            return id ? `${base}${id}/` : base;
+        }
+
+        // Global xatoliklarni chiroyli va tushunarli ko'rsatish funksiyasi
+        async function handleResponseError(response) {
+            try {
+                const errorData = await response.json();
+                let message = errorData.detail || errorData.message || JSON.stringify(errorData);
+                alert("Backend Xatoligi:\n" + message);
+            } catch (e) {
+                alert(`Xatolik yuz berdi: HTTP ${response.status}`);
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", () => { 
             if (!token) {
@@ -197,7 +224,10 @@
 
         async function fetchStats() {
             try {
-                const res = await fetch(API.dashboard.stats, { headers });
+                let url = API.dashboard.stats;
+                if (!url.endsWith('/')) url += '/';
+                const res = await fetch(url, { headers });
+                if (!res.ok) return;
                 const data = await res.json();
                 document.getElementById("stat-users").innerText = data.users ?? 0;
                 document.getElementById("stat-workers").innerText = data.workers ?? 0;
@@ -234,16 +264,14 @@
 
         async function fetchList(type) {
             try {
-                const endpoints = { 
-                    category: API.categories, 
-                    service: API.services, 
-                    user: API.dashboard.users, 
-                    order: API.dashboard.orders, 
-                    review: API.reviews 
-                };
-                if (!endpoints[type]) return;
+                const url = getEndpoint(type);
+                if (!url) return;
 
-                const res = await fetch(endpoints[type], { headers });
+                const res = await fetch(url, { headers });
+                if (!res.ok) {
+                    await handleResponseError(res);
+                    return;
+                }
                 const data = await res.json();
                 
                 const list = data.results || (Array.isArray(data) ? data : []);
@@ -258,8 +286,21 @@
                     const dateFormatted = item.created_at ? new Date(item.created_at).toLocaleDateString() : '-';
                     
                     let actions = `<td class="text-end">`;
-                    if (perms.update) actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('${type}', ${item.id}, ${safeStringify(item)})"><i class="fa-solid fa-pen"></i></button>`;
-                    if (perms.delete) actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${type}', ${item.id})"><i class="fa-solid fa-trash"></i></button>`;
+                    
+                    // Har bir entity shartlariga ko'ra dinamik tugmalar generatsiyasi
+                    let canUpdate = perms.update;
+                    let canDelete = perms.delete;
+
+                    if (type === "user") {
+                        // Adminlarni o'chirish yoki o'zgartirish huquqi yo'q qilinadi
+                        if (item.role === "admin") {
+                            canUpdate = false;
+                            canDelete = false;
+                        }
+                    }
+
+                    if (canUpdate) actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('${type}', ${item.id}, ${safeStringify(item)})"><i class="fa-solid fa-pen"></i></button>`;
+                    if (canDelete) actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${type}', ${item.id})"><i class="fa-solid fa-trash"></i></button>`;
                     actions += `</td>`;
 
                     if (type === "category") {
@@ -268,8 +309,8 @@
                     else if (type === "service") {
                         row = `<tr>
                             <td><strong>#${item.id}</strong></td><td>${item.name ?? "-"}</td>
-                            <td><span class="badge bg-secondary">${item.category_name || 'Mavjud emas'}</span></td>
-                            <td>${item.worker_name || 'Noma\'lum'}</td>
+                            <td><span class="badge bg-secondary">${item.category_name || item.category || 'Mavjud emas'}</span></td>
+                            <td>${item.worker_name || item.worker || 'Noma\'lum'}</td>
                             <td class="text-success fw-bold">${item.price ? parseFloat(item.price).toLocaleString() : 0} UZS</td>
                             <td>${dateFormatted}</td>${actions}
                         </tr>`;
@@ -286,7 +327,7 @@
                     else if (type === "order") {
                         let statusColor = item.status === "completed" ? "bg-success" : (item.status === "canceled" ? "bg-danger" : "bg-warning text-dark");
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td><td>${item.client_name || `Mijoz #${item.client || ''}`}</td><td>${item.service_name || '-'}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.client_name || `Mijoz #${item.client || ''}`}</td><td>${item.service_name || item.service || '-'}</td>
                             <td>${dateFormatted}</td><td><span class="badge ${statusColor}">${item.status || "pending"}</span></td>${actions}
                         </tr>`;
                     }
@@ -324,29 +365,36 @@
                 bodyHtml = `
                     <div class="mb-3"><label class="form-label">Username</label><input type="text" id="input-user-username" class="form-control" value="${item.username || ''}"></div>
                     <div class="mb-3"><label class="form-label">Email</label><input type="email" id="input-user-email" class="form-control" value="${item.email || ''}"></div>
-                    <div class="mb-3"><label class="form-label">Rol</label><select id="select-user-role" class="form-select"><option value="client" ${item.role === 'client'?'selected':''}>Client</option><option value="worker" ${item.role === 'worker'?'selected':''}>Worker</option></select></div>
+                    <div class="mb-3"><label class="form-label">Rol (Faqat Usta/Mijoz)</label><select id="select-user-role" class="form-select"><option value="client" ${item.role === 'client'?'selected':''}>Client</option><option value="worker" ${item.role === 'worker'?'selected':''}>Worker</option></select></div>
                     <div class="mb-3"><label class="form-label">Holat</label><select id="select-user-active" class="form-select"><option value="true" ${item.is_active?'selected':''}>Faol</option><option value="false" ${!item.is_active?'selected':''}>Bloklangan</option></select></div>`;
             } else if (type === "order") {
                 bodyHtml = `<div class="mb-3"><label class="form-label">Status</label><select id="select-order-status" class="form-select"><option value="pending" ${item.status==='pending'?'selected':''}>Pending</option><option value="completed" ${item.status==='completed'?'selected':''}>Completed</option><option value="canceled" ${item.status==='canceled'?'selected':''}>Canceled</option></select></div>`;
             } else if (type === "service") {
-                bodyHtml = `<div class="mb-3"><label class="form-label">Xizmat Nomi</label><input type="text" id="input-service-name" class="form-control" value="${item.name || ''}"><label class="form-label mt-2">Narxi (UZS)</label><input type="number" id="input-service-price" class="form-control" value="${item.price || 0}"></div>`;
+                // Serializer to'liq talablari inobatga olindi (category va description readonly bo'lmasa yuboriladi)
+                bodyHtml = `
+                    <div class="mb-3">
+                        <label class="form-label">Xizmat Nomi</label>
+                        <input type="text" id="input-service-name" class="form-control" value="${item.name || ''}">
+                        <label class="form-label mt-2">Narxi (UZS)</label>
+                        <input type="number" id="input-service-price" class="form-control" value="${item.price || 0}">
+                        <input type="hidden" id="input-service-category" value="${item.category || ''}">
+                        <label class="form-label mt-2">Tavsif (Description)</label>
+                        <textarea id="input-service-desc" class="form-control" rows="3">${item.description || ''}</textarea>
+                    </div>`;
             }
             document.getElementById("modalBody").innerHTML = bodyHtml;
             new bootstrap.Modal(document.getElementById('crudModal')).show();
         }
 
         async function submitCrudForm() {
-            const type = currentOpenTab; let payload = {}; let method = currentEditId ? "PATCH" : "POST";
-            
-            let endpoints = { 
-                category: API.categories, 
-                service: API.services, 
-                user: API.dashboard.users, 
-                order: API.dashboard.orders
-            };
-            let url = currentEditId ? `${endpoints[type]}${currentEditId}/` : endpoints[type];
+            const type = currentOpenTab; 
+            let payload = {}; 
+            let method = currentEditId ? "PATCH" : "POST";
+            let url = getEndpoint(type, currentEditId);
 
-            if (type === "category") payload = { name: document.getElementById("input-cat-name").value };
+            if (type === "category") {
+                payload = { name: document.getElementById("input-cat-name").value };
+            }
             else if (type === "user") {
                 payload = { 
                     username: document.getElementById("input-user-username").value, 
@@ -355,8 +403,19 @@
                     is_active: document.getElementById("select-user-active").value === "true" 
                 };
             }
-            else if (type === "order") payload = { status: document.getElementById("select-order-status").value };
-            else if (type === "service") payload = { name: document.getElementById("input-service-name").value, price: document.getElementById("input-service-price").value };
+            else if (type === "order") {
+                payload = { status: document.getElementById("select-order-status").value };
+            }
+            else if (type === "service") {
+                payload = { 
+                    name: document.getElementById("input-service-name").value, 
+                    price: parseFloat(document.getElementById("input-service-price").value || 0),
+                    description: document.getElementById("input-service-desc").value
+                };
+                // Agar backend category munosabatini ID shaklida talab qilsa:
+                const catId = document.getElementById("input-service-category").value;
+                if(catId) payload.category = parseInt(catId);
+            }
 
             try {
                 const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
@@ -365,7 +424,7 @@
                     fetchList(type); 
                     fetchStats(); 
                 } else { 
-                    alert("Xatolik: Backend talablarini tekshiring."); 
+                    await handleResponseError(res);
                 }
             } catch(err) { console.error(err); }
         }
@@ -373,16 +432,15 @@
         async function deleteItem(type, id) {
             if (!confirm("Haqiqatdan o'chirmoqchimisiz?")) return;
             
-            let endpoints = { 
-                category: API.categories, 
-                service: API.services, 
-                user: API.dashboard.users, 
-                order: API.dashboard.orders, 
-                review: API.reviews 
-            };
+            const url = getEndpoint(type, id);
             try {
-                const res = await fetch(`${endpoints[type]}${id}/`, { method: "DELETE", headers });
-                if (res.ok) { fetchList(type); fetchStats(); } else { alert("O'chirishda xatolik yuz berdi."); }
+                const res = await fetch(url, { method: "DELETE", headers });
+                if (res.ok) { 
+                    fetchList(type); 
+                    fetchStats(); 
+                } else { 
+                    await handleResponseError(res);
+                }
             } catch(err) { console.error(err); }
         }
 
