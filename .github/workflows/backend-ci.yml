@@ -38,4 +38,3 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests
         run: python manage.py test
-# Repository da secrets yozish va workflow ni push qilish
