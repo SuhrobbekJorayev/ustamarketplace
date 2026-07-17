@@ -16,7 +16,7 @@ class WorkerProfileTest(APITestCase):
         self.client.force_authenticate(user=self.worker)
 
         response = self.client.patch(
-            reverse('worker-profile', args=[self.worker.id]),
+            reverse('worker-profile'),
             {
                 'experience_years': 6
             },
