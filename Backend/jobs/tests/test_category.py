@@ -9,7 +9,7 @@ class CategoryTest(APITestCase):
         self.admin = User.objects.create_user(
             username='admin1',
             password='admin123',
-            role='admin'
+            is_staff=True
         )
 
         self.worker = User.objects.create_user(
