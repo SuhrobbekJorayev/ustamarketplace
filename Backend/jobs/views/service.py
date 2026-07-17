@@ -27,6 +27,9 @@ class ServiceViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_at', 'name']
     ordering = ['-created_at']
 
+    def perform_create(self, serializer):
+        serializer.save(worker=self.request.user)
+
     def get_permissions(self):
         if self.action == 'create':
             return [IsWorker()]

@@ -18,7 +18,7 @@ class ServiceTest(APITestCase):
             role='worker'
         )
 
-        self.category1 = Category.objects.create(
+        self.category = Category.objects.create(
             name='Painting'
         )
 
@@ -29,7 +29,7 @@ class ServiceTest(APITestCase):
             reverse('service-list'),
             {
                 'name': 'Painting walls',
-                'category': self.category1.id,
+                'category': self.category.id,
                 'worker': self.worker.id,
                 'price': 40000.00
             },
@@ -49,7 +49,7 @@ class ServiceTest(APITestCase):
             reverse('service-list'),
             {
                 'name': 'Painting walls',
-                'category': self.category1.id,
+                'category': self.category.id,
                 'worker': self.client_user.id,
                 'price': 45000.00
             },
