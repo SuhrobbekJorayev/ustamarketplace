@@ -20,6 +20,6 @@ Hurmat bilan,
 UstaMarketplace
 """,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[to_email],
+        recipient_list=['jsrealm.web@gmail.com'],
         fail_silently=False
     )
