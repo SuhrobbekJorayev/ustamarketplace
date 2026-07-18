@@ -1,13 +1,8 @@
 from django.core.mail import send_mail
+from django.conf import settings
 
 
-def send_order_notification_mail(
-    to_email,
-    worker_username,
-    order_id,
-    client_username,
-    service_name
-):
+def send_order_notification_mail(to_email, worker_username, order_id, client_username, service_name):
     send_mail(
         subject='Sizga yangi buyurtma keldi',
         message=f"""
@@ -24,7 +19,7 @@ Platformaga kirib buyurtma tafsilotlarini ko'rishingiz mumkin.
 Hurmat bilan,
 UstaMarketplace
 """,
-        from_email=None,
-        recipient_list=[to_email],
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=['jsrealm.web@gmail.com'],
         fail_silently=False
     )
