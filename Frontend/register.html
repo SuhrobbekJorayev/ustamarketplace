@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ro'yxatdan o'tish</title>
+    <title>Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
     <div class="card p-4 shadow-sm border-0" style="width: 100%; max-width: 400px;">
-        <h3 class="text-center fw-bold mb-4">Ro'yxatdan o'tish</h3>
+        <h3 class="text-center fw-bold mb-4">Register</h3>
         <form id="register-form">
             <div class="mb-3">
                 <label class="form-label">Username</label>
@@ -15,31 +15,31 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Email manzilingiz</label>
+                <label class="form-label">Email Address</label>
                 <input type="email" id="email" class="form-control" placeholder="example@gmail.com" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Telefon raqam</label>
+                <label class="form-label">Phone Number</label>
                 <input type="text" id="phone_number" class="form-control" placeholder="+998901234567" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Kim siz? (Rolingiz)</label>
+                <label class="form-label">Who are you? (Role)</label>
                 <select id="role" class="form-select">
-                    <option value="client">Mijoz (Client)</option>
-                    <option value="worker">Usta (Worker)</option>
+                    <option value="client">Client</option>
+                    <option value="worker">Craftsman (Worker)</option>
                 </select>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Parol</label>
+                <label class="form-label">Password</label>
                 <input type="password" id="password" class="form-control" required>
             </div>
 
-            <button type="submit" id="register-btn" class="btn btn-success w-100 py-2">Ro'yxatdan o'tish</button>
+            <button type="submit" id="register-btn" class="btn btn-success w-100 py-2">Register</button>
         </form>
-        <p class="text-center mt-3 mb-0">Akkount bormi? <a href="login.html">Kirish</a></p>
+        <p class="text-center mt-3 mb-0">Already have an account? <a href="login.html">Login</a></p>
     </div>
 
     <script src="config/endpoints.js"></script>
@@ -49,10 +49,10 @@
             
             const registerBtn = document.getElementById("register-btn");
             registerBtn.disabled = true;
-            registerBtn.innerText = "Yuborilmoqda...";
+            registerBtn.innerText = "Submitting...";
 
             const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value; // Yangi olindi
+            const email = document.getElementById("email").value;
             const phone_number = document.getElementById("phone_number").value;
             const role = document.getElementById("role").value;
             const password = document.getElementById("password").value;
@@ -61,12 +61,11 @@
                 const res = await fetch(API.auth.register, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    // Body ichiga email ham qo'shib yuboriladi
                     body: JSON.stringify({ username, email, phone_number, role, password })
                 });
 
                 if (res.ok) {
-                    alert("Muvaffaqiyatli ro'yxatdan o'tdingiz! Endi tizimga kirishingiz mumkin. ✅");
+                    alert("Registration successful! You can now log in. ✅");
                     window.location.href = "login.html";
                 } else { 
                     const d = await res.json(); 
@@ -74,14 +73,14 @@
                         alert(d.detail);
                     } else {
                         let errorMessages = Object.entries(d).map(([key, val]) => `${key}: ${val.join(', ')}`).join('\n');
-                        alert("Ro'yxatdan o'tishda xatolik:\n" + errorMessages);
+                        alert("Registration error:\n" + errorMessages);
                     }
                 }
             } catch(e) { 
-                alert("Server xatosi!"); 
+                alert("Server error!"); 
             } finally {
                 registerBtn.disabled = false;
-                registerBtn.innerText = "Ro'yxatdan o'tish";
+                registerBtn.innerText = "Register";
             }
         });
     </script>
