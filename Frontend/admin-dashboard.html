@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uz" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,11 +70,11 @@
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('category', this)"><i class="fa-solid fa-folder"></i> Kategoriyalar</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('service', this)"><i class="fa-solid fa-briefcase"></i> Xizmatlar</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('user', this)"><i class="fa-solid fa-users"></i> Foydalanuvchilar</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('order', this)"><i class="fa-solid fa-receipt"></i> Buyurtmalar</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('review', this)"><i class="fa-solid fa-star"></i> Sharhlar</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('category', this)"><i class="fa-solid fa-folder"></i> Categories</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('service', this)"><i class="fa-solid fa-briefcase"></i> Services</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('user', this)"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('order', this)"><i class="fa-solid fa-receipt"></i> Orders</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="switchTab('review', this)"><i class="fa-solid fa-star"></i> Reviews</a></li>
         </ul>
     </div>
 
@@ -88,7 +88,7 @@
                 <span class="fw-medium text-muted"><i class="fa-solid fa-user-shield text-danger me-1"></i> Admin Panel</span>
             </div>
             <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 px-3" onclick="handleLogout()" style="border-radius: 6px;">
-                <i class="fa-solid fa-right-from-bracket"></i> Chiqish
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
             </button>
         </div>
     </div>
@@ -101,48 +101,48 @@
 
         <div id="tab-dashboard" class="tab-content-panel">
             <div class="row g-3 mb-4">
-                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Jami Foydalanuvchilar</div><div class="card-count" id="stat-users">...</div></div><div class="card-icon-box"><i class="fa-solid fa-users text-primary"></i></div></div></div>
-                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Ustalar (Workers)</div><div class="card-count" id="stat-workers">...</div></div><div class="card-icon-box"><i class="fa-solid fa-user-tie text-success"></i></div></div></div>
-                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Xizmatlar turlari</div><div class="card-count" id="stat-services">...</div></div><div class="card-icon-box"><i class="fa-solid fa-briefcase text-warning"></i></div></div></div>
-                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Buyurtmalar</div><div class="card-count" id="stat-orders">...</div></div><div class="card-icon-box"><i class="fa-solid fa-receipt text-danger"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Total Users</div><div class="card-count" id="stat-users">...</div></div><div class="card-icon-box"><i class="fa-solid fa-users text-primary"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Workers</div><div class="card-count" id="stat-workers">...</div></div><div class="card-icon-box"><i class="fa-solid fa-user-tie text-success"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Services</div><div class="card-count" id="stat-services">...</div></div><div class="card-icon-box"><i class="fa-solid fa-briefcase text-warning"></i></div></div></div>
+                <div class="col-md-3"><div class="card-stat"><div><div class="card-title">Orders</div><div class="card-count" id="stat-orders">...</div></div><div class="card-icon-box"><i class="fa-solid fa-receipt text-danger"></i></div></div></div>
             </div>
             <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="card-stat py-3"><span class="card-title">Kategoriyalar:</span><span class="fw-bold fs-5 text-primary" id="stat-categories">0</span></div></div>
-                <div class="col-md-4"><div class="card-stat py-3"><span class="card-title">Sharhlar (Reviews):</span><span class="fw-bold fs-5 text-warning" id="stat-reviews">0</span></div></div>
+                <div class="col-md-4"><div class="card-stat py-3"><span class="card-title">Categories:</span><span class="fw-bold fs-5 text-primary" id="stat-categories">0</span></div></div>
+                <div class="col-md-4"><div class="card-stat py-3"><span class="card-title">Reviews:</span><span class="fw-bold fs-5 text-warning" id="stat-reviews">0</span></div></div>
             </div>
             <div class="row g-4">
-                <div class="col-md-6"><div class="glass-panel p-4"><h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Mijoz va Usta Balansi</h6><div style="height: 250px; position: relative;"><canvas id="chartUsersBar"></canvas></div></div></div>
-                <div class="col-md-6"><div class="glass-panel p-4"><h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Struktura</h6><div style="height: 250px; position: relative;" class="d-flex justify-content-center"><canvas id="chartStructureDoughnut"></canvas></div></div></div>
+                <div class="col-md-6"><div class="glass-panel p-4"><h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Client vs Worker Ratio</h6><div style="height: 250px; position: relative;"><canvas id="chartUsersBar"></canvas></div></div></div>
+                <div class="col-md-6"><div class="glass-panel p-4"><h6 class="fw-bold mb-4 text-uppercase text-muted" style="font-size: 11px;">Structure</h6><div style="height: 250px; position: relative;" class="d-flex justify-content-center"><canvas id="chartStructureDoughnut"></canvas></div></div></div>
             </div>
         </div>
 
         <div id="tab-category" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Kategoriya Nomi</th><th>Yaratilgan Sana</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-category"></tbody></table></div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Category Name</th><th>Created At</th><th class="text-end">Actions</th></tr></thead><tbody id="list-category"></tbody></table></div>
         </div>
 
         <div id="tab-service" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Xizmat Nomi</th><th>Kategoriya</th><th>Usta</th><th>Narxi</th><th>Yaratilgan Sana</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-service"></tbody></table></div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Service Name</th><th>Category</th><th>Worker</th><th>Price</th><th>Created At</th><th class="text-end">Actions</th></tr></thead><tbody id="list-service"></tbody></table></div>
         </div>
 
         <div id="tab-user" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Email</th><th>Telefon</th><th>Rol</th><th>Holati</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-user"></tbody></table></div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>User</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody id="list-user"></tbody></table></div>
         </div>
 
         <div id="tab-order" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Mijoz</th><th>Xizmat turi</th><th>Sana</th><th>Status</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-order"></tbody></table></div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Client</th><th>Service</th><th>Date</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody id="list-order"></tbody></table></div>
         </div>
 
         <div id="tab-review" class="tab-content-panel" style="display: none;">
-            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Mijoz</th><th>Xizmat</th><th>Reyting</th><th>Izoh</th><th>Sana</th><th class="text-end">Amallar</th></tr></thead><tbody id="list-review"></tbody></table></div>
+            <div class="glass-panel overflow-hidden"><table class="table mb-0"><thead><tr><th>ID</th><th>Client</th><th>Service</th><th>Rating</th><th>Comment</th><th>Date</th><th class="text-end">Actions</th></tr></thead><tbody id="list-review"></tbody></table></div>
         </div>
     </div>
 
     <div class="modal fade" id="crudModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content glass-panel" style="background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border-color);">
-                <div class="modal-header border-0"><h5 class="modal-title fw-bold" id="modalTitle">Oyna</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-header border-0"><h5 class="modal-title fw-bold" id="modalTitle">Modal</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
                 <div class="modal-body" id="modalBody"></div>
-                <div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button type="button" class="btn btn-primary" id="modalSaveBtn" onclick="submitCrudForm()">Saqlash</button></div>
+                <div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-primary" id="modalSaveBtn" onclick="submitCrudForm()">Save</button></div>
             </div>
         </div>
     </div>
@@ -159,16 +159,16 @@
         const token = localStorage.getItem("access");
         const headers = { "Content-Type": "application/json", "Authorization": "Bearer " + token };
 
-        // Backend imkoniyatlariga to'liq moslashtirilgan ruxsatlar xaritasi
+        // Permission map fully tailored to backend capabilities
         const permissionsMap = {
             category: { create: true, update: true, delete: true },
             service: { create: false, update: true, delete: true },
-            user: { create: false, update: true, delete: true }, // Admin bo'lmaganlar uchun dynamic tekshiriladi
+            user: { create: false, update: true, delete: true },
             order: { create: false, update: true, delete: true },
-            review: { create: false, update: false, delete: true } // Update butunlay o'chirildi
+            review: { create: false, update: false, delete: true }
         };
 
-        // DRF Endpoint Builder Helper funksiyasi (oxiridagi / slash muammosini oldini oladi)
+        // DRF Endpoint Builder Helper function
         function getEndpoint(type, id = null) {
             const endpoints = { 
                 category: API.categories, 
@@ -183,20 +183,20 @@
             return id ? `${base}${id}/` : base;
         }
 
-        // Global xatoliklarni chiroyli va tushunarli ko'rsatish funksiyasi
+        // Global response error handler
         async function handleResponseError(response) {
             try {
                 const errorData = await response.json();
                 let message = errorData.detail || errorData.message || JSON.stringify(errorData);
-                alert("Backend Xatoligi:\n" + message);
+                alert("Backend Error:\n" + message);
             } catch (e) {
-                alert(`Xatolik yuz berdi: HTTP ${response.status}`);
+                alert(`An error occurred: HTTP ${response.status}`);
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => { 
             if (!token) {
-                alert("Tizimga kirilmagan! Avval login qiling.");
+                alert("Unauthorized! Please login first.");
                 window.location.href = "login.html";
                 return;
             }
@@ -246,7 +246,7 @@
             barChart = new Chart(document.getElementById("chartUsersBar"), { 
                 type: "bar", 
                 data: { 
-                    labels: ["Mijozlar", "Ustalar"], 
+                    labels: ["Clients", "Workers"], 
                     datasets: [{ data: [Math.max((data.users ?? 0) - (data.workers ?? 0), 0), data.workers ?? 0], backgroundColor: ["#1e40af", "#10b981"] }] 
                 }, 
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
@@ -255,7 +255,7 @@
             doughnutChart = new Chart(document.getElementById("chartStructureDoughnut"), { 
                 type: "doughnut", 
                 data: { 
-                    labels: ["Kategoriyalar", "Xizmatlar"], 
+                    labels: ["Categories", "Services"], 
                     datasets: [{ data: [data.categories ?? 0, data.services ?? 0], backgroundColor: ["#64748b", "#f59e0b"] }] 
                 }, 
                 options: { responsive: true, maintainAspectRatio: false } 
@@ -287,19 +287,17 @@
                     
                     let actions = `<td class="text-end">`;
                     
-                    // Har bir entity shartlariga ko'ra dinamik tugmalar generatsiyasi
                     let canUpdate = perms.update;
                     let canDelete = perms.delete;
 
                     if (type === "user") {
-                        // Adminlarni o'chirish yoki o'zgartirish huquqi yo'q qilinadi
                         if (item.role === "admin") {
                             canUpdate = false;
                             canDelete = false;
                         }
                     }
 
-                    if (canUpdate) actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('${type}', ${item.id}, ${safeStringify(item)})"><i class="fa-solid fa-pen"></i></button>`;
+                    if (canUpdate) actions += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('${type}', ${item.id}, '${safeStringify(item)}')"><i class="fa-solid fa-pen"></i></button>`;
                     if (canDelete) actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${type}', ${item.id})"><i class="fa-solid fa-trash"></i></button>`;
                     actions += `</td>`;
 
@@ -309,8 +307,8 @@
                     else if (type === "service") {
                         row = `<tr>
                             <td><strong>#${item.id}</strong></td><td>${item.name ?? "-"}</td>
-                            <td><span class="badge bg-secondary">${item.category_name || item.category || 'Mavjud emas'}</span></td>
-                            <td>${item.worker_name || item.worker || 'Noma\'lum'}</td>
+                            <td><span class="badge bg-secondary">${item.category_name || item.category || 'N/A'}</span></td>
+                            <td>${item.worker_name || item.worker || 'Unknown'}</td>
                             <td class="text-success fw-bold">${item.price ? parseFloat(item.price).toLocaleString() : 0} UZS</td>
                             <td>${dateFormatted}</td>${actions}
                         </tr>`;
@@ -321,13 +319,13 @@
                         row = `<tr>
                             <td><strong>#${item.id}</strong></td><td>${item.username ?? "-"}</td><td>${item.email || '-'}</td><td>${item.phone_number || '-'}</td>
                             <td><span class="badge ${roleBadge}">${item.role ?? 'client'}</span></td>
-                            <td><span class="badge ${statusBadge}">${item.is_active ? 'Faol' : 'Bloklangan'}</span></td>${actions}
+                            <td><span class="badge ${statusBadge}">${item.is_active ? 'Active' : 'Blocked'}</span></td>${actions}
                         </tr>`;
                     }
                     else if (type === "order") {
                         let statusColor = item.status === "completed" ? "bg-success" : (item.status === "canceled" ? "bg-danger" : "bg-warning text-dark");
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td><td>${item.client_name || `Mijoz #${item.client || ''}`}</td><td>${item.service_name || item.service || '-'}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.client_name || `Client #${item.client || ''}`}</td><td>${item.service_name || item.service || '-'}</td>
                             <td>${dateFormatted}</td><td><span class="badge ${statusColor}">${item.status || "pending"}</span></td>${actions}
                         </tr>`;
                     }
@@ -335,7 +333,7 @@
                         let stars = ""; const rating = item.rating ?? 0;
                         for(let i = 1; i <= 5; i++) { stars += `<i class="fa-star ${i <= rating ? 'fa-solid text-warning' : 'fa-regular text-muted'}"></i>`; }
                         row = `<tr>
-                            <td><strong>#${item.id}</strong></td><td>${item.client_name || 'Anonim'}</td><td>${item.service_name || '-'}</td>
+                            <td><strong>#${item.id}</strong></td><td>${item.client_name || 'Anonymous'}</td><td>${item.service_name || '-'}</td>
                             <td>${stars}</td><td><small>${item.comment || '-'}</small></td><td>${dateFormatted}</td>${actions}
                         </tr>`;
                     }
@@ -344,41 +342,40 @@
             } catch (err) { console.error(err); }
         }
 
-        function safeStringify(obj) { return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
-        function safeParse(str) { return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+        function safeStringify(obj) { return btoa(encodeURIComponent(JSON.stringify(obj))); }
+        function safeParse(str) { return JSON.parse(decodeURIComponent(atob(str))); }
 
         function openAddModal(type) {
             currentEditId = null;
-            document.getElementById("modalTitle").innerText = "Yangi Kategoriya Qo'shish";
-            document.getElementById("modalBody").innerHTML = `<div class="mb-3"><label class="form-label">Kategoriya Nomi</label><input type="text" id="input-cat-name" class="form-control" placeholder="Masalan: Tozalash" required></div>`;
+            document.getElementById("modalTitle").innerText = "Add New Category";
+            document.getElementById("modalBody").innerHTML = `<div class="mb-3"><label class="form-label">Category Name</label><input type="text" id="input-cat-name" class="form-control" placeholder="e.g. Cleaning" required></div>`;
             new bootstrap.Modal(document.getElementById('crudModal')).show();
         }
 
         function openEditModal(type, id, encodedObj) {
             currentEditId = id; const item = safeParse(encodedObj);
-            document.getElementById("modalTitle").innerText = `Tahrirlash #${id}`;
+            document.getElementById("modalTitle").innerText = `Edit #${id}`;
             let bodyHtml = "";
 
             if (type === "category") {
-                bodyHtml = `<div class="mb-3"><label class="form-label">Kategoriya Nomi</label><input type="text" id="input-cat-name" class="form-control" value="${item.name || ''}" required></div>`;
+                bodyHtml = `<div class="mb-3"><label class="form-label">Category Name</label><input type="text" id="input-cat-name" class="form-control" value="${item.name || ''}" required></div>`;
             } else if (type === "user") {
                 bodyHtml = `
                     <div class="mb-3"><label class="form-label">Username</label><input type="text" id="input-user-username" class="form-control" value="${item.username || ''}"></div>
                     <div class="mb-3"><label class="form-label">Email</label><input type="email" id="input-user-email" class="form-control" value="${item.email || ''}"></div>
-                    <div class="mb-3"><label class="form-label">Rol (Faqat Usta/Mijoz)</label><select id="select-user-role" class="form-select"><option value="client" ${item.role === 'client'?'selected':''}>Client</option><option value="worker" ${item.role === 'worker'?'selected':''}>Worker</option></select></div>
-                    <div class="mb-3"><label class="form-label">Holat</label><select id="select-user-active" class="form-select"><option value="true" ${item.is_active?'selected':''}>Faol</option><option value="false" ${!item.is_active?'selected':''}>Bloklangan</option></select></div>`;
+                    <div class="mb-3"><label class="form-label">Role</label><select id="select-user-role" class="form-select"><option value="client" ${item.role === 'client'?'selected':''}>Client</option><option value="worker" ${item.role === 'worker'?'selected':''}>Worker</option></select></div>
+                    <div class="mb-3"><label class="form-label">Status</label><select id="select-user-active" class="form-select"><option value="true" ${item.is_active?'selected':''}>Active</option><option value="false" ${!item.is_active?'selected':''}>Blocked</option></select></div>`;
             } else if (type === "order") {
                 bodyHtml = `<div class="mb-3"><label class="form-label">Status</label><select id="select-order-status" class="form-select"><option value="pending" ${item.status==='pending'?'selected':''}>Pending</option><option value="completed" ${item.status==='completed'?'selected':''}>Completed</option><option value="canceled" ${item.status==='canceled'?'selected':''}>Canceled</option></select></div>`;
             } else if (type === "service") {
-                // Serializer to'liq talablari inobatga olindi (category va description readonly bo'lmasa yuboriladi)
                 bodyHtml = `
                     <div class="mb-3">
-                        <label class="form-label">Xizmat Nomi</label>
+                        <label class="form-label">Service Name</label>
                         <input type="text" id="input-service-name" class="form-control" value="${item.name || ''}">
-                        <label class="form-label mt-2">Narxi (UZS)</label>
+                        <label class="form-label mt-2">Price (UZS)</label>
                         <input type="number" id="input-service-price" class="form-control" value="${item.price || 0}">
                         <input type="hidden" id="input-service-category" value="${item.category || ''}">
-                        <label class="form-label mt-2">Tavsif (Description)</label>
+                        <label class="form-label mt-2">Description</label>
                         <textarea id="input-service-desc" class="form-control" rows="3">${item.description || ''}</textarea>
                     </div>`;
             }
@@ -393,7 +390,8 @@
             let url = getEndpoint(type, currentEditId);
 
             if (type === "category") {
-                payload = { name: document.getElementById("input-cat-name").value };
+                const el = document.getElementById("input-cat-name");
+                if (el) payload = { name: el.value };
             }
             else if (type === "user") {
                 payload = { 
@@ -412,7 +410,6 @@
                     price: parseFloat(document.getElementById("input-service-price").value || 0),
                     description: document.getElementById("input-service-desc").value
                 };
-                // Agar backend category munosabatini ID shaklida talab qilsa:
                 const catId = document.getElementById("input-service-category").value;
                 if(catId) payload.category = parseInt(catId);
             }
@@ -430,7 +427,7 @@
         }
 
         async function deleteItem(type, id) {
-            if (!confirm("Haqiqatdan o'chirmoqchimisiz?")) return;
+            if (!confirm("Are you sure you want to delete this item?")) return;
             
             const url = getEndpoint(type, id);
             try {
@@ -452,12 +449,19 @@
             document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active")); 
             el.classList.add("active");
             
-            const titles = { dashboard: "Dashboard", category: "Kategoriyalar boshqaruvi", service: "Xizmatlar ro'yxati", user: "Foydalanuvchilar nazorati", order: "Buyurtmalar oqimi", review: "Mijozlar sharhlari" };
+            const titles = { 
+                dashboard: "Dashboard", 
+                category: "Category Management", 
+                service: "Service List", 
+                user: "User Management", 
+                order: "Order Stream", 
+                review: "Customer Reviews" 
+            };
             document.getElementById("page-title").innerText = titles[tab] || "Dashboard";
 
             const actionArea = document.getElementById("action-header-area");
             if (permissionsMap[tab] && permissionsMap[tab].create) {
-                actionArea.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openAddModal('${tab}')"><i class="fa-solid fa-plus me-1"></i> Yangi Qo'shish</button>`;
+                actionArea.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openAddModal('${tab}')"><i class="fa-solid fa-plus me-1"></i> Add New</button>`;
             } else {
                 actionArea.innerHTML = "";
             }
@@ -466,7 +470,7 @@
         }
 
         function handleLogout() {
-            if (confirm("Haqiqatdan ham tizimdan chiqmoqchimisiz?")) {
+            if (confirm("Are you sure you want to log out?")) {
                 localStorage.removeItem("access");
                 localStorage.removeItem("refresh");
                 localStorage.removeItem("user_role");
