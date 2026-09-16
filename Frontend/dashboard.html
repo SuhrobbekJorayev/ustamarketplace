@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shaxsiy Kabinet - Dashboard</title>
+    <title>Personal Cabinet - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .rating-stars {
@@ -30,8 +30,8 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
             <div>
-                <span class="navbar-text text-white fw-bold me-3" id="user-welcome">@yuklanmoqda...</span>
-                <button class="btn btn-sm btn-outline-danger" onclick="logout()">Chiqish</button>
+                <span class="navbar-text text-white fw-bold me-3" id="user-welcome">@loading...</span>
+                <button class="btn btn-sm btn-outline-danger" onclick="logout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -40,11 +40,11 @@
         
         <div id="client-panel" class="card shadow-sm border-0 border-start border-primary border-4 d-none mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                <span class="fw-bold text-primary fs-5">👤 Mening Buyurtmalarim</span>
+                <span class="fw-bold text-primary fs-5">👤 My Orders</span>
                 <select id="client-order-sort" class="form-select form-select-sm" style="max-width: 200px;" onchange="loadClientOrders()">
-                    <option value="-id">Yangi buyurtmalar birinchi</option>
-                    <option value="id">Eski buyurtmalar birinchi</option>
-                    <option value="status">Status bo'yicha</option>
+                    <option value="-id">Newest first</option>
+                    <option value="id">Oldest first</option>
+                    <option value="status">By status</option>
                 </select>
             </div>
             <div class="card-body">
@@ -52,14 +52,14 @@
                     <table class="table align-middle table-hover">
                         <thead>
                             <tr>
-                                <th>Buyurtma ID</th>
-                                <th>Xizmat</th>
-                                <th>Holati</th>
-                                <th>Amal / Sharh</th>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Status</th>
+                                <th>Action / Review</th>
                             </tr>
                         </thead>
                         <tbody id="client-orders-tbody">
-                            <tr><td colspan="4" class="text-center text-muted">Yuklanmoqda...</td></tr>
+                            <tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -70,8 +70,8 @@
         <div id="worker-panel" class="d-none">
             <div class="card shadow-sm border-0 border-start border-success border-4 mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <span class="fw-bold text-success fs-5">📂 Mening Xizmatlarim</span>
-                    <button class="btn btn-sm btn-success fw-bold" onclick="openServiceModal()">+ Yangi Xizmat Qo'shish</button>
+                    <span class="fw-bold text-success fs-5">📂 My Services</span>
+                    <button class="btn btn-sm btn-success fw-bold" onclick="openServiceModal()">+ Add New Service</button>
                 </div>
                 <div class="card-body">
                     <div class="row" id="worker-my-services-container"></div>
@@ -80,11 +80,11 @@
 
             <div class="card shadow-sm border-0 border-start border-warning border-4 mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <span class="fw-bold text-warning fs-5">📥 Menga Kelgan Buyurtmalar</span>
+                    <span class="fw-bold text-warning fs-5">📥 Incoming Orders</span>
                     <select id="worker-order-sort" class="form-select form-select-sm" style="max-width: 200px;" onchange="loadWorkerOrders()">
-                        <option value="-id">Yangi kelganlar birinchi</option>
-                        <option value="id">Eski kelganlar birinchi</option>
-                        <option value="status">Status bo'yicha</option>
+                        <option value="-id">Newest incoming first</option>
+                        <option value="id">Oldest incoming first</option>
+                        <option value="status">By status</option>
                     </select>
                 </div>
                 <div class="card-body">
@@ -92,15 +92,15 @@
                         <table class="table align-middle table-hover">
                             <thead>
                                 <tr>
-                                    <th>Buyurtma ID</th>
-                                    <th>Mijoz</th>
-                                    <th>Xizmat</th>
-                                    <th>Holati</th>
-                                    <th>Amallar</th>
+                                    <th>Order ID</th>
+                                    <th>Client</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="worker-orders-tbody">
-                                <tr><td colspan="5" class="text-center text-muted">Yuklanmoqda...</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -115,18 +115,18 @@
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold" id="view-service-title">Xizmat nomi</h5>
+                    <h5 class="modal-title fw-bold" id="view-service-title">Service Title</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="fw-bold text-dark">Xizmat tavsifi:</span>
-                        <span id="view-service-price" class="badge bg-success fs-6">0 so'm</span>
+                        <span class="fw-bold text-dark">Service Description:</span>
+                        <span id="view-service-price" class="badge bg-success fs-6">0 UZS</span>
                     </div>
                     <div class="p-3 bg-light rounded text-secondary mb-3" id="view-service-desc" style="white-space: pre-line;"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -136,33 +136,33 @@
         <div class="modal-dialog">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Yangi Xizmat Yaratish</h5>
+                    <h5 class="modal-title fw-bold">Create New Service</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="service-form" onsubmit="submitNewService(event)">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Xizmat nomi</label>
-                            <input type="text" id="service-name" class="form-control" required placeholder="Masalan: Professional Elektrik">
+                            <label class="form-label">Service Title</label>
+                            <input type="text" id="service-name" class="form-control" required placeholder="e.g., Professional Electrician">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kategoriya</label>
+                            <label class="form-label">Category</label>
                             <select id="service-category" class="form-select" required>
-                                <option value="">Kategoriyani tanlang...</option>
+                                <option value="">Select a category...</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Narxi (so'mda)</label>
+                            <label class="form-label">Price (in UZS)</label>
                             <input type="number" id="service-price" class="form-control" required placeholder="100000">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Batafsil tavsif</label>
-                            <textarea id="service-desc" class="form-control" rows="3" placeholder="Xizmat haqida ma'lumot..."></textarea>
+                            <label class="form-label">Detailed Description</label>
+                            <textarea id="service-desc" class="form-control" rows="3" placeholder="Service details..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-success fw-bold">Xizmatni Saqlash</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success fw-bold">Save Service</button>
                     </div>
                 </form>
             </div>
@@ -173,34 +173,34 @@
         <div class="modal-dialog">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">✏️ Xizmatni Tahrirlash</h5>
+                    <h5 class="modal-title fw-bold">✏️ Edit Service</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="service-edit-form">
                     <div class="modal-body">
                         <input type="hidden" id="edit-service-id">
                         <div class="mb-3">
-                            <label class="form-label">Xizmat nomi</label>
+                            <label class="form-label">Service Title</label>
                             <input type="text" id="edit-service-name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kategoriya</label>
+                            <label class="form-label">Category</label>
                             <select id="edit-service-category" class="form-select" required>
-                                <option value="">Kategoriyani tanlang...</option>
+                                <option value="">Select a category...</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Narxi (so'mda)</label>
+                            <label class="form-label">Price (in UZS)</label>
                             <input type="number" id="edit-service-price" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Batafsil tavsif</label>
+                            <label class="form-label">Detailed Description</label>
                             <textarea id="edit-service-desc" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-warning fw-bold">O'zgarishlarni Saqlash</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-warning fw-bold">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -211,14 +211,14 @@
         <div class="modal-dialog">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">🌟 Xizmat sifatini baholang</h5>
+                    <h5 class="modal-title fw-bold">🌟 Rate the Service</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="review-form" onsubmit="submitReview(event)">
                     <div class="modal-body text-center">
                         <input type="hidden" id="review-order-id">
                         <div class="mb-3">
-                            <label class="form-label d-block fw-bold text-secondary">Ushbu xizmatga necha yulduz berasiz?</label>
+                            <label class="form-label d-block fw-bold text-secondary">How many stars would you give this service?</label>
                             <div class="rating-stars">
                                 <input type="radio" id="star5" name="dashboard-rating" value="5" required/><label for="star5">★</label>
                                 <input type="radio" id="star4" name="dashboard-rating" value="4"/><label for="star4">★</label>
@@ -228,13 +228,13 @@
                             </div>
                         </div>
                         <div class="mb-3 text-start">
-                            <label class="form-label fw-bold text-secondary">Fikr-mulohaza yoki izohingiz:</label>
-                            <textarea id="review-text" class="form-control" rows="3" placeholder="Izoh qoldiring..." required></textarea>
+                            <label class="form-label fw-bold text-secondary">Your feedback or comment:</label>
+                            <textarea id="review-text" class="form-control" rows="3" placeholder="Leave a review..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="submit" class="btn btn-warning fw-bold">Sharhni Yuborish</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-warning fw-bold">Submit Review</button>
                     </div>
                 </form>
             </div>
@@ -268,7 +268,7 @@
             }
 
             if (currentUsername) {
-                const roleText = (currentUserRole === 'worker') ? 'Usta' : 'Mijoz';
+                const roleText = (currentUserRole === 'worker') ? 'Craftsman' : 'Client';
                 document.getElementById("user-welcome").innerText = `@${currentUsername} (${roleText})`;
             }
             await loadDashboard();
@@ -293,7 +293,7 @@
             window.location.href = "login.html";
         }
 
-        // ================= 👤 MIJOZ METODLARI =================
+        // ================= 👤 CLIENT METHODS =================
         async function loadClientOrders(customUrl = null) {
             try {
                 const headers = await getCustomHeaders();
@@ -314,22 +314,22 @@
                 const allReviews = reviewsData.results || reviewsData || []; 
 
                 const tbody = document.getElementById("client-orders-tbody");
-                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="4" class="text-center text-muted">Sizda hali buyurtmalar yo'q.</td></tr>`;
+                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="4" class="text-center text-muted">You have no orders yet.</td></tr>`;
 
                 orders.forEach(order => {
                     let actionCell = "";
                     const statusLower = order.status.toLowerCase();
-                    const serviceName = order.service_name || "Noma'lum Xizmat";
+                    const serviceName = order.service_name || "Unknown Service";
                     const isAlreadyReviewed = allReviews.some(r => parseInt(r.order) === parseInt(order.id));
 
                     if (statusLower === "completed") {
                         if (isAlreadyReviewed) {
-                            actionCell = `<span class="badge bg-success-subtle text-success p-2">✓ Sharh yozilgan</span>`;
+                            actionCell = `<span class="badge bg-success-subtle text-success p-2">✓ Reviewed</span>`;
                         } else {
-                            actionCell = `<button class="btn btn-sm btn-warning fw-bold" onclick="openReviewModal(${order.id})">⭐ Sharh</button>`;
+                            actionCell = `<button class="btn btn-sm btn-warning fw-bold" onclick="openReviewModal(${order.id})">⭐ Review</button>`;
                         }
                     } else if (statusLower === "pending" || statusLower === "accepted") {
-                        actionCell = `<button class="btn btn-sm btn-outline-danger" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>`;
+                        actionCell = `<button class="btn btn-sm btn-outline-danger" onclick="updateOrderStatus(${order.id}, 'canceled')">Cancel</button>`;
                     } else {
                         actionCell = `<span class="text-muted small text-capitalize">${order.status}</span>`;
                     }
@@ -366,18 +366,18 @@
                     })
                 });
                 if (res.ok) {
-                    alert("Sharh muvaffaqiyatli yuborildi!");
+                    alert("Review submitted successfully!");
                     bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
                     await loadClientOrders();
                 }
             } catch (err) { console.error(err); }
         }
 
-        // ================= 🛠 USTA METODLARI =================
+        // ================= 🛠 WORKER METHODS =================
         async function loadWorkerServices() {
             try {
                 const container = document.getElementById("worker-my-services-container");
-                container.innerHTML = "<div class='text-center text-muted py-4'>Yuklanmoqda...</div>";
+                container.innerHTML = "<div class='text-center text-muted py-4'>Loading...</div>";
 
                 const res = await fetch(API.services);
                 if (!res.ok) throw new Error();
@@ -387,7 +387,7 @@
                 const myServices = services.filter(s => String(s.worker) === String(currentUserId));
 
                 if (!myServices.length) {
-                    container.innerHTML = `<div class="col-12 text-center text-muted py-3">Siz hali xizmat yaratmagansiz.</div>`;
+                    container.innerHTML = `<div class="col-12 text-center text-muted py-3">You haven't created any services yet.</div>`;
                     return;
                 }
 
@@ -397,7 +397,7 @@
                     const reviewsCount = parseInt(s.reviews_count) || 0;
                     const stars = "★".repeat(Math.round(avgRating)) + "☆".repeat(5 - Math.round(avgRating));
 
-                    const fullDesc = s.description || 'Tavsif berilmagan';
+                    const fullDesc = s.description || 'No description provided';
                     const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120) + '...' : fullDesc;
                     const safeDesc = fullDesc.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '&quot;');
                     const safeName = s.name.replace(/"/g, '&quot;');
@@ -407,17 +407,17 @@
                             <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold text-primary">${s.name}</h5>
-                                    <div class="mb-2 small"><span class="text-warning">${stars}</span> <span class="text-muted">(${reviewsCount} ta fikr)</span></div>
+                                    <div class="mb-2 small"><span class="text-warning">${stars}</span> <span class="text-muted">(${reviewsCount} reviews)</span></div>
                                     <p class="text-secondary small">${shortDesc}</p>
-                                    <button class="btn btn-link p-0 text-decoration-none small" onclick="openWorkerServiceDetailModal('${safeName}', \`${safeDesc}\`, ${s.price})">Batafsil ko'rish →</button>
+                                    <button class="btn btn-link p-0 text-decoration-none small" onclick="openWorkerServiceDetailModal('${safeName}', \`${safeDesc}\`, ${s.price})">View details →</button>
                                 </div>
                                 <div class="card-footer bg-transparent border-0 pt-0 px-3 pb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
+                                        <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} UZS</span>
                                     </div>
                                     <div class="d-flex gap-2 border-top pt-2">
-                                        <button class="btn btn-sm btn-outline-warning w-50" onclick="openEditServiceModal(${s.id}, '${safeName}', ${s.price}, \`${safeDesc}\`, ${s.category || 'null'})">✏️ Tahrirlash</button>
-                                        <button class="btn btn-sm btn-outline-danger w-50" onclick="deleteService(${s.id})">🗑️ O'chirish</button>
+                                        <button class="btn btn-sm btn-outline-warning w-50" onclick="openEditServiceModal(${s.id}, '${safeName}', ${s.price}, \`${safeDesc}\`, ${s.category || 'null'})">✏️ Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger w-50" onclick="deleteService(${s.id})">🗑️ Delete</button>
                                     </div>
                                 </div>
                             </div>
@@ -428,7 +428,7 @@
 
         function openWorkerServiceDetailModal(name, desc, price) {
             document.getElementById("view-service-title").innerText = name;
-            document.getElementById("view-service-price").innerText = parseFloat(price).toLocaleString() + " so'm";
+            document.getElementById("view-service-price").innerText = parseFloat(price).toLocaleString() + " UZS";
             document.getElementById("view-service-desc").innerText = desc;
             new bootstrap.Modal(document.getElementById('viewServiceModal')).show();
         }
@@ -453,7 +453,7 @@
                     })
                 });
                 if (res.ok) {
-                    alert("Xizmat yaratildi!");
+                    alert("Service created!");
                     bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
                     await loadWorkerServices();
                 }
@@ -487,7 +487,7 @@
                     })
                 });
                 if (res.ok) {
-                    alert("O'zgarishlar saqlandi!");
+                    alert("Changes saved!");
                     bootstrap.Modal.getInstance(document.getElementById('editServiceModal')).hide();
                     await loadWorkerServices();
                 }
@@ -495,7 +495,7 @@
         });
 
         async function deleteService(serviceId) {
-            if (!confirm("Ushbu xizmatni o'chirishni xohlaysizmi?")) return;
+            if (!confirm("Are you sure you want to delete this service?")) return;
             try {
                 const headers = await getCustomHeaders();
                 const res = await fetch(`${API.services}${serviceId}/`, { method: "DELETE", headers });
@@ -516,7 +516,7 @@
                 const orders = data.results || data || []; 
 
                 const tbody = document.getElementById("worker-orders-tbody");
-                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="5" class="text-center text-muted">Sizga kelgan buyurtmalar yo'q.</td></tr>`;
+                tbody.innerHTML = orders.length ? "" : `<tr><td colspan="5" class="text-center text-muted">You have no incoming orders.</td></tr>`;
 
                 orders.forEach(order => {
                     let actionButtons = "";
@@ -524,12 +524,12 @@
 
                     if (statusLower === "pending") {
                         actionButtons = `
-                            <button class="btn btn-sm btn-success fw-bold me-1" onclick="updateOrderStatus(${order.id}, 'accepted')">Qabul qilish</button>
-                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Rad etish</button>`;
+                            <button class="btn btn-sm btn-success fw-bold me-1" onclick="updateOrderStatus(${order.id}, 'accepted')">Accept</button>
+                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Decline</button>`;
                     } else if (statusLower === "accepted") {
                         actionButtons = `
-                            <button class="btn btn-sm btn-primary fw-bold me-1" onclick="updateOrderStatus(${order.id}, 'completed')">Tugatildi</button>
-                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Bekor qilish</button>`;
+                            <button class="btn btn-sm btn-primary fw-bold me-1" onclick="updateOrderStatus(${order.id}, 'completed')">Complete</button>
+                            <button class="btn btn-sm btn-danger fw-bold" onclick="updateOrderStatus(${order.id}, 'canceled')">Cancel</button>`;
                     } else {
                         actionButtons = `<span class="text-muted small text-capitalize">${order.status}</span>`;
                     }
@@ -537,8 +537,8 @@
                     tbody.innerHTML += `
                         <tr>
                             <td class="fw-bold">#${order.id}</td>
-                            <td class="fw-semibold">👤 ${order.client_username || 'Noma\'lum'}</td>
-                            <td class="text-secondary">🛠 ${order.service_name || 'Noma\'lum'}</td>
+                            <td class="fw-semibold">👤 ${order.client_username || 'Unknown'}</td>
+                            <td class="text-secondary">🛠 ${order.service_name || 'Unknown'}</td>
                             <td><span class="badge bg-secondary text-capitalize">${order.status}</span></td>
                             <td>${actionButtons}</td>
                         </tr>`;
@@ -556,7 +556,7 @@
                     body: JSON.stringify({ status: newStatus })
                 });
                 if (res.ok) {
-                    alert("Holat yangilandi!");
+                    alert("Status updated!");
                     if (currentUserRole === "worker") { await loadWorkerOrders(); } 
                     else { await loadClientOrders(); }
                 }
@@ -573,7 +573,7 @@
                 const categories = await res.json();
                 const list = categories.results || categories || [];
                 
-                let options = '<option value="">Kategoriyani tanlang...</option>';
+                let options = '<option value="">Select a category...</option>';
                 list.forEach(c => { options += `<option value="${c.id}">${c.name}</option>`; });
                 
                 select.innerHTML = options;
@@ -586,10 +586,10 @@
             if (!container) return;
             container.innerHTML = "";
             if (prevUrl) {
-                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callbackName}('${prevUrl}')">← Oldingi</button></li>`;
+                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callbackName}('${prevUrl}')">← Previous</button></li>`;
             }
             if (nextUrl) {
-                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callbackName}('${nextUrl}')">Keyingi →</button></li>`;
+                container.innerHTML += `<li class="page-item"><button class="page-link shadow-none" onclick="${callbackName}('${nextUrl}')">Next →</button></li>`;
             }
         }
     </script>
