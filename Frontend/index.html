@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,26 +19,26 @@
 
     <div class="bg-primary text-white py-5 mb-4">
         <div class="container">
-            <h1 class="fw-bold text-center mb-4">Professional Usta va Xizmatlarni Toping</h1>
+            <h1 class="fw-bold text-center mb-4">Find Professional Craftsmen & Services</h1>
             
             <div class="card p-4 shadow-sm text-dark border-0">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Qidiruv</label>
-                        <input type="text" id="search-input" class="form-control" placeholder="Xizmat nomi, tavsifi yoki kategoriya...">
+                        <label class="form-label fw-bold">Search</label>
+                        <input type="text" id="search-input" class="form-control" placeholder="Service name, description or category...">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label fw-bold">Kategoriya</label>
+                        <label class="form-label fw-bold">Category</label>
                         <select id="category-filter" class="form-select">
-                            <option value="">Barcha kategoriyalar</option>
+                            <option value="">All Categories</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Min narx</label>
+                        <label class="form-label fw-bold">Min Price</label>
                         <input type="number" id="min-price" class="form-control" placeholder="0">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Max narx</label>
+                        <label class="form-label fw-bold">Max Price</label>
                         <input type="number" id="max-price" class="form-control" placeholder="9999999">
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
@@ -50,7 +50,7 @@
     </div>
 
     <div class="container mb-5">
-        <h3 class="mb-4 fw-bold">Mavjud xizmatlar</h3>
+        <h3 class="mb-4 fw-bold">Available Services</h3>
         <div class="row" id="services-container"></div>
 
         <nav class="mt-4">
@@ -62,17 +62,17 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold" id="detail-title">Xizmat nomi</h5>
+                    <h5 class="modal-title fw-bold" id="detail-title">Service Name</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-success fw-bold mb-0" id="detail-price">0 so'm</h5>
+                        <h5 class="text-success fw-bold mb-0" id="detail-price">0 UZS</h5>
                         <div id="detail-avg-rating"></div> 
                     </div>
-                    <label class="fw-bold text-dark mb-1">Xizmat haqida to'liq tavsif:</label>
+                    <label class="fw-bold text-dark mb-1">Full Service Description:</label>
                     <div class="p-3 bg-light rounded text-secondary mb-4" id="detail-desc" style="white-space: pre-line;"></div>
-                    <label class="fw-bold text-dark mb-2">💬 Mijozlar tomonidan qoldirilgan barcha sharhlar:</label>
+                    <label class="fw-bold text-dark mb-2">💬 All Reviews from Customers:</label>
                     <div id="detail-reviews-list" class="row g-2"></div>
                 </div>
                 <div class="modal-footer" id="detail-footer"></div>
@@ -84,7 +84,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Usta Profili</h5>
+                    <h5 class="modal-title fw-bold">Craftsman Profile</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center" id="worker-profile-content"></div>
@@ -96,7 +96,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold">Profil sozlamalari</h5>
+                    <h5 class="modal-title fw-bold">Profile Settings</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -106,29 +106,29 @@
                             <input type="text" id="edit-username" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Email manzili</label>
+                            <label class="form-label small fw-bold">Email Address</label>
                             <input type="email" id="edit-email" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Telefon raqam</label>
+                            <label class="form-label small fw-bold">Phone Number</label>
                             <input type="text" id="edit-phone" class="form-control" required>
                         </div>
                         <div id="worker-extra-fields" class="d-none border-top pt-3 mt-3">
-                            <h6 class="fw-bold mb-3 text-primary">💼 Ustaga tegishli ma'lumotlar</h6>
+                            <h6 class="fw-bold mb-3 text-primary">💼 Craftsman Details</h6>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Tajriba (Yil)</label>
+                                <label class="form-label small fw-bold">Experience (Years)</label>
                                 <input type="number" id="edit-experience" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Manzil</label>
+                                <label class="form-label small fw-bold">Location</label>
                                 <input type="text" id="edit-location" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Men haqimda (Bio)</label>
+                                <label class="form-label small fw-bold">About Me (Bio)</label>
                                 <textarea id="edit-bio" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
-                        <button type="submit" id="save-profile-btn" class="btn btn-primary w-100 mt-2">O'zgarishlarni saqlash</button>
+                        <button type="submit" id="save-profile-btn" class="btn btn-primary w-100 mt-2">Save Changes</button>
                     </form>
                 </div>
             </div>
@@ -195,7 +195,7 @@
                     localStorage.setItem("user_role", roleValue);
                 }
             } catch(e) { 
-                console.error("Foydalanuvchi statusini tekshirishda xato:", e); 
+                console.error("Error checking user status:", e); 
             }
         }
 
@@ -207,11 +207,11 @@
 
             if (token) {
                 let dashboardLink = "dashboard.html"; 
-                let btnText = "Kabinet (Mijoz)";
+                let btnText = "Dashboard (Client)";
                 let btnClass = "btn-outline-light";
 
                 if (currentRole === "worker") {
-                    btnText = "Kabinet (Usta)";
+                    btnText = "Dashboard (Craftsman)";
                     btnClass = "btn-outline-info";
                     dashboardLink = "dashboard.html";
                 }
@@ -223,14 +223,14 @@
                 }
 
                 nav.innerHTML = `
-                    <div class="nav-item d-inline-block"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 Profilim</button></div>
+                    <div class="nav-item d-inline-block"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 My Profile</button></div>
                     <div class="nav-item d-inline-block"><a class="nav-link btn btn-sm ${btnClass} me-2 d-inline-block" href="${dashboardLink}">${btnText}</a></div>
-                    <div class="nav-item d-inline-block"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Chiqish</button></div>
+                    <div class="nav-item d-inline-block"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Logout</button></div>
                 `;
             } else {
                 nav.innerHTML = `
-                    <div class="nav-item d-inline-block"><a class="nav-link text-white d-inline-block" href="login.html">Kirish</a></div>
-                    <div class="nav-item d-inline-block"><a class="btn btn-warning btn-sm ms-2 fw-bold text-dark" href="register.html">Ro'yxatdan o'tish</a></div>
+                    <div class="nav-item d-inline-block"><a class="nav-link text-white d-inline-block" href="login.html">Login</a></div>
+                    <div class="nav-item d-inline-block"><a class="btn btn-warning btn-sm ms-2 fw-bold text-dark" href="register.html">Register</a></div>
                 `;
             }
         }
@@ -241,15 +241,15 @@
                 const data = await res.json();
                 const select = document.getElementById("category-filter");
                 const list = data.results || data || [];
-                select.innerHTML = '<option value="">Barcha kategoriyalar</option>';
+                select.innerHTML = '<option value="">All Categories</option>';
                 list.forEach(c => { select.innerHTML += `<option value="${c.id}">${escapeHTML(c.name)}</option>`; });
-            } catch (err) { console.error("Kategoriyalar yuklanmadi:", err); }
+            } catch (err) { console.error("Categories failed to load:", err); }
         }
 
         async function fetchServices(url) {
             try {
                 const container = document.getElementById("services-container");
-                container.innerHTML = "<div class='text-center text-muted py-5'>Xizmatlar yuklanmoqda...</div>";
+                container.innerHTML = "<div class='text-center text-muted py-5'>Loading services...</div>";
 
                 const res = await fetch(url);
                 const data = await res.json();
@@ -261,13 +261,13 @@
                 displayServices(services);
                 renderPagination(data.previous, data.next, url);
             } catch (err) {
-                document.getElementById("services-container").innerHTML = `<div class="col-12 text-center text-danger py-5"><h5>Xizmatlarni yuklab bo'lmadi.</h5></div>`;
+                document.getElementById("services-container").innerHTML = `<div class="col-12 text-center text-danger py-5"><h5>Failed to load services.</h5></div>`;
             }
         }
 
         function displayServices(services) {
             const container = document.getElementById("services-container");
-            container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>Xizmat topilmadi.</p>";
+            container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>No services found.</p>";
             
             const currentRole = localStorage.getItem("user_role") || "client";
             const currentStaff = localStorage.getItem("is_staff") || "false";
@@ -275,18 +275,18 @@
             services.forEach(s => {
                 let actionButton = "";
                 if (currentStaff === "true") {
-                    actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Rejimi</button>`;
+                    actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Mode</button>`;
                 } else if (currentRole === "worker") {
-                    actionButton = `<button class="btn btn-sm btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
+                    actionButton = `<button class="btn btn-sm btn-secondary" disabled>Restricted for Craftsmen</button>`;
                 } else {
-                    actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Buyurtma berish</button>`;
+                    actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Book Order</button>`;
                 }
 
                 const avgRating = parseFloat(s.average_rating) || 0;
                 const reviewsCount = parseInt(s.reviews_count) || 0;
                 let ratingHTML = reviewsCount > 0 
                     ? `<div class="mb-2 small d-flex align-items-center"><span class="text-warning me-1">${"★".repeat(Math.round(avgRating))}</span><span class="text-muted fw-bold">${avgRating.toFixed(1)}</span></div>`
-                    : `<div class="mb-2 small text-muted">☆☆☆☆☆ (Sharhlar yo'q)</div>`;
+                    : `<div class="mb-2 small text-muted">☆☆☆☆☆ (No reviews)</div>`;
 
                 const workerId = s.worker || s.worker_id || (s.worker_profile ? s.worker_profile.id : 0);
 
@@ -297,15 +297,15 @@
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <h5 class="card-title fw-bold text-primary mb-0">${escapeHTML(s.name)}</h5>
                                     <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerId})" class="text-primary fw-bold text-decoration-none small">
-                                        👤 @${escapeHTML(s.worker_name || "Usta")}
+                                        👤 @${escapeHTML(s.worker_name || "Craftsman")}
                                     </a>
                                 </div>
                                 ${ratingHTML}
                                 <p class="text-secondary small mb-3">${escapeHTML(s.description || '')}</p>
-                                <button class="btn btn-link p-0 text-decoration-none small fw-bold" onclick="openDetailModal(${s.id})">Batafsil ko'rish →</button>
+                                <button class="btn btn-link p-0 text-decoration-none small fw-bold" onclick="openDetailModal(${s.id})">View Details →</button>
                             </div>
                             <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center pt-0 pb-3 px-3">
-                                <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} so'm</span>
+                                <span class="badge bg-success fs-6">${parseFloat(s.price).toLocaleString()} UZS</span>
                                 ${actionButton}
                             </div>
                         </div>
@@ -318,19 +318,19 @@
             if (!service) return;
 
             document.getElementById("detail-title").innerText = service.name;
-            document.getElementById("detail-desc").innerText = service.description || 'Tavsif berilmagan';
-            document.getElementById("detail-price").innerText = parseFloat(service.price).toLocaleString() + " so'm";
+            document.getElementById("detail-desc").innerText = service.description || 'No description provided';
+            document.getElementById("detail-price").innerText = parseFloat(service.price).toLocaleString() + " UZS";
 
             const footer = document.getElementById("detail-footer");
             const currentRole = localStorage.getItem("user_role") || "client";
             const currentStaff = localStorage.getItem("is_staff") || "false";
             
             if (currentStaff === "true") {
-                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-dark" disabled>Admin Rejimi</button>`;
+                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-dark" disabled>Admin Mode</button>`;
             } else if (currentRole === "worker") {
-                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-secondary" disabled>Ustalarga taqiqlangan</button>`;
+                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-secondary" disabled>Restricted for Craftsmen</button>`;
             } else {
-                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Hozir Buyurtma berish</button>`;
+                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Order Now</button>`;
             }
 
             detailModal.show();
@@ -338,7 +338,7 @@
 
         async function viewWorkerProfile(workerUserId) {
             if(!workerUserId || workerUserId === 0) {
-                alert("Usta ID profili mavjud emas yoki topilmadi.");
+                alert("Craftsman profile ID is invalid or not found.");
                 return;
             }
             const content = document.getElementById("worker-profile-content");
@@ -350,17 +350,17 @@
                 if (res.ok) {
                     const profile = await res.json();
                     content.innerHTML = `
-                        <h4 class="fw-bold mb-1">@${escapeHTML(profile.username || profile.user || "usta")}</h4>
-                        <p class="text-muted mb-3">📞 Telefon: ${escapeHTML(profile.phone_number || "Yashirilgan")}</p>
+                        <h4 class="fw-bold mb-1">@${escapeHTML(profile.username || profile.user || "craftsman")}</h4>
+                        <p class="text-muted mb-3">📞 Phone: ${escapeHTML(profile.phone_number || "Hidden")}</p>
                         <div class="text-start bg-light p-3 rounded mb-3 small">
-                            <p class="mb-2"><strong>💼 Tajriba:</strong> ${profile.experience_years || 0} yil</p>
-                            <p class="mb-2"><strong>📍 Manzil:</strong> ${escapeHTML(profile.location || "Kiritilmagan")}</p>
-                            <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "Ma'lumot mavjud emas.")}</p>
+                            <p class="mb-2"><strong>💼 Experience:</strong> ${profile.experience_years || 0} years</p>
+                            <p class="mb-2"><strong>📍 Location:</strong> ${escapeHTML(profile.location || "Not specified")}</p>
+                            <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "No information available.")}</p>
                         </div>`;
                 } else {
-                    content.innerHTML = `<p class="text-danger py-3">Usta haqida ommaviy ma'lumot topilmadi.</p>`;
+                    content.innerHTML = `<p class="text-danger py-3">Public information for this craftsman was not found.</p>`;
                 }
-            } catch (err) { content.innerHTML = `<p class="text-danger py-3">Yuklashda kutilmagan xatolik yuz berdi.</p>`; }
+            } catch (err) { content.innerHTML = `<p class="text-danger py-3">An unexpected error occurred while loading.</p>`; }
         }
 
         async function openMyProfileModal() {
@@ -373,7 +373,7 @@
                 if (resMe.ok) {
                     const userData = await resMe.json();
                     document.getElementById("edit-username").value = userData.username || "";
-                    document.getElementById("edit-email").value = userData.email || ""; // 📨 Email qiymatini inputga yuklash
+                    document.getElementById("edit-email").value = userData.email || ""; 
                     document.getElementById("edit-phone").value = userData.phone_number || "";
                 }
 
@@ -394,7 +394,7 @@
                 }
 
             } catch (err) {
-                console.error("Profil yuklanmadi:", err);
+                console.error("Profile failed to load:", err);
             }
         }
 
@@ -403,29 +403,27 @@
 
             const saveBtn = document.getElementById("save-profile-btn");
             saveBtn.disabled = true;
-            saveBtn.innerText = "Saqlanmoqda...";
+            saveBtn.innerText = "Saving...";
 
             const username = document.getElementById("edit-username").value;
-            const email = document.getElementById("edit-email").value; // 📨 Email qiymatini formadan olish
+            const email = document.getElementById("edit-email").value; 
             const phone_number = document.getElementById("edit-phone").value;
             const currentRole = localStorage.getItem("user_role") || "client";
 
             try {
-                // User update (PUT so'rovida endi email ham yuboriladi)
                 const resMe = await fetchWithAuth(API.auth.me, {
                     method: "PUT",
                     body: JSON.stringify({
                         username,
-                        email, // backend qabul qilishi uchun ulandi
+                        email, 
                         phone_number
                     })
                 });
 
                 if (!resMe.ok) {
-                    throw new Error("Asosiy profilni saqlab bo'lmadi");
+                    throw new Error("Failed to save primary profile");
                 }
 
-                // Worker profile update
                 if (currentRole === "worker") {
                     const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
                     const location = document.getElementById("edit-location").value;
@@ -443,11 +441,11 @@
                     if (!resWorker.ok) {
                         const errData = await resWorker.json().catch(() => ({}));
                         console.error(errData);
-                        throw new Error(`Usta profilini saqlab bo'lmadi. Status: ${resWorker.status}`);
+                        throw new Error(`Failed to save craftsman profile. Status: ${resWorker.status}`);
                     }
                 }
 
-                alert("Profil muvaffaqiyatli yangilandi! 🎉");
+                alert("Profile updated successfully! 🎉");
                 myProfileModal.hide();
                 await initApp();
 
@@ -456,7 +454,7 @@
                 alert(err.message);
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.innerText = "O'zgarishlarni saqlash";
+                saveBtn.innerText = "Save Changes";
             }
         }
 
@@ -474,8 +472,8 @@
             const paginationContainer = document.getElementById("pagination-container");
             paginationContainer.innerHTML = "";
             if (!prevUrl && !nextUrl) return;
-            paginationContainer.innerHTML += `<li class="page-item ${prevUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${prevUrl}')">« Orqaga</button></li>`;
-            paginationContainer.innerHTML += `<li class="page-item ${nextUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${nextUrl}')">Oldinga »</button></li>`;
+            paginationContainer.innerHTML += `<li class="page-item ${prevUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${prevUrl}')">« Back</button></li>`;
+            paginationContainer.innerHTML += `<li class="page-item ${nextUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${nextUrl}')">Next »</button></li>`;
         }
 
         function bookOrder(serviceId) {
