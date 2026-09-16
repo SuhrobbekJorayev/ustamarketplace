@@ -171,6 +171,9 @@ REST_FRAMEWORK = {
     ]
 }
 
+# SMS
+# SMS_KEY = os.getenv('SMS_KEY')
+
 # Email
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 #
