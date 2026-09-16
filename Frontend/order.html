@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buyurtmani rasmiylashtirish</title>
+    <title>Checkout Order</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -11,15 +11,15 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card p-4 shadow-sm border-0">
-                    <h3 class="fw-bold text-center mb-4 text-primary">Buyurtmani tasdiqlash</h3>
+                    <h3 class="fw-bold text-center mb-4 text-primary">Confirm Order</h3>
 
                     <div id="service-summary" class="p-3 bg-light rounded mb-4">
-                        <h5>Yuklanmoqda...</h5>
+                        <h5>Loading...</h5>
                     </div>
 
                     <div class="d-flex gap-2">
-                        <a href="index.html" class="btn btn-secondary w-50">Bekor qilish</a>
-                        <button class="btn btn-success w-50 fw-bold" onclick="submitOrder()">Tasdiqlash</button>
+                        <a href="index.html" class="btn btn-secondary w-50">Cancel</a>
+                        <button class="btn btn-success w-50 fw-bold" onclick="submitOrder()">Confirm</button>
                     </div>
                 </div>
             </div>
@@ -31,22 +31,22 @@
         const serviceId = localStorage.getItem("selected_service_id");
         const token = localStorage.getItem("access");
 
-        // Sahifa yuklanganda xizmat ma'lumotlarini olish
+        // Fetch service details when the page loads
         document.addEventListener("DOMContentLoaded", async () => {
             if (!token) {
-                alert("Buyurtma berish uchun avval tizimga kiring!");
+                alert("Please log in first to place an order!");
                 window.location.href = "login.html";
                 return;
             }
 
             if (!serviceId) {
-                alert("Xizmat tanlanmagan!");
+                alert("No service selected!");
                 window.location.href = "index.html";
                 return;
             }
 
             if (typeof API === "undefined" || !API.services || !API.orders) {
-                alert("API endpointlar topilmadi. endpoints.js faylini tekshiring.");
+                alert("API endpoints not found. Please check your endpoints.js file.");
                 return;
             }
 
@@ -55,7 +55,7 @@
 
                 if (!res.ok) {
                     document.getElementById("service-summary").innerHTML = `
-                        <p class="text-danger mb-0">Xizmat ma'lumotlarini yuklab bo'lmadi (Status: ${res.status}).</p>
+                        <p class="text-danger mb-0">Failed to load service details (Status: ${res.status}).</p>
                     `;
                     return;
                 }
@@ -64,32 +64,32 @@
 
                 document.getElementById("service-summary").innerHTML = `
                     <h5 class="fw-bold text-dark">${service.name}</h5>
-                    <p class="text-muted small mb-2">${service.description || "Tavsif berilmagan"}</p>
+                    <p class="text-muted small mb-2">${service.description || "No description provided"}</p>
                     <div class="d-flex justify-content-between align-items-center">
-                        <span>Usta: <b>@${service.worker_name || "Noma'lum"}</b></span>
+                        <span>Craftsman: <b>@${service.worker_name || "Unknown"}</b></span>
                         <span class="badge bg-success fs-6">
-                            ${service.price ? parseFloat(service.price).toLocaleString() : "0"} so'm
+                            ${service.price ? parseFloat(service.price).toLocaleString() : "0"} UZS
                         </span>
                     </div>
                 `;
             } catch (error) {
                 console.error("Service fetch error:", error);
                 document.getElementById("service-summary").innerHTML = `
-                    <p class="text-danger mb-0">Tarmoq xatosi sabab xizmat yuklanmadi.</p>
+                    <p class="text-danger mb-0">Failed to load service due to a network error.</p>
                 `;
             }
         });
 
-        // Buyurtma berish funksiyasi
+        // Submit order function
         async function submitOrder() {
             if (!token) {
-                alert("Buyurtma berish uchun avval tizimga kiring!");
+                alert("Please log in first to place an order!");
                 window.location.href = "login.html";
                 return;
             }
 
             if (!serviceId) {
-                alert("Xizmat tanlanmagan!");
+                alert("No service selected!");
                 return;
             }
 
@@ -107,46 +107,46 @@
 
                 console.log("Server status:", res.status);
 
-                // 1. Agar Server 500 (Internal Server Error) qaytargan bo'lsa
+                // 1. If server returned 500 Internal Server Error
                 if (res.status === 500) {
-                    alert("Xatolik: Server ichki xatosi (500)! Backend-da Celery yoki boshqa muammo bor.");
+                    alert("Error: Internal Server Error (500)! There is a Celery or backend issue.");
                     return;
                 }
 
-                // Server javobini matn (text) ko'rinishida o'qiymiz (ichida HTML bo'lsa ham yiqilmaydi)
+                // Read server response as text (prevents throwing an error if HTML is returned)
                 const responseText = await res.text();
                 let data = null;
 
-                // Agar javob JSON formatida bo'lsa, uni parse qilamiz
+                // Parse if response is in JSON format
                 if (responseText) {
                     try {
                         data = JSON.parse(responseText);
                     } catch (e) {
-                        console.warn("Server javobi JSON emas, HTML yoki boshqa formatda keldi.");
+                        console.warn("Server response is not JSON, received HTML or another format.");
                     }
                 }
 
-                // 2. Agar buyurtma muvaffaqiyatli yaratilgan bo'lsa (200 yoki 201)
+                // 2. If order was created successfully (200 or 201)
                 if (res.status === 201 || res.status === 200) {
-                    alert("Buyurtmangiz muvaffaqiyatli yaratildi! 🎉 Kabinet orqali kuzatishingiz mumkin.");
+                    alert("Your order was successfully created! 🎉 You can track it in your dashboard.");
                     localStorage.removeItem("selected_service_id");
                     window.location.href = "dashboard.html";
                     return;
                 }
 
-                // 3. Agar boshqa biror xatolik statusi qaytgan bo'lsa (400, 401, 403 va h.k.)
-                let errorMessage = `Xatolik yuz berdi (Status: ${res.status})`;
+                // 3. If any other error status code returned (400, 401, 403, etc.)
+                let errorMessage = `An error occurred (Status: ${res.status})`;
                 if (data && data.detail) {
                     errorMessage = data.detail;
                 } else if (data) {
                     errorMessage = JSON.stringify(data);
                 }
 
-                alert("Buyurtma berishda xatolik: " + errorMessage);
+                alert("Error placing order: " + errorMessage);
 
             } catch (error) {
                 console.error("submitOrder error:", error);
-                alert("Tarmoq xatosi yoki server o‘chiq (Ulanish rad etildi).");
+                alert("Network error or server is down (Connection refused).");
             }
         }
     </script>
