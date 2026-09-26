@@ -330,7 +330,7 @@
           headers,
         });
       }
-      
+
       async function initApp() {
         const token = localStorage.getItem("access");
         if (token) {
@@ -479,9 +479,32 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <h5 class="card-title fw-bold text-primary mb-0">${escapeHTML(s.name)}</h5>
-                                    <a href="javascript:void(0)" onclick="viewWorkerProfile(${workerId})" class="text-primary fw-bold text-decoration-none small">
-                                        👤 @${escapeHTML(s.worker_name || "Craftsman")}
-                                    </a>
+                                    <div class="d-flex align-items-center">
+                                        <a
+                                            href="javascript:void(0)"
+                                            onclick="viewWorkerProfile(${workerId})"
+                                            class="text-primary fw-bold text-decoration-none small d-flex align-items-center"
+                                        >
+                                            ${
+                                              s.worker_avatar
+                                                ? `
+                                                <img
+                                                    src="${escapeHTML(s.worker_avatar)}"
+                                                    alt="Worker avatar"
+                                                    class="rounded-circle me-2 border"
+                                                    style="
+                                                    width: 32px;
+                                                    height: 32px;
+                                                    object-fit: cover;
+                                                    "
+                                                />
+                                                `
+                                                : ""
+                                            }
+
+                                            @${escapeHTML(s.worker_name || "Craftsman")}
+                                        </a>
+                                    </div>
                                 </div>
                                 ${ratingHTML}
                                 <p class="text-secondary small mb-3">${escapeHTML(s.description || "")}</p>
@@ -526,27 +549,81 @@
           alert("Craftsman profile ID is invalid or not found.");
           return;
         }
+
         const content = document.getElementById("worker-profile-content");
-        content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
+
+        content.innerHTML = `
+    <div class="text-center py-3">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  `;
+
         workerProfileModal.show();
 
         try {
           const res = await fetch(`${API.worker_public}${workerUserId}/`);
+
           if (res.ok) {
             const profile = await res.json();
+
+            const avatarHTML = profile.avatar
+              ? `
+          <img
+            src="${escapeHTML(profile.avatar)}"
+            alt="Craftsman avatar"
+            class="rounded-circle border mb-3"
+            style="
+              width: 120px;
+              height: 120px;
+              object-fit: cover;
+            "
+          />
+        `
+              : "";
+
             content.innerHTML = `
-                        <h4 class="fw-bold mb-1">@${escapeHTML(profile.username || profile.user || "craftsman")}</h4>
-                        <p class="text-muted mb-3">📞 Phone: ${escapeHTML(profile.phone_number || "Hidden")}</p>
-                        <div class="text-start bg-light p-3 rounded mb-3 small">
-                            <p class="mb-2"><strong>💼 Experience:</strong> ${profile.experience_years || 0} years</p>
-                            <p class="mb-2"><strong>📍 Location:</strong> ${escapeHTML(profile.location || "Not specified")}</p>
-                            <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "No information available.")}</p>
-                        </div>`;
+        ${avatarHTML}
+
+        <h4 class="fw-bold mb-1">
+          @${escapeHTML(profile.username || profile.user || "craftsman")}
+        </h4>
+
+        <p class="text-muted mb-3">
+          📞 Phone: ${escapeHTML(profile.phone_number || "Hidden")}
+        </p>
+
+        <div class="text-start bg-light p-3 rounded mb-3 small">
+          <p class="mb-2">
+            <strong>💼 Experience:</strong>
+            ${profile.experience_years || 0} years
+          </p>
+
+          <p class="mb-2">
+            <strong>📍 Location:</strong>
+            ${escapeHTML(profile.location || "Not specified")}
+          </p>
+
+          <p class="mb-0">
+            <strong>📝 Bio:</strong>
+            ${escapeHTML(profile.bio || "No information available.")}
+          </p>
+        </div>
+      `;
           } else {
-            content.innerHTML = `<p class="text-danger py-3">Public information for this craftsman was not found.</p>`;
+            content.innerHTML = `
+        <p class="text-danger py-3">
+          Public information for this craftsman was not found.
+        </p>
+      `;
           }
         } catch (err) {
-          content.innerHTML = `<p class="text-danger py-3">An unexpected error occurred while loading.</p>`;
+          console.error("Failed to load craftsman profile:", err);
+
+          content.innerHTML = `
+      <p class="text-danger py-3">
+        An unexpected error occurred while loading.
+      </p>
+    `;
         }
       }
 
