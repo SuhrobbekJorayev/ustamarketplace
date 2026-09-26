@@ -10,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'phone_number',
+            'avatar',
             'role',
             'is_staff'
         ]

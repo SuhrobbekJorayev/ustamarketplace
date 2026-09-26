@@ -13,6 +13,7 @@ class WorkerPublicSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "phone_number",
+            "avatar",
             "bio",
             "experience_years",
             "location"

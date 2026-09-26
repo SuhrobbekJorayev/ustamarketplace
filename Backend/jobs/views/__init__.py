@@ -6,3 +6,4 @@ from .user import MeView
 from .worker_profile import WorkerProfileView
 from .worker_public import WorkerPublicViewSet
 from .register import RegisterAPIView
+from .imagekit import upload_avatar
