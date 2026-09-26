@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from jobs.serializers import UserSerializer
-from jobs.views import upload_avatar
+from .imagekit import upload_avatar
 
 
 class MeView(APIView):
