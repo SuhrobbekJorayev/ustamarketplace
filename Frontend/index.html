@@ -317,13 +317,20 @@
           ...options.headers,
         };
 
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
         if (!(options.body instanceof FormData)) {
           headers["Content-Type"] = "application/json";
         }
 
-        return fetch(url, { ...options, headers });
+        return fetch(url, {
+          ...options,
+          headers,
+        });
       }
-
+      
       async function initApp() {
         const token = localStorage.getItem("access");
         if (token) {
