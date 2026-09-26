@@ -545,46 +545,60 @@
 
       async function openMyProfileModal() {
         myProfileModal.show();
+
         const currentRole = localStorage.getItem("user_role") || "client";
 
         try {
-          const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
+          // User profile
+          const resMe = await fetchWithAuth(API.auth.me);
 
-          if (resMe.ok) {
-            const userData = await resMe.json();
-            document.getElementById("edit-username").value =
-              userData.username || "";
-            document.getElementById("edit-email").value = userData.email || "";
-            document.getElementById("edit-phone").value =
-              userData.phone_number || "";
-
-            const avatarPreview = document.getElementById(
-              "profile-avatar-preview",
-            );
-
-            if (userData.avatar) {
-              avatarPreview.src = userData.avatar;
-              avatarPreview.style.display = "block";
-            } else {
-              avatarPreview.src = "";
-              avatarPreview.style.display = "none";
-            }
+          if (!resMe.ok) {
+            const errorData = await resMe.json().catch(() => ({}));
+            console.error("Failed to load user profile:", errorData);
+            return;
           }
 
+          const userData = await resMe.json();
+
+          // Basic user information
+          document.getElementById("edit-username").value =
+            userData.username || "";
+
+          document.getElementById("edit-email").value = userData.email || "";
+
+          document.getElementById("edit-phone").value =
+            userData.phone_number || "";
+
+          // Avatar
+          const avatarPreview = document.getElementById(
+            "profile-avatar-preview",
+          );
+
+          if (userData.avatar) {
+            avatarPreview.src = userData.avatar;
+            avatarPreview.style.display = "block";
+          } else {
+            avatarPreview.src = "";
+            avatarPreview.style.display = "none";
+          }
+
+          // Worker profile
           const extraFields = document.getElementById("worker-extra-fields");
 
           if (currentRole === "worker") {
             extraFields.classList.remove("d-none");
-            const resWorker = await fetchWithAuth(API.profile, {
-              method: "GET",
-            });
+
+            const resWorker = await fetchWithAuth(API.profile);
 
             if (resWorker.ok) {
               const workerData = await resWorker.json();
+
               document.getElementById("edit-experience").value =
                 workerData.experience_years || 0;
+
               document.getElementById("edit-location").value =
                 workerData.location || "";
+
               document.getElementById("edit-bio").value = workerData.bio || "";
             }
           } else {
