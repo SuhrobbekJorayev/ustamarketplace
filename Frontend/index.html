@@ -1,296 +1,472 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DEMO PROJECT - UstaMarketplace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
-            <div class="collapse navbar-collapse show">
-                <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
-            </div>
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">UstaMarketplace</a>
+        <div class="collapse navbar-collapse show">
+          <div class="navbar-nav ms-auto" id="nav-auth-links"></div>
         </div>
+      </div>
     </nav>
 
     <div class="bg-primary text-white py-5 mb-4">
-        <div class="container">
-            <h1 class="fw-bold text-center mb-4">Find Professional Craftsmen & Services</h1>
-            
-            <div class="card p-4 shadow-sm text-dark border-0">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Search</label>
-                        <input type="text" id="search-input" class="form-control" placeholder="Service name, description or category...">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Category</label>
-                        <select id="category-filter" class="form-select">
-                            <option value="">All Categories</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Min Price</label>
-                        <input type="number" id="min-price" class="form-control" placeholder="0">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Max Price</label>
-                        <input type="number" id="max-price" class="form-control" placeholder="9999999">
-                    </div>
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button class="btn btn-warning w-100 fw-bold" onclick="applyFilters()">Filter</button>
-                    </div>
-                </div>
+      <div class="container">
+        <h1 class="fw-bold text-center mb-4">
+          Find Professional Craftsmen & Services
+        </h1>
+
+        <div class="card p-4 shadow-sm text-dark border-0">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Search</label>
+              <input
+                type="text"
+                id="search-input"
+                class="form-control"
+                placeholder="Service name, description or category..."
+              />
             </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Category</label>
+              <select id="category-filter" class="form-select">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-bold">Min Price</label>
+              <input
+                type="number"
+                id="min-price"
+                class="form-control"
+                placeholder="0"
+              />
+            </div>
+            <div class="col-md-2">
+              <label class="form-label fw-bold">Max Price</label>
+              <input
+                type="number"
+                id="max-price"
+                class="form-control"
+                placeholder="9999999"
+              />
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button
+                class="btn btn-warning w-100 fw-bold"
+                onclick="applyFilters()"
+              >
+                Filter
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="container mb-5">
-        <h3 class="mb-4 fw-bold">Available Services</h3>
-        <div class="row" id="services-container"></div>
+      <h3 class="mb-4 fw-bold">Available Services</h3>
+      <div class="row" id="services-container"></div>
 
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center" id="pagination-container"></ul>
-        </nav>
+      <nav class="mt-4">
+        <ul
+          class="pagination justify-content-center"
+          id="pagination-container"
+        ></ul>
+      </nav>
     </div>
 
     <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold" id="detail-title">Service Name</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-success fw-bold mb-0" id="detail-price">0 UZS</h5>
-                        <div id="detail-avg-rating"></div> 
-                    </div>
-                    <label class="fw-bold text-dark mb-1">Full Service Description:</label>
-                    <div class="p-3 bg-light rounded text-secondary mb-4" id="detail-desc" style="white-space: pre-line;"></div>
-                    <label class="fw-bold text-dark mb-2">💬 All Reviews from Customers:</label>
-                    <div id="detail-reviews-list" class="row g-2"></div>
-                </div>
-                <div class="modal-footer" id="detail-footer"></div>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title fw-bold" id="detail-title">Service Name</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="text-success fw-bold mb-0" id="detail-price">0 UZS</h5>
+              <div id="detail-avg-rating"></div>
             </div>
+            <label class="fw-bold text-dark mb-1"
+              >Full Service Description:</label
+            >
+            <div
+              class="p-3 bg-light rounded text-secondary mb-4"
+              id="detail-desc"
+              style="white-space: pre-line"
+            ></div>
+            <label class="fw-bold text-dark mb-2"
+              >💬 All Reviews from Customers:</label
+            >
+            <div id="detail-reviews-list" class="row g-2"></div>
+          </div>
+          <div class="modal-footer" id="detail-footer"></div>
         </div>
+      </div>
     </div>
 
-    <div class="modal fade" id="workerProfileModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Craftsman Profile</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center" id="worker-profile-content"></div>
-            </div>
+    <div
+      class="modal fade"
+      id="workerProfileModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title fw-bold">Craftsman Profile</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body text-center" id="worker-profile-content"></div>
         </div>
+      </div>
     </div>
 
-    <div class="modal fade" id="myProfileModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold">Profile Settings</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div
+      class="modal fade"
+      id="myProfileModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title fw-bold">Profile Settings</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="profile-edit-form">
+              <div class="text-center mb-4">
+                <div class="mb-3">
+                  <img
+                    id="profile-avatar-preview"
+                    src=""
+                    alt="Profile avatar"
+                    class="rounded-circle border"
+                    style="
+                      width: 120px;
+                      height: 120px;
+                      object-fit: cover;
+                      display: none;
+                    "
+                  />
                 </div>
-                <div class="modal-body">
-                    <form id="profile-edit-form">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Username</label>
-                            <input type="text" id="edit-username" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Email Address</label>
-                            <input type="email" id="edit-email" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Phone Number</label>
-                            <input type="text" id="edit-phone" class="form-control" required>
-                        </div>
-                        <div id="worker-extra-fields" class="d-none border-top pt-3 mt-3">
-                            <h6 class="fw-bold mb-3 text-primary">💼 Craftsman Details</h6>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Experience (Years)</label>
-                                <input type="number" id="edit-experience" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Location</label>
-                                <input type="text" id="edit-location" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">About Me (Bio)</label>
-                                <textarea id="edit-bio" class="form-control" rows="3"></textarea>
-                            </div>
-                        </div>
-                        <button type="submit" id="save-profile-btn" class="btn btn-primary w-100 mt-2">Save Changes</button>
-                    </form>
+
+                <label
+                  for="profile-avatar"
+                  class="btn btn-outline-primary btn-sm"
+                >
+                  Choose Image
+                </label>
+
+                <input
+                  type="file"
+                  id="profile-avatar"
+                  accept="image/*"
+                  class="d-none"
+                />
+
+                <div class="form-text">JPG, PNG or WebP</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Username</label>
+                <input
+                  type="text"
+                  id="edit-username"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Email Address</label>
+                <input
+                  type="email"
+                  id="edit-email"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Phone Number</label>
+                <input
+                  type="text"
+                  id="edit-phone"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div id="worker-extra-fields" class="d-none border-top pt-3 mt-3">
+                <h6 class="fw-bold mb-3 text-primary">💼 Craftsman Details</h6>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold"
+                    >Experience (Years)</label
+                  >
+                  <input
+                    type="number"
+                    id="edit-experience"
+                    class="form-control"
+                  />
                 </div>
-            </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Location</label>
+                  <input type="text" id="edit-location" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">About Me (Bio)</label>
+                  <textarea
+                    id="edit-bio"
+                    class="form-control"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+              <button
+                type="submit"
+                id="save-profile-btn"
+                class="btn btn-primary w-100 mt-2"
+              >
+                Save Changes
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config/endpoints.js"></script>
     <script>
-        let detailModal, workerProfileModal, myProfileModal;
-        let currentUrl = API.services; 
-        let servicesDataStore = {}; 
+      let detailModal, workerProfileModal, myProfileModal;
+      let currentUrl = API.services;
+      let servicesDataStore = {};
 
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.toString().replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+      function escapeHTML(str) {
+        if (!str) return "";
+        return str.toString().replace(
+          /[&<>'"]/g,
+          (tag) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[tag] || tag,
+        );
+      }
+
+      function previewAvatar(event) {
+        const file = event.target.files[0];
+
+        if (!file) return;
+
+        const preview = document.getElementById("profile-avatar-preview");
+
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        document
+          .getElementById("profile-avatar")
+          .addEventListener("change", previewAvatar);
+
+        detailModal = new bootstrap.Modal(
+          document.getElementById("detailModal"),
+        );
+        workerProfileModal = new bootstrap.Modal(
+          document.getElementById("workerProfileModal"),
+        );
+        myProfileModal = new bootstrap.Modal(
+          document.getElementById("myProfileModal"),
+        );
+
+        document
+          .getElementById("profile-edit-form")
+          .addEventListener("submit", handleProfileUpdate);
+
+        await initApp();
+      });
+
+      async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem("access");
+
+        const headers = {
+          ...options.headers,
+        };
+
+        if (!(options.body instanceof FormData)) {
+          headers["Content-Type"] = "application/json";
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
-            workerProfileModal = new bootstrap.Modal(document.getElementById('workerProfileModal'));
-            myProfileModal = new bootstrap.Modal(document.getElementById('myProfileModal'));
-            
-            document.getElementById("profile-edit-form").addEventListener("submit", handleProfileUpdate);
-            
-            await initApp();
-        });
+        return fetch(url, { ...options, headers });
+      }
 
-        async function fetchWithAuth(url, options = {}) {
-            const token = localStorage.getItem("access");
-            const headers = { 
-                "Content-Type": "application/json", 
-                ...options.headers 
-            };
-            if (token) { 
-                headers["Authorization"] = `Bearer ${token}`; 
+      async function initApp() {
+        const token = localStorage.getItem("access");
+        if (token) {
+          await checkUserStatus();
+        }
+        renderNavbar();
+        await loadCategories();
+        await fetchServices(currentUrl);
+      }
+
+      async function checkUserStatus() {
+        try {
+          const res = await fetchWithAuth(API.auth.me);
+          if (res.ok) {
+            const data = await res.json();
+            let isStaffValue =
+              data.is_staff === true ||
+              data.is_staff === "true" ||
+              data.is_staff === 1
+                ? "true"
+                : "false";
+            let roleValue = data.role
+              ? String(data.role).toLowerCase().trim()
+              : "client";
+
+            if (roleValue === "admin" || roleValue === "superuser") {
+              isStaffValue = "true";
             }
-            return fetch(url, { ...options, headers });
+
+            localStorage.setItem("is_staff", isStaffValue);
+            localStorage.setItem("user_role", roleValue);
+          }
+        } catch (e) {
+          console.error("Error checking user status:", e);
         }
+      }
 
-        async function initApp() {
-            const token = localStorage.getItem("access");
-            if (token) {
-                await checkUserStatus();
-            }
-            renderNavbar();
-            await loadCategories();
-            await fetchServices(currentUrl); 
-        }
+      function renderNavbar() {
+        const nav = document.getElementById("nav-auth-links");
+        const token = localStorage.getItem("access");
+        const currentRole = localStorage.getItem("user_role") || "client";
+        const currentStaff = localStorage.getItem("is_staff") || "false";
 
-        async function checkUserStatus() {
-            try {
-                const res = await fetchWithAuth(API.auth.me); 
-                if (res.ok) {
-                    const data = await res.json();
-                    let isStaffValue = (data.is_staff === true || data.is_staff === "true" || data.is_staff === 1) ? "true" : "false";
-                    let roleValue = data.role ? String(data.role).toLowerCase().trim() : "client";
-                    
-                    if (roleValue === "admin" || roleValue === "superuser") {
-                        isStaffValue = "true";
-                    }
+        if (token) {
+          let dashboardLink = "dashboard.html";
+          let btnText = "Dashboard (Client)";
+          let btnClass = "btn-outline-light";
 
-                    localStorage.setItem("is_staff", isStaffValue);
-                    localStorage.setItem("user_role", roleValue);
-                }
-            } catch(e) { 
-                console.error("Error checking user status:", e); 
-            }
-        }
+          if (currentRole === "worker") {
+            btnText = "Dashboard (Craftsman)";
+            btnClass = "btn-outline-info";
+            dashboardLink = "dashboard.html";
+          }
 
-        function renderNavbar() {
-            const nav = document.getElementById("nav-auth-links");
-            const token = localStorage.getItem("access");
-            const currentRole = localStorage.getItem("user_role") || "client";
-            const currentStaff = localStorage.getItem("is_staff") || "false";
+          if (currentStaff === "true" || currentRole === "admin") {
+            dashboardLink = "admin-dashboard.html";
+            btnText = "⚙️ Admin Panel";
+            btnClass = "btn-warning text-dark";
+          }
 
-            if (token) {
-                let dashboardLink = "dashboard.html"; 
-                let btnText = "Dashboard (Client)";
-                let btnClass = "btn-outline-light";
-
-                if (currentRole === "worker") {
-                    btnText = "Dashboard (Craftsman)";
-                    btnClass = "btn-outline-info";
-                    dashboardLink = "dashboard.html";
-                }
-
-                if (currentStaff === "true" || currentRole === "admin") {
-                    dashboardLink = "admin-dashboard.html"; 
-                    btnText = "⚙️ Admin Panel";
-                    btnClass = "btn-warning text-dark";
-                }
-
-                nav.innerHTML = `
+          nav.innerHTML = `
                     <div class="nav-item d-inline-block"><button class="btn btn-sm btn-outline-info me-2 text-white" onclick="openMyProfileModal()">👤 My Profile</button></div>
                     <div class="nav-item d-inline-block"><a class="nav-link btn btn-sm ${btnClass} me-2 d-inline-block" href="${dashboardLink}">${btnText}</a></div>
                     <div class="nav-item d-inline-block"><button class="btn btn-sm btn-danger ms-2" onclick="logout()">Logout</button></div>
                 `;
-            } else {
-                nav.innerHTML = `
+        } else {
+          nav.innerHTML = `
                     <div class="nav-item d-inline-block"><a class="nav-link text-white d-inline-block" href="login.html">Login</a></div>
                     <div class="nav-item d-inline-block"><a class="btn btn-warning btn-sm ms-2 fw-bold text-dark" href="register.html">Register</a></div>
                 `;
-            }
         }
+      }
 
-        async function loadCategories() {
-            try {
-                const res = await fetch(API.categories);
-                const data = await res.json();
-                const select = document.getElementById("category-filter");
-                const list = data.results || data || [];
-                select.innerHTML = '<option value="">All Categories</option>';
-                list.forEach(c => { select.innerHTML += `<option value="${c.id}">${escapeHTML(c.name)}</option>`; });
-            } catch (err) { console.error("Categories failed to load:", err); }
+      async function loadCategories() {
+        try {
+          const res = await fetch(API.categories);
+          const data = await res.json();
+          const select = document.getElementById("category-filter");
+          const list = data.results || data || [];
+          select.innerHTML = '<option value="">All Categories</option>';
+          list.forEach((c) => {
+            select.innerHTML += `<option value="${c.id}">${escapeHTML(c.name)}</option>`;
+          });
+        } catch (err) {
+          console.error("Categories failed to load:", err);
         }
+      }
 
-        async function fetchServices(url) {
-            try {
-                const container = document.getElementById("services-container");
-                container.innerHTML = "<div class='text-center text-muted py-5'>Loading services...</div>";
+      async function fetchServices(url) {
+        try {
+          const container = document.getElementById("services-container");
+          container.innerHTML =
+            "<div class='text-center text-muted py-5'>Loading services...</div>";
 
-                const res = await fetch(url);
-                const data = await res.json();
-                const services = data.results || data || []; 
-                
-                servicesDataStore = {};
-                services.forEach(s => { servicesDataStore[s.id] = s; });
+          const res = await fetch(url);
+          const data = await res.json();
+          const services = data.results || data || [];
 
-                displayServices(services);
-                renderPagination(data.previous, data.next, url);
-            } catch (err) {
-                document.getElementById("services-container").innerHTML = `<div class="col-12 text-center text-danger py-5"><h5>Failed to load services.</h5></div>`;
-            }
+          servicesDataStore = {};
+          services.forEach((s) => {
+            servicesDataStore[s.id] = s;
+          });
+
+          displayServices(services);
+          renderPagination(data.previous, data.next, url);
+        } catch (err) {
+          document.getElementById("services-container").innerHTML =
+            `<div class="col-12 text-center text-danger py-5"><h5>Failed to load services.</h5></div>`;
         }
+      }
 
-        function displayServices(services) {
-            const container = document.getElementById("services-container");
-            container.innerHTML = services.length ? "" : "<p class='text-center text-muted py-5'>No services found.</p>";
-            
-            const currentRole = localStorage.getItem("user_role") || "client";
-            const currentStaff = localStorage.getItem("is_staff") || "false";
+      function displayServices(services) {
+        const container = document.getElementById("services-container");
+        container.innerHTML = services.length
+          ? ""
+          : "<p class='text-center text-muted py-5'>No services found.</p>";
 
-            services.forEach(s => {
-                let actionButton = "";
-                if (currentStaff === "true") {
-                    actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Mode</button>`;
-                } else if (currentRole === "worker") {
-                    actionButton = `<button class="btn btn-sm btn-secondary" disabled>Restricted for Craftsmen</button>`;
-                } else {
-                    actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Book Order</button>`;
-                }
+        const currentRole = localStorage.getItem("user_role") || "client";
+        const currentStaff = localStorage.getItem("is_staff") || "false";
 
-                const avgRating = parseFloat(s.average_rating) || 0;
-                const reviewsCount = parseInt(s.reviews_count) || 0;
-                let ratingHTML = reviewsCount > 0 
-                    ? `<div class="mb-2 small d-flex align-items-center"><span class="text-warning me-1">${"★".repeat(Math.round(avgRating))}</span><span class="text-muted fw-bold">${avgRating.toFixed(1)}</span></div>`
-                    : `<div class="mb-2 small text-muted">☆☆☆☆☆ (No reviews)</div>`;
+        services.forEach((s) => {
+          let actionButton = "";
+          if (currentStaff === "true") {
+            actionButton = `<button class="btn btn-sm btn-dark" disabled>Admin Mode</button>`;
+          } else if (currentRole === "worker") {
+            actionButton = `<button class="btn btn-sm btn-secondary" disabled>Restricted for Craftsmen</button>`;
+          } else {
+            actionButton = `<button class="btn btn-sm btn-primary fw-bold" onclick="bookOrder(${s.id})">Book Order</button>`;
+          }
 
-                const workerId = s.worker || s.worker_id || (s.worker_profile ? s.worker_profile.id : 0);
+          const avgRating = parseFloat(s.average_rating) || 0;
+          const reviewsCount = parseInt(s.reviews_count) || 0;
+          let ratingHTML =
+            reviewsCount > 0
+              ? `<div class="mb-2 small d-flex align-items-center"><span class="text-warning me-1">${"★".repeat(Math.round(avgRating))}</span><span class="text-muted fw-bold">${avgRating.toFixed(1)}</span></div>`
+              : `<div class="mb-2 small text-muted">☆☆☆☆☆ (No reviews)</div>`;
 
-                container.innerHTML += `
+          const workerId =
+            s.worker ||
+            s.worker_id ||
+            (s.worker_profile ? s.worker_profile.id : 0);
+
+          container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 shadow-sm border-0 d-flex flex-column justify-content-between">
                             <div class="card-body">
@@ -301,7 +477,7 @@
                                     </a>
                                 </div>
                                 ${ratingHTML}
-                                <p class="text-secondary small mb-3">${escapeHTML(s.description || '')}</p>
+                                <p class="text-secondary small mb-3">${escapeHTML(s.description || "")}</p>
                                 <button class="btn btn-link p-0 text-decoration-none small fw-bold" onclick="openDetailModal(${s.id})">View Details →</button>
                             </div>
                             <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center pt-0 pb-3 px-3">
@@ -310,46 +486,48 @@
                             </div>
                         </div>
                     </div>`;
-            });
+        });
+      }
+
+      async function openDetailModal(serviceId) {
+        const service = servicesDataStore[serviceId];
+        if (!service) return;
+
+        document.getElementById("detail-title").innerText = service.name;
+        document.getElementById("detail-desc").innerText =
+          service.description || "No description provided";
+        document.getElementById("detail-price").innerText =
+          parseFloat(service.price).toLocaleString() + " UZS";
+
+        const footer = document.getElementById("detail-footer");
+        const currentRole = localStorage.getItem("user_role") || "client";
+        const currentStaff = localStorage.getItem("is_staff") || "false";
+
+        if (currentStaff === "true") {
+          footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-dark" disabled>Admin Mode</button>`;
+        } else if (currentRole === "worker") {
+          footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-secondary" disabled>Restricted for Craftsmen</button>`;
+        } else {
+          footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Order Now</button>`;
         }
 
-        async function openDetailModal(serviceId) {
-            const service = servicesDataStore[serviceId];
-            if (!service) return;
+        detailModal.show();
+      }
 
-            document.getElementById("detail-title").innerText = service.name;
-            document.getElementById("detail-desc").innerText = service.description || 'No description provided';
-            document.getElementById("detail-price").innerText = parseFloat(service.price).toLocaleString() + " UZS";
-
-            const footer = document.getElementById("detail-footer");
-            const currentRole = localStorage.getItem("user_role") || "client";
-            const currentStaff = localStorage.getItem("is_staff") || "false";
-            
-            if (currentStaff === "true") {
-                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-dark" disabled>Admin Mode</button>`;
-            } else if (currentRole === "worker") {
-                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-secondary" disabled>Restricted for Craftsmen</button>`;
-            } else {
-                footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Order Now</button>`;
-            }
-
-            detailModal.show();
+      async function viewWorkerProfile(workerUserId) {
+        if (!workerUserId || workerUserId === 0) {
+          alert("Craftsman profile ID is invalid or not found.");
+          return;
         }
+        const content = document.getElementById("worker-profile-content");
+        content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
+        workerProfileModal.show();
 
-        async function viewWorkerProfile(workerUserId) {
-            if(!workerUserId || workerUserId === 0) {
-                alert("Craftsman profile ID is invalid or not found.");
-                return;
-            }
-            const content = document.getElementById("worker-profile-content");
-            content.innerHTML = `<div class='text-center py-3'><div class='spinner-border text-primary' role='status'></div></div>`;
-            workerProfileModal.show();
-
-            try {
-                const res = await fetch(`${API.worker_public}${workerUserId}/`); 
-                if (res.ok) {
-                    const profile = await res.json();
-                    content.innerHTML = `
+        try {
+          const res = await fetch(`${API.worker_public}${workerUserId}/`);
+          if (res.ok) {
+            const profile = await res.json();
+            content.innerHTML = `
                         <h4 class="fw-bold mb-1">@${escapeHTML(profile.username || profile.user || "craftsman")}</h4>
                         <p class="text-muted mb-3">📞 Phone: ${escapeHTML(profile.phone_number || "Hidden")}</p>
                         <div class="text-start bg-light p-3 rounded mb-3 small">
@@ -357,138 +535,170 @@
                             <p class="mb-2"><strong>📍 Location:</strong> ${escapeHTML(profile.location || "Not specified")}</p>
                             <p class="mb-0"><strong>📝 Bio:</strong> ${escapeHTML(profile.bio || "No information available.")}</p>
                         </div>`;
-                } else {
-                    content.innerHTML = `<p class="text-danger py-3">Public information for this craftsman was not found.</p>`;
-                }
-            } catch (err) { content.innerHTML = `<p class="text-danger py-3">An unexpected error occurred while loading.</p>`; }
+          } else {
+            content.innerHTML = `<p class="text-danger py-3">Public information for this craftsman was not found.</p>`;
+          }
+        } catch (err) {
+          content.innerHTML = `<p class="text-danger py-3">An unexpected error occurred while loading.</p>`;
         }
+      }
 
-        async function openMyProfileModal() {
-            myProfileModal.show();
-            const currentRole = localStorage.getItem("user_role") || "client";
+      async function openMyProfileModal() {
+        myProfileModal.show();
+        const currentRole = localStorage.getItem("user_role") || "client";
 
-            try {
-                const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
+        try {
+          const resMe = await fetchWithAuth(API.auth.me, { method: "GET" });
 
-                if (resMe.ok) {
-                    const userData = await resMe.json();
-                    document.getElementById("edit-username").value = userData.username || "";
-                    document.getElementById("edit-email").value = userData.email || ""; 
-                    document.getElementById("edit-phone").value = userData.phone_number || "";
-                }
+          if (resMe.ok) {
+            const userData = await resMe.json();
+            document.getElementById("edit-username").value =
+              userData.username || "";
+            document.getElementById("edit-email").value = userData.email || "";
+            document.getElementById("edit-phone").value =
+              userData.phone_number || "";
 
-                const extraFields = document.getElementById("worker-extra-fields");
+            const avatarPreview = document.getElementById(
+              "profile-avatar-preview",
+            );
 
-                if (currentRole === "worker") {
-                    extraFields.classList.remove("d-none");
-                    const resWorker = await fetchWithAuth(API.profile, { method: "GET" });
-
-                    if (resWorker.ok) {
-                        const workerData = await resWorker.json();
-                        document.getElementById("edit-experience").value = workerData.experience_years || 0;
-                        document.getElementById("edit-location").value = workerData.location || "";
-                        document.getElementById("edit-bio").value = workerData.bio || "";
-                    }
-                } else {
-                    extraFields.classList.add("d-none");
-                }
-
-            } catch (err) {
-                console.error("Profile failed to load:", err);
+            if (userData.avatar) {
+              avatarPreview.src = userData.avatar;
+              avatarPreview.style.display = "block";
+            } else {
+              avatarPreview.src = "";
+              avatarPreview.style.display = "none";
             }
-        }
+          }
 
-        async function handleProfileUpdate(event) {
-            if (event) event.preventDefault();
+          const extraFields = document.getElementById("worker-extra-fields");
 
-            const saveBtn = document.getElementById("save-profile-btn");
-            saveBtn.disabled = true;
-            saveBtn.innerText = "Saving...";
+          if (currentRole === "worker") {
+            extraFields.classList.remove("d-none");
+            const resWorker = await fetchWithAuth(API.profile, {
+              method: "GET",
+            });
 
-            const username = document.getElementById("edit-username").value;
-            const email = document.getElementById("edit-email").value; 
-            const phone_number = document.getElementById("edit-phone").value;
-            const currentRole = localStorage.getItem("user_role") || "client";
-
-            try {
-                const resMe = await fetchWithAuth(API.auth.me, {
-                    method: "PUT",
-                    body: JSON.stringify({
-                        username,
-                        email, 
-                        phone_number
-                    })
-                });
-
-                if (!resMe.ok) {
-                    throw new Error("Failed to save primary profile");
-                }
-
-                if (currentRole === "worker") {
-                    const experience_years = parseInt(document.getElementById("edit-experience").value) || 0;
-                    const location = document.getElementById("edit-location").value;
-                    const bio = document.getElementById("edit-bio").value;
-
-                    const resWorker = await fetchWithAuth(API.profile, {
-                        method: "PATCH",
-                        body: JSON.stringify({
-                            experience_years,
-                            location,
-                            bio
-                        })
-                    });
-
-                    if (!resWorker.ok) {
-                        const errData = await resWorker.json().catch(() => ({}));
-                        console.error(errData);
-                        throw new Error(`Failed to save craftsman profile. Status: ${resWorker.status}`);
-                    }
-                }
-
-                alert("Profile updated successfully! 🎉");
-                myProfileModal.hide();
-                await initApp();
-
-            } catch (err) {
-                console.error(err);
-                alert(err.message);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "Save Changes";
+            if (resWorker.ok) {
+              const workerData = await resWorker.json();
+              document.getElementById("edit-experience").value =
+                workerData.experience_years || 0;
+              document.getElementById("edit-location").value =
+                workerData.location || "";
+              document.getElementById("edit-bio").value = workerData.bio || "";
             }
+          } else {
+            extraFields.classList.add("d-none");
+          }
+        } catch (err) {
+          console.error("Profile failed to load:", err);
+        }
+      }
+
+      async function handleProfileUpdate(event) {
+        if (event) event.preventDefault();
+
+        const saveBtn = document.getElementById("save-profile-btn");
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Saving...";
+
+        const username = document.getElementById("edit-username").value;
+        const email = document.getElementById("edit-email").value;
+        const phone_number = document.getElementById("edit-phone").value;
+        const currentRole = localStorage.getItem("user_role") || "client";
+
+        // AVATAR + PROFILE DATA
+        const formData = new FormData();
+
+        formData.append("username", username);
+        formData.append("email", email);
+        formData.append("phone_number", phone_number);
+
+        const avatarFile = document.getElementById("profile-avatar").files[0];
+
+        if (avatarFile) {
+          formData.append("avatar", avatarFile);
         }
 
-        function applyFilters() {
-            const searchQuery = document.getElementById("search-input").value;
-            const categoryId = document.getElementById("category-filter").value;
-            const minPrice = document.getElementById("min-price").value;
-            const maxPrice = document.getElementById("max-price").value;
+        try {
+          const resMe = await fetchWithAuth(API.auth.me, {
+            method: "PUT",
+            body: formData,
+          });
 
-            currentUrl = `${API.services}?search=${encodeURIComponent(searchQuery)}&category=${categoryId}&min_price=${minPrice}&max_price=${maxPrice}`;
-            fetchServices(currentUrl);
-        }
+          if (!resMe.ok) {
+            throw new Error("Failed to save primary profile");
+          }
 
-        function renderPagination(prevUrl, nextUrl, current) {
-            const paginationContainer = document.getElementById("pagination-container");
-            paginationContainer.innerHTML = "";
-            if (!prevUrl && !nextUrl) return;
-            paginationContainer.innerHTML += `<li class="page-item ${prevUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${prevUrl}')">« Back</button></li>`;
-            paginationContainer.innerHTML += `<li class="page-item ${nextUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${nextUrl}')">Next »</button></li>`;
-        }
+          if (currentRole === "worker") {
+            const experience_years =
+              parseInt(document.getElementById("edit-experience").value) || 0;
+            const location = document.getElementById("edit-location").value;
+            const bio = document.getElementById("edit-bio").value;
 
-        function bookOrder(serviceId) {
-            if (!localStorage.getItem("access")) {
-                window.location.href = "login.html";
-                return;
+            const resWorker = await fetchWithAuth(API.profile, {
+              method: "PATCH",
+              body: JSON.stringify({
+                experience_years,
+                location,
+                bio,
+              }),
+            });
+
+            if (!resWorker.ok) {
+              const errData = await resWorker.json().catch(() => ({}));
+              console.error(errData);
+              throw new Error(
+                `Failed to save craftsman profile. Status: ${resWorker.status}`,
+              );
             }
-            localStorage.setItem("selected_service_id", serviceId);
-            window.location.href = "order.html";
-        }
+          }
 
-        function logout() { 
-            localStorage.clear(); 
-            window.location.href = "login.html"; 
+          alert("Profile updated successfully! 🎉");
+          myProfileModal.hide();
+          await initApp();
+        } catch (err) {
+          console.error(err);
+          alert(err.message);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save Changes";
         }
+      }
+
+      function applyFilters() {
+        const searchQuery = document.getElementById("search-input").value;
+        const categoryId = document.getElementById("category-filter").value;
+        const minPrice = document.getElementById("min-price").value;
+        const maxPrice = document.getElementById("max-price").value;
+
+        currentUrl = `${API.services}?search=${encodeURIComponent(searchQuery)}&category=${categoryId}&min_price=${minPrice}&max_price=${maxPrice}`;
+        fetchServices(currentUrl);
+      }
+
+      function renderPagination(prevUrl, nextUrl, current) {
+        const paginationContainer = document.getElementById(
+          "pagination-container",
+        );
+        paginationContainer.innerHTML = "";
+        if (!prevUrl && !nextUrl) return;
+        paginationContainer.innerHTML += `<li class="page-item ${prevUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${prevUrl}')">« Back</button></li>`;
+        paginationContainer.innerHTML += `<li class="page-item ${nextUrl ? "" : "disabled"}"><button class="page-link" onclick="fetchServices('${nextUrl}')">Next »</button></li>`;
+      }
+
+      function bookOrder(serviceId) {
+        if (!localStorage.getItem("access")) {
+          window.location.href = "login.html";
+          return;
+        }
+        localStorage.setItem("selected_service_id", serviceId);
+        window.location.href = "order.html";
+      }
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
     </script>
-</body>
+  </body>
 </html>
