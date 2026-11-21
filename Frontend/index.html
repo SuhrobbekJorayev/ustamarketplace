@@ -519,6 +519,51 @@
         });
       }
 
+
+      async function loadServiceReviews(serviceId) {
+          const container = document.getElementById("detail-reviews-list");
+
+          container.innerHTML = `<p class="text-muted">Loading reviews...</p>`;
+
+          try {
+              const res = await fetch(`${API.reviews}?service=${serviceId}`);
+
+              if (!res.ok) {
+                  throw new Error("Failed to load reviews");
+              }
+
+              const data = await res.json();
+              const reviews = data.results || data;
+
+              if (!reviews.length) {
+                  container.innerHTML = `<p class="text-muted">No reviews yet.</p>`;
+                  return;
+              }
+
+              container.innerHTML = reviews.map(review => `
+                  <div class="col-12">
+                      <div class="border rounded p-3 bg-light">
+                          <div class="d-flex justify-content-between">
+                              <strong>${escapeHTML(review.client_name || "Anonymous")}</strong>
+                              <span class="text-warning">
+                                  ${"★".repeat(Number(review.rating) || 0)}
+                              </span>
+                          </div>
+                          <p class="mt-2 mb-1">${escapeHTML(review.comment || "")}</p>
+                          <small class="text-muted">
+                              ${new Date(review.created_at).toLocaleDateString()}
+                          </small>
+                      </div>
+                  </div>
+              `).join("");
+
+          } catch (error) {
+              console.error("Reviews error:", error);
+              container.innerHTML = `<p class="text-danger">Failed to load reviews.</p>`;
+          }
+      }
+
+
       async function openDetailModal(serviceId) {
         const service = servicesDataStore[serviceId];
         if (!service) return;
@@ -541,6 +586,7 @@
           footer.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-success fw-bold" onclick="bookOrder(${serviceId})">Order Now</button>`;
         }
 
+        await loadServiceReviews(serviceId);
         detailModal.show();
       }
 
